@@ -130,6 +130,7 @@ int SLD_DisplDeInit(void)
 
 int SLD_DisplReInit(void)
 {
+	GFXPreinit();
 	SLD_DisplInit();
 
 	return 0;

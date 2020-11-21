@@ -1078,6 +1078,7 @@ Section Cross References
     superloopdisplay.o(.text.SLD_DisplReInit) refers (Special) to _printf_d.o(.ARM.Collect$$_printf_percent$$00000009) for _printf_d
     superloopdisplay.o(.text.SLD_DisplReInit) refers (Special) to _printf_dec.o(.text) for _printf_int_dec
     superloopdisplay.o(.text.SLD_DisplReInit) refers (Special) to _printf_percent.o(.ARM.Collect$$_printf_percent$$00000000) for _printf_percent
+    superloopdisplay.o(.text.SLD_DisplReInit) refers to superloopdisplay.o(.text.GFXPreinit) for GFXPreinit
     superloopdisplay.o(.text.SLD_DisplReInit) refers to superloopdisplay.o(.text.SLD_DisplInit) for SLD_DisplInit
     superloopdisplay.o(.ARM.exidx.text.SLD_DisplReInit) refers (Special) to _printf_d.o(.ARM.Collect$$_printf_percent$$00000009) for _printf_d
     superloopdisplay.o(.ARM.exidx.text.SLD_DisplReInit) refers (Special) to _printf_dec.o(.text) for _printf_int_dec
@@ -2268,7 +2269,7 @@ Removing Unused input sections from the image.
     Removing superloopdisplay.o(.text.SLD_DisplDeInit), (10 bytes).
     Removing superloopdisplay.o(.ARM.exidx.text.SLD_DisplDeInit), (8 bytes).
     Removing superloopdisplay.o(.ARM.exidx.text.SLD_init), (8 bytes).
-    Removing superloopdisplay.o(.text.SLD_DisplReInit), (10 bytes).
+    Removing superloopdisplay.o(.text.SLD_DisplReInit), (14 bytes).
     Removing superloopdisplay.o(.ARM.exidx.text.SLD_DisplReInit), (8 bytes).
     Removing superloopdisplay.o(.text.displayACC), (436 bytes).
     Removing superloopdisplay.o(.ARM.exidx.text.displayACC), (8 bytes).
@@ -2460,7 +2461,7 @@ Removing Unused input sections from the image.
     Removing board_powermodes.o(.ARM.exidx.text.MainTransition_P_Pl), (8 bytes).
     Removing board_powermodes.o(.ARM.exidx.text.TransitionFunction_P), (8 bytes).
 
-668 unused section(s) (total 12756 bytes) removed from the image.
+668 unused section(s) (total 12760 bytes) removed from the image.
 
 ==============================================================================
 

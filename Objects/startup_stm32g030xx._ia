@@ -1,0 +1,9 @@
+--cpu Cortex-M0+ -g
+-I.\RTE\_Generator
+-IC:\Users\RD\AppData\Local\Arm\Packs\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include
+-IC:\Keil_v5\ARM\CMSIS\Include
+--pd "__UVISION_VERSION SETA 528"
+--pd "STM32G030xx SETA 1"
+--list .\listings\startup_stm32g030xx.lst
+--xref -o .\objects\startup_stm32g030xx.o
+--depend .\objects\startup_stm32g030xx.d "Starup\startup_stm32g030xx.s"

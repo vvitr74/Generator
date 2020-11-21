@@ -287,7 +287,7 @@ static	unsigned which;
 
 int SLD_DisplInit(void)
 { 
-	
+GFXPreinit();	
 gfxInit();	
 
 	

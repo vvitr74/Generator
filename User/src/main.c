@@ -78,7 +78,7 @@ __disable_irq();
 #endif
 
 #ifdef PowerUSE
-// board_PowerModes_Init();	//must be call brefore other board functions
+ SuperLoop_PowerModes_Init();	//must be call brefore other board functions
 #endif
 
 #ifdef ACCUSE

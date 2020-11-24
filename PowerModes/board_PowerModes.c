@@ -1,4 +1,4 @@
-#include <stm32g030xx.h>
+#include "stm32g0xx.h"
 #include <stdbool.h>
 #include "board_PowerModes.h"
 #include "BoardSetup.h"

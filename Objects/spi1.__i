@@ -1,8 +1,0 @@
--xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m0plus -c
--fno-rtti -funsigned-char -fshort-enums -fshort-wchar
--gdwarf-3 -Oz -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -I ./CMSIS -I ./Starup -I ./User -I ./CMSIS/inc -I ./User/inc -I ./ugfx_2.9/src/gdisp -I ./ugfx_2.9/src -I ./ugfx_2.9 -I ./ugfx_2.9/src/gos -I ./ugfx_2.9/src/gwin -I ./ugfx_2.9/drivers/gdisp/ILI9341 -I ./ugfx_2.9/src/ginput -I ./ugfx_2.9/drivers/ginput/toggle/Pal -I ./Display -I ./ugfx_2.9/drivers/ginput/touch/FT6x06 -I ./DriversCommon -I ./PowerModes -I ./W25QXX -I ./Communications -I ./Player -I ./acc -I ./PowerModes
--I./RTE/_Generator
--IC:/Users/RD/AppData/Local/Arm/Packs/Keil/STM32G0xx_DFP/1.2.0/Drivers/CMSIS/Device/ST/STM32G0xx/Include
--IC:/Keil_v5/ARM/CMSIS/Include
--D__UVISION_VERSION="528" -DSTM32G030xx -DSTM32G030xx
--o ./objects/spi1.o -MD "DriversCommon/Spi1.c"

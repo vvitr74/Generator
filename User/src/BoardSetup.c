@@ -1,9 +1,13 @@
 /*
 Setting up shared resources that are used by multiple software modules
 */
+#ifdef STM32G070xx   //STM32G070CBTx
+#include "stm32g0xx.h"
+#else
+#include <stm32g030xx.h>
+#endif
 
 #include "BoardSetup.h"
-#include "stm32g030xx.h"
 #include "fpga.h"
 
 

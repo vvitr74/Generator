@@ -55,15 +55,15 @@
   ..\ugfx_2.9\src\ginput\..\gdriver\gdriver.h \
   ..\ugfx_2.9\drivers\ginput\touch\FT6x06\gmouse_lld_FT6x06_board.h \
   ..\DriversCommon\I2C2.h ..\User\inc\BoardSetup.h \
-  d:\Keil_v5\ARM\PACK\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g0xx.h \
-  d:\Keil_v5\ARM\PACK\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g070xx.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm0plus.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armclang.h \
+  D:\Keil_v5\Packs\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g0xx.h \
+  D:\Keil_v5\Packs\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g070xx.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm0plus.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armclang.h \
   D:\Keil_v5\ARM\ARMCLANG\Bin\..\include\arm_compat.h \
   D:\Keil_v5\ARM\ARMCLANG\Bin\..\include\arm_acle.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h \
-  d:\Keil_v5\ARM\PACK\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\system_stm32g0xx.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h \
+  D:\Keil_v5\Packs\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\system_stm32g0xx.h \
   ..\User\inc\fpga.h ..\DriversCommon\I2C_COMMON.h \
   ..\ugfx_2.9\drivers\ginput\touch\FT6x06\ft6x06.h

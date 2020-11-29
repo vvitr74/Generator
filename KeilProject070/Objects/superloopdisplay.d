@@ -58,16 +58,16 @@
   ..\acc\i2c_COMMON.h ..\PowerModes\board_PowerModes.h \
   ..\Display\superloopDisplay.h ..\Player\superloop_Player.h \
   D:\Keil_v5\ARM\ARMCLANG\Bin\..\include\math.h \
-  d:\Keil_v5\ARM\PACK\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g0xx.h \
-  d:\Keil_v5\ARM\PACK\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g070xx.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm0plus.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armclang.h \
+  D:\Keil_v5\Packs\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g0xx.h \
+  D:\Keil_v5\Packs\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\stm32g070xx.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\core_cm0plus.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_version.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_compiler.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\cmsis_armclang.h \
   D:\Keil_v5\ARM\ARMCLANG\Bin\..\include\arm_compat.h \
   D:\Keil_v5\ARM\ARMCLANG\Bin\..\include\arm_acle.h \
-  d:\Keil_v5\ARM\PACK\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h \
-  d:\Keil_v5\ARM\PACK\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\system_stm32g0xx.h \
+  D:\Keil_v5\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include\mpu_armv7.h \
+  D:\Keil_v5\Packs\Keil\STM32G0xx_DFP\1.2.0\Drivers\CMSIS\Device\ST\STM32G0xx\Include\system_stm32g0xx.h \
   ..\Communications\SuperLoop_Comm.h ..\W25QXX\w25qxx.h \
   ..\User\inc\BoardSetup.h ..\User\inc\fpga.h \
   ..\Player\SuperLoop_Player.h

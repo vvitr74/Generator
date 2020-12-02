@@ -22,7 +22,8 @@
 #endif
 
 #ifdef COMMS
-#include "bluetooth.h"
+#include "SuperLoop_Comm.h"
+//#include "bluetooth.h"
 //#include "rn4870Model.h"
 #include "uart.h"
 #include "flash.h"
@@ -89,11 +90,11 @@ SuperLoopACC_init();
 SLD_init();
 #endif
 
-#ifdef 	COMMS && PLAYER
+#if defined COMMS || defined PLAYER
 	tim3Init();
 	initSpi_1();
-	SLC_init();
-	SLP_init();
+	//SLC_init();
+	//SLP_init();
  __flashInit();
 #endif	
 

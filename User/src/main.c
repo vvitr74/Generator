@@ -1,4 +1,4 @@
-//#define debug1
+#define debug1
 #define PowerUSE
 #define LCDUSE
 #define ACCUSE

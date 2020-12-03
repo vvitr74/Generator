@@ -535,6 +535,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>DOC</GroupName>
+          <Files>
+            <File>
+              <FileName>GenDoc.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\GenDoc.txt</FilePath>
+            </File>
+            <File>
+              <FileName>DOCGEN.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\DOC\DOCGEN.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
         <Group>

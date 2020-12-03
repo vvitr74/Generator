@@ -1,9 +1,6 @@
+#include "GlobalKey.h"
+
 #define debug1
-#define PowerUSE
-#define LCDUSE
-#define ACCUSE
-#define COMMS
-#define PLAYER
 
 #include <string.h>
 #include "stm32g0xx.h"
@@ -40,7 +37,9 @@
 #include "tim3.h"
 #endif
 
-
+#ifdef MODBUS
+#include "SL_CommModbus.h"
+#endif
 
 
 
@@ -106,6 +105,9 @@ SLC_init();
 SLP_init();
 #endif
 
+#ifdef MODBUS
+SL_CommModbusInit();
+#endif
 		
   while(1){
 
@@ -133,7 +135,10 @@ SuperLoopACC();
 #ifdef PowerUSE
 SuperLoop_PowerModes();			
 #endif			
-		
+
+#ifdef MODBUS
+SL_CommModbus();
+#endif
 		
   }
 }

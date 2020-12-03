@@ -1,3 +1,4 @@
+#include "GlobalKey.h"
 #include "SuperLoop_Comm.h"
 
 uint8_t usbCmd;
@@ -233,7 +234,7 @@ void rdFlash(void)
 	usbCmd=0;
 }
 
-
+#ifdef COMMS
 void USART1_IRQHandler(void)
 {
 	if(USART1->ISR & USART_ISR_RXNE_RXFNE){
@@ -298,6 +299,8 @@ void USART1_IRQHandler(void)
 		usbFlags.stopWrite=1;
 	}
 }
+#endif
+
 
 void playSectorsStatus(void)
 {

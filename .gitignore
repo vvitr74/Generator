@@ -11,3 +11,6 @@ dev_gen_g070_release.hex
 /KeilProject070/Listings
 /KeilProject070/Objects
 /DebugConfig/Generator_STM32G070CBTx_1.0.0.dbgconf
+*.bak
+/KeilProject070/release-build.log
+/Display/*.bak

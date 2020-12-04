@@ -40,6 +40,7 @@
 #include "tim3.h"
 #endif
 
+uint8_t spiDispCapture = 0;
 
 #ifdef RELEASE
 #define APPLICATION_ADDRESS (uint32_t)0x08001800 /**< Место старта прошивы, с 4-ой страницы памяти */
@@ -62,7 +63,7 @@ void _sys_command_string(char *cmd, int len)
 }
 
 #endif
-
+extern bool bVSYS;
 int main(void)
 {
 #ifdef RELEASE
@@ -107,10 +108,12 @@ __disable_irq();
 
 #ifdef ACCUSE
 SuperLoopACC_init();
+#else
+ bVSYS = 1;
 #endif
 
 #ifdef LCDUSE
-SLD_init();
+    SLD_init();
 #endif
 
 #if defined COMMS || defined PLAYER
@@ -142,6 +145,7 @@ SLP();
 		
 #ifdef LCDUSE
 SLD();
+
 #endif
 			
 //GPIOB->ODR ^= GPIO_ODR_OD10; 

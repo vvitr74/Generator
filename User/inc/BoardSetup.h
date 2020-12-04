@@ -62,7 +62,6 @@
 //#define FLASH_MOSI				  5	  // PB5 SERIAL DATA INPUT
 
 
-typedef uint32_t systemticks_t;
 		
 extern volatile   systemticks_t SystemTicks;	
 extern uint16_t button_sign;		

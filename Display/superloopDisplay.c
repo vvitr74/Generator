@@ -85,8 +85,6 @@ int SLD(void)
 				delayms(100);
 				SLD_DisplInit();
 
-				gwinRedrawDisplay(NULL,true);
-				
 				SLD_FSM_State=e_FSMS_SLD_On;
 		    state_inner=3;
 			}	
@@ -103,7 +101,6 @@ int SLD(void)
 				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_Off));
 				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_On));
 				SLD_DisplInit();
-		    gwinRedrawDisplay(NULL,true);
 				SLD_FSM_State=e_FSMS_SLD_On;
 		    state_inner=3;
 
@@ -175,7 +172,6 @@ volatile struct fpgaFlags {
 	uint16_t endOfFile						:1;
 } ;
 */
-uint8_t spiDispCapture;	//0 - free, 1 - busy
 uint8_t totalTimeArr[]={'0','0',':','0','0',':','0','0',0};
 uint8_t fileTimeArr[]={'0','0',':','0','0',':','0','0',0};
 uint8_t totalSec=0;
@@ -226,8 +222,9 @@ int SLDwACC(void)
 { 
 	//event handling
 	pe = geventEventWait(&gl,10 ); //gDelayForever
-	displayACC();
-	return 0;
+	
+    displayACC();
+    return 0;
 }
 
 static void createLists(void) {
@@ -325,14 +322,11 @@ static void createLabels(void) {
 
 int SLD_DisplInit(void)
 { 
-GFXPreinit();	
-gfxInit();	
+    initSpi_1();
+    GFXPreinit();	
+    gfxInit();	
 
 	
-	
-	GEvent* pe;
-
-
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("U11"));
 	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);

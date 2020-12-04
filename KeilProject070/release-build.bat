@@ -1,3 +1,4 @@
+del /q Objects\*
 c:\Keil_v5\UV4\uv4 -b Generator070-release.uvprojx -t "Target 1" -o "release-build.log"
 bootloader-tools\hex2bin.exe Objects\gen-g070-release.hex
 bootloader-tools\ba-fw-builder.exe -ib Objects\gen-g070-release.bin -t dev_gen_g070 -o dev_gen_g070

@@ -1,10 +1,10 @@
-#define debug1
 #define PowerUSE
 #define LCDUSE
 #define ACCUSE
 #define COMMS
 #define PLAYER
 
+#include <stdio.h>
 #include <string.h>
 #include "stm32g0xx.h"
 #include "BoardSetup.h"
@@ -41,14 +41,36 @@
 #endif
 
 
+#ifdef RELEASE
+#define APPLICATION_ADDRESS (uint32_t)0x08001800 /**< Место старта прошивы, с 4-ой страницы памяти */
 
+void _ttywrch(int ch)
+{
+    (void)ch;
+}
 
+void _sys_exit(int return_code)
+{
+    (void) return_code;
+label:  goto label;  /* endless loop */
+}
 
+void _sys_command_string(char *cmd, int len)
+{
+    (void) cmd;
+    (void) len;
+}
 
-
+#endif
 
 int main(void)
 {
+#ifdef RELEASE
+    __asm(".global __use_no_semihosting\n\t");
+    SCB->VTOR = APPLICATION_ADDRESS;
+    __enable_irq();
+#endif    
+    
 #ifdef debug1	
 __disable_irq();	
   RCC->IOPENR |= RCC_IOPENR_GPIOAEN |                     // enable clock for GPIO 
@@ -77,6 +99,7 @@ __enable_irq();
 delayms(1000);
 __disable_irq();
 #endif
+
 
 #ifdef PowerUSE
  SuperLoop_PowerModes_Init();	//must be call brefore other board functions

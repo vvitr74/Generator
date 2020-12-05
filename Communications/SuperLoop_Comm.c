@@ -89,6 +89,7 @@ void procCmdFromUsb(void)
 			erFlash(FIRST_CONF_SECT,LAST_CONF_SECT);
 			confSectorsStatus();
 			usbCmd=0;
+			NVIC_SystemReset();
 			return;
 		case ER_PLAY_FILES:
 			erFlash(FIRST_PLAY_SECT,LAST_PLAY_SECT);
@@ -176,19 +177,19 @@ void wrPage(void)
 	}
 }
 
-uint32_t isFlashClear(void)
-{
-	uint32_t bugs=0;
-	uint8_t byte;
-	
-	for(int i=0;i<2097152;i++){
-		W25qxx_ReadByte(&byte,i);
-		if(byte!=0xFF){
-			bugs++;
-		}
-	}
-	return bugs;
-}
+//uint32_t isFlashClear(void)
+//{
+//	uint32_t bugs=0;
+//	uint8_t byte;
+//	
+//	for(int i=0;i<2097152;i++){
+//		W25qxx_ReadByte(&byte,i);
+//		if(byte!=0xFF){
+//			bugs++;
+//		}
+//	}
+//	return bugs;
+//}
 
 void eraseFlash(void)
 {

@@ -10,7 +10,7 @@
 \brief info on display for debug ACC 
 
 */
-#define def_debug_AccDispay
+//#define def_debug_AccDispay
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,6 +21,10 @@
 
 extern char	heap[GFX_OS_HEAP_SIZE];
 extern gThread	hThread;
+
+uint8_t fileSect=0;
+
+
 void GFXPreinit (void)
 { 
 	uint32_t i;
@@ -49,11 +53,13 @@ static systemticks_t LastUpdateTime;
 
 //--------------------------------for uGFX--------------------------------------
 GListener	gl;
-GHandle		ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7, ghLabel8;
-GHandle		ghList1;
+GHandle	ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
+GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12;
+GHandle	ghList1;
+
 static	GEvent* pe;
 //static const gOrientation	orients[] = { gOrientation0, gOrientation90, gOrientation180, gOrientation270 };
-static	unsigned which;
+//static	unsigned which;
 
 static void createDebugLabels(void);
 //---------------------- Control grafical objects------------------------------
@@ -160,30 +166,18 @@ int SLD_DisplReInit(void)
 	return 0;
 }
 
+
 volatile t_fpgaFlags fpgaFlags;
-/*
-volatile struct fpgaFlags {
-	uint16_t playStart						:1;
-	uint16_t playBegin						:1;
-	uint16_t fpgaConfig						:1;
-	uint16_t playStop							:1;
-	uint16_t fpgaConfigComplete		:1;
-	uint16_t fileListUpdate				:1;
-	uint16_t labelsUpdate					:1;
-	uint16_t clockStart						:1;
-	uint16_t nextFreq							:1;
-	uint16_t endOfFile						:1;
-} ;
-*/
+
 uint8_t spiDispCapture;	//0 - free, 1 - busy
 uint8_t totalTimeArr[]={'0','0',':','0','0',':','0','0',0};
 uint8_t fileTimeArr[]={'0','0',':','0','0',':','0','0',0};
-uint8_t totalSec=0;
-uint8_t totalMin=0;
-uint8_t totalHour=0;
-uint8_t fileSec=0;
-uint8_t fileMin=0;
-uint8_t fileHour=0;
+extern uint8_t totalSec;
+extern uint8_t totalMin;
+extern uint8_t totalHour;
+extern uint8_t fileSec;
+extern uint8_t fileMin;
+extern uint8_t fileHour;
 volatile uint32_t playClk;
 volatile int playFileInList;
 uint8_t fileName[50];
@@ -285,41 +279,52 @@ static void createLabels(void) {
 	gwinWidgetClearInit(&wi);
 	wi.g.show = gTrue;
 	
-	wi.g.width = 220; wi.g.height = 20; wi.g.x = 10, wi.g.y = 170;
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 170;
 //	wi.text = "Self test: OK";
 	wi.text = "Init OK";
 	ghLabel3 = gwinLabelCreate(0, &wi);
 //	gwinLabelSetAttribute(ghLabel3,100,"Self test:");
 	
-	wi.g.width = 220; wi.g.height = 20; wi.g.x = 10, wi.g.y = 190;
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 10, wi.g.y = 170;
+	wi.text = "Self test:";
+	ghLabel8 = gwinLabelCreate(0, &wi);
+	
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 190;
 	wi.text = "Stop";
 	ghLabel4 = gwinLabelCreate(0, &wi);
 //	gwinLabelSetAttribute(ghLabel4,100,"Status:");
 	
-	wi.g.width = 220; wi.g.height = 20; wi.g.x = 10, wi.g.y = 210;
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 10, wi.g.y = 190;
+	wi.text = "Status:";
+	ghLabel9 = gwinLabelCreate(0, &wi);
+	
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 210;
 	wi.text = "Not selected";
 	ghLabel5 = gwinLabelCreate(0, &wi);
 //	gwinLabelSetAttribute(ghLabel5,100,"Program:");
+
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 10, wi.g.y = 210;
+	wi.text = "Program:";
+	ghLabel10 = gwinLabelCreate(0, &wi);
 	
-	wi.g.width = 220; wi.g.height = 20; wi.g.x = 10, wi.g.y = 230;
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 230;
 	wi.text = "00:00:00";
 	ghLabel6 = gwinLabelCreate(0, &wi);
 //	gwinLabelSetAttribute(ghLabel6,100,"Program timer:");
+
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 10, wi.g.y = 230;
+	wi.text = "Program timer:";
+	ghLabel11 = gwinLabelCreate(0, &wi);
 	
-	wi.g.width = 220; wi.g.height = 20; wi.g.x = 10, wi.g.y = 250;
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 250;
 	wi.text = "00:00:00";
 	ghLabel7 = gwinLabelCreate(0, &wi);
 //	gwinLabelSetAttribute(ghLabel7,100,"Total timer:");
 
-#ifdef def_debug_AccDispay
-	wi.g.width = 220; wi.g.height = 20; wi.g.x = 120, wi.g.y = 170;
-	wi.text = "RSOC";
-	ghLabel8 = gwinLabelCreate(0, &wi);	    
-
-#endif
-
+	wi.g.width = 110; wi.g.height = 20; wi.g.x = 10, wi.g.y = 250;
+	wi.text = "Total timer:";
+	ghLabel12 = gwinLabelCreate(0, &wi);
 }
-
 
 
 
@@ -348,6 +353,8 @@ gfxInit();
 	gwinAttachListener(&gl);
 	gdispSetBacklight(50);
 	
+	fileListInit();
+	
 return 0;	
 };
 
@@ -361,7 +368,7 @@ int SLDw(void)
 				playFileInList=gwinListGetSelected(ghList1);
 				fpgaFlags.playStart=1;
 				fpgaFlags.fpgaConfig=1;
-				fpgaFlags.labelsUpdate=1;
+//				fpgaFlags.labelsUpdate=1;
 			}
 			if (((GEventGWinButton*)pe)->gwin == ghButton2){
 				fpgaFlags.playStop=1;
@@ -372,13 +379,16 @@ int SLDw(void)
 	}
 	
 	//information output to the display
-	
+	if(fpgaFlags.fileListUpdate==1){
+//		fpgaFlags.fileListUpdate=0;
+		if(fpgaFlags.addListItem==1){
+			fpgaFlags.addListItem=0;
+			gwinListAddItem(ghList1, (char*)fileName, gTrue);
+		}
+	}
 	
 	if(fpgaFlags.labelsUpdate==1){
 		fpgaFlags.labelsUpdate=0;
-		if(fpgaFlags.fileListUpdate==1){
-			gwinListAddItem(ghList1, (char*)fileName, gTrue);
-		}
 		if(fpgaFlags.fpgaConfigComplete==1){
 			gwinSetText(ghLabel3,"Config OK",gTrue);
 		}
@@ -393,6 +403,7 @@ int SLDw(void)
 			fpgaFlags.playStop=0;
 			gwinSetText(ghLabel3,"Init OK",gTrue);
 			gwinSetText(ghLabel4,"Stop",gTrue);
+			gwinSetText(ghLabel5,"Not selected",gTrue);
 			gwinSetText(ghLabel6,"00:00:00",gTrue);
 			gwinSetText(ghLabel7,"00:00:00",gTrue);
 			totalSec=0;

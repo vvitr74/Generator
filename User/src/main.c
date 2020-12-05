@@ -1,4 +1,4 @@
-#define debug1
+//#define debug1 hang program
 #define PowerUSE
 #define LCDUSE
 #define ACCUSE
@@ -23,7 +23,7 @@
 
 #ifdef COMMS
 #include "SuperLoop_Comm.h"
-//#include "bluetooth.h"
+#include "bluetooth.h"
 //#include "rn4870Model.h"
 #include "uart.h"
 #include "flash.h"
@@ -93,9 +93,9 @@ SLD_init();
 #if defined COMMS || defined PLAYER
 	tim3Init();
 	initSpi_1();
-	//SLC_init();
-	//SLP_init();
- __flashInit();
+	SLC_init();
+	SLP_init();
+// __flashInit();
 #endif	
 
 #ifdef 	COMMS 

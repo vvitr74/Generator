@@ -46,6 +46,7 @@ typedef struct {
 	uint16_t clockStart						:1;
 	uint16_t nextFreq							:1;
 	uint16_t endOfFile						:1;
+	uint16_t addListItem					:1;
 } t_fpgaFlags;
 
 extern volatile t_fpgaFlags fpgaFlags;
@@ -61,6 +62,10 @@ void spi2FifoClr(void);
 void loadMultToFpga(void);
 void loadFreqToFpga(uint16_t addr);
 void startFpga(void);
+
+extern void setTotalTimer(void);
+extern void setFileTimer(void);
+extern void SecToHhMmSs(uint32_t timeInSec);
 
 //for SPI2
 void initSpi_2(void);

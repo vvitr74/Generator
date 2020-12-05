@@ -11,6 +11,7 @@ uint16_t steps;
 
 extern volatile int playFileInList;
 uint16_t playFileSector;
+uint8_t i=0;
 
 uint32_t playParamArr[7];
 /*************************************
@@ -23,6 +24,18 @@ playParamArr[5] - up
 playParamArr[6] - inverse
 **************************************/
 
+uint8_t timeArr[3];
+/*******************************
+[0] - hours
+[1] - min
+[2] - sec
+*******************************/
+uint8_t totalSec=0;
+uint8_t totalMin=0;
+uint8_t totalHour=0;
+uint8_t fileSec=0;
+uint8_t fileMin=0;
+uint8_t fileHour=0;
 
 //------------------------ for power---------------------------------------------
 e_FSMState_SuperLoopPlayer SLPl_FSM_State;
@@ -208,7 +221,7 @@ void fpgaConfig(void)											//
 }
 
 extern uint8_t fileName[50];
-uint8_t fileSect;
+extern uint8_t fileSect;
 
 //void getFileList(void)
 //{
@@ -464,11 +477,54 @@ void getCrc(void)
 //	crc=SPI2->DR;
 	FPGA_CS_H;
 }
+
+void fileListInit(void)
+{
+	fpgaFlags.fileListUpdate=1;
+//	fpgaFlags.labelsUpdate=1;
+	fileSect=0;
+}
+
+void SecToHhMmSs(uint32_t timeInSec)
+{	
+	timeArr[0]=timeInSec/3600;
+	timeArr[1]=(timeInSec/60)%60;
+	timeArr[2]=timeInSec%60;
+}
+
+void setFileTimer(void)
+{
+	SecToHhMmSs(playParamArr[1]*playParamArr[3]);
+	fileHour=timeArr[0];
+	fileMin=timeArr[1];
+	fileSec=timeArr[2];
+}
+
+void setTotalTimer(void)
+{
+	uint32_t time=0;
+	
+	playParamArr[1]=0;
+	playParamArr[3]=0;
+	for(int i=0;i<50;i++){
+		if(!W25qxx_IsEmptySector(i,0)){
+			getControlParam(i);
+			time+=playParamArr[1]*playParamArr[3];
+			playParamArr[1]=0;
+			playParamArr[3]=0;
+		}
+	}
+	SecToHhMmSs(time);
+	totalHour=timeArr[0];
+	totalMin=timeArr[1];
+	totalSec=timeArr[2];
+}
+
 //-----------------------------------for main---------------------------------------
 void SLP_init(void)
 {
 	initSpi_2();
-	fpgaFlags.fileListUpdate=1;
+//	fpgaFlags.fileListUpdate=1;
 }
 
 void SLP(void)
@@ -483,6 +539,7 @@ void SLP(void)
 			spi1FifoClr();
 			spi2FifoClr();
 			fpgaConfig();
+			fpgaFlags.labelsUpdate=1;
 			//******************************************
 //			fpgaFlags.fpgaConfigComplete=1;	//for debug
 			//******************************************
@@ -490,7 +547,9 @@ void SLP(void)
 		}
 		if(fpgaFlags.fpgaConfigComplete==1){
 			playFileSector=getPlayFileSector(playFileInList);
+//			setTotalTimer();
 			getControlParam(playFileSector);
+			setFileTimer();
 			//********************************************
 			//for debug
 //			SPI2->CR1 &= ~SPI_CR1_SPE;
@@ -546,11 +605,12 @@ void SLP(void)
 		if(!W25qxx_IsEmptySector(fileSect,0)){
 			spi1FifoClr();
 			W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
-			fpgaFlags.labelsUpdate=1;
+			fpgaFlags.addListItem=1;
 		}
 		if(fileSect>=MAX_FILES_NUM){
 			fileSect=0;
 			fpgaFlags.fileListUpdate=0;
+			fpgaFlags.addListItem=0;
 		}
 		else{
 			fileSect++;

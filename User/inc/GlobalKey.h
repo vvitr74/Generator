@@ -2,11 +2,11 @@
 #define GlobalKey_h
 
 #define PowerUSE
-//#define LCDUSE
+#define LCDUSE
 #define ACCUSE
-//#define COMMS
-//#define PLAYER
-#define MODBUS
+#define COMMS
+#define PLAYER
+//#define MODBUS
 
 
 

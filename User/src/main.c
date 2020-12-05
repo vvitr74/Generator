@@ -1,6 +1,6 @@
 #include "GlobalKey.h"
 
-#define debug1
+//#define debug1
 
 #include <string.h>
 #include "stm32g0xx.h"

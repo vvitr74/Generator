@@ -95,6 +95,10 @@ inline void vMBPortTimersDisable(  )
 //    TIM_Cmd( TIM2, DISABLE );
 }
 
+inline void vMBPortTimersDelay( USHORT usTimeOutMS )
+{
+};
+
 /* Create an ISR which is called whenever the timer has expired. This function
  * must then call pxMBPortCBTimerExpired( ) to notify the protocol stack that
  * the timer has expired.

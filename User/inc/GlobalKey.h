@@ -8,6 +8,9 @@
 #define PLAYER
 //#define MODBUS
 
+//#define Flashw25qxx
+#define Flashat25sf321
+
 
 
 #endif

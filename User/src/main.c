@@ -108,6 +108,17 @@ SLP_init();
 #ifdef MODBUS
 SL_CommModbusInit();
 #endif
+
+
+//test flash
+//uint8_t temp_pBuffer;
+//W25qxx_EraseSector(0);
+//W25qxx_WriteByte(0x55, 0);
+//W25qxx_ReadByte(&temp_pBuffer, 0);
+//end test flash
+
+
+
 		
   while(1){
 

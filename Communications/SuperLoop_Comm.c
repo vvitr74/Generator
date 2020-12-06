@@ -90,18 +90,21 @@ void procCmdFromUsb(void)
 			erFlash(FIRST_CONF_SECT,LAST_CONF_SECT);
 			confSectorsStatus();
 			usbCmd=0;
-			NVIC_SystemReset();
+		  rxIrqCnt=0;
+			//NVIC_SystemReset();
 			return;
 		case ER_PLAY_FILES:
 			erFlash(FIRST_PLAY_SECT,LAST_PLAY_SECT);
 			playSectorsStatus();
 			usbCmd=0;
-			NVIC_SystemReset();
+		  rxIrqCnt=0;
+			//NVIC_SystemReset();
 //			fpgaFlags.fileListUpdate=1;
 			return;
 		case ER_ALL_FILES:
 			eraseFlash();
 			usbCmd=0;
+		  rxIrqCnt=0;
 			fpgaFlags.fileListUpdate=1;
 			return;
 		default:
@@ -238,7 +241,8 @@ void rdFlash(void)
 #ifdef COMMS
 void USART1_IRQHandler(void)
 {
-	if(USART1->ISR & USART_ISR_RXNE_RXFNE){
+	if(USART1->ISR & USART_ISR_RXNE_RXFNE)
+	{
 		USART1->ICR |= USART_ICR_ORECF;
 		USART1->RQR |= USART_RQR_RXFRQ;
 		if(rxIrqCnt<3){

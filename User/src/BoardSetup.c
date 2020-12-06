@@ -392,6 +392,55 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
                     
 }
 
+/**
+
+\brief switch OUTStage Interface Pins To Power state ENABLE or DISABLE
+
+  FPGA_CS 					PB12  output	FPGA_CS_L/H
+	SPI2_SCK 					PB13  spi
+	SPI2_MISO					PB14	spi
+	SPI2_MOSI 				PB15	spi 
+	CONF_DONE 				PC6		input
+	nSTATUS 					PC7		input
+	nCONFIG 					PB11	output 	nCONFIG_L/H
+	Reserv=LED_TEST 	PB10	output 	FPGA_Reserv_L/H
+	FPGA_START 				PA8		output	FPGA_START_L/H
+
+*/
 void switchOUTStageInterfacePinsToPwr(FunctionalState pwrMode)
 {
+	//SPI
+  if (pwrMode == DISABLE){                                          // if mode is DISABLE 
+   
+
+		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
+                     GPIO_MODER_MODE14_Msk |    
+                     GPIO_MODER_MODE15_Msk);  
+    
+   } else { 
+		 
+		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
+                     GPIO_MODER_MODE14_Msk |    
+                     GPIO_MODER_MODE15_Msk);  
+    GPIOB->MODER &= ~(GPIO_MODER_MODE15_0 |                          // PB5 alternate function SPI1_MOSI 
+                     GPIO_MODER_MODE14_0 |                           // PB4 alternate function SPI1_MISO
+                     GPIO_MODER_MODE13_0);                           // PB3 alternate function SPI1_SCK
+ 
+  }   
+
+ //and other
+ FPGA_CS_L;
+ nCONFIG_L;
+ FPGA_Reserv_L;
+ FPGA_START_L;	
+	
+ if (pwrMode == DISABLE)
+ {
+  PWR_UTSTAGE_OFF;	
+ } 
+ else
+ {
+	PWR_UTSTAGE_ON;		
+ };
+	
 };

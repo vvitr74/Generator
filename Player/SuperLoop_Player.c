@@ -1,3 +1,4 @@
+#include "Spi1.h"
 #include "SuperLoop_Player.h"
 
 uint16_t freqStartByte;
@@ -195,11 +196,15 @@ void fpgaConfig(void)											//
 {
 	uint32_t bytesCnt=0;
 	uint8_t byteBuff;
+	switchOUTStageInterfacePinsToPwr(DISABLE);
+	delay_ms(20);
+	switchOUTStageInterfacePinsToPwr(ENABLE);
+	delay_ms(20);
+	spi1FifoClr();
 	GPIOB->BSRR=GPIO_BSRR_BR0;							//FPGA 1.2 V on
 	nCONFIG_H;
 	while(!(GPIOC->IDR & GPIO_IDR_ID7)){}
-	delay_ms(1);
-	spi1FifoClr();
+	delay_ms(2);
 	FPGA_CS_L;															//for logger
 	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
 		W25qxx_ReadByte(&byteBuff,FIRST_CONF_BYTE+bytesCnt);
@@ -539,6 +544,9 @@ void SLP(void)
 			spi1FifoClr();
 			spi2FifoClr();
 			fpgaConfig();
+			GPIOB->BSRR=GPIO_BSRR_BS0;	//FPGA 1.2 V off
+			delay_ms(2);
+			fpgaConfig();
 			fpgaFlags.labelsUpdate=1;
 			//******************************************
 //			fpgaFlags.fpgaConfigComplete=1;	//for debug
@@ -597,7 +605,7 @@ void SLP(void)
 		fpgaFlags.playBegin=0;
 		fpgaFlags.clockStart=0;
 		fpgaFlags.labelsUpdate=1;
-		NVIC_SystemReset();
+		//NVIC_SystemReset();
 	}
 	
 	//get list of files

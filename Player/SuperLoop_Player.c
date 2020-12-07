@@ -574,7 +574,7 @@ void setTotalTimer(void)
 	for(int i=0;i<50;i++){
 		if(!W25qxx_IsEmptySector(i,0)){
 			getControlParam(i);
-			time+=playParamArr[1]*playParamArr[3];
+			time+=(playParamArr[1]+1)*playParamArr[3];
 			playParamArr[1]=0;
 			playParamArr[3]=0;
 		}
@@ -617,7 +617,7 @@ void SLP(void)
 		}
 		if(fpgaFlags.fpgaConfigComplete==1){
 			playFileSector=getPlayFileSector(playFileInList);
-//			setTotalTimer();
+			setTotalTimer();
 			getControlParam(playFileSector);
 			setFileTimer();
 			//********************************************

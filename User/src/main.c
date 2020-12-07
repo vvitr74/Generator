@@ -117,8 +117,10 @@ SL_CommModbusInit();
 //W25qxx_ReadByte(&temp_pBuffer, 0);
 //end test flash
 
-
-
+//debug FPGA config
+//fpgaConfig();
+//fpgaConfig();
+//end debug FPGA config	
 		
   while(1){
 

@@ -454,9 +454,9 @@
           <GroupName>W25qxx</GroupName>
           <Files>
             <File>
-              <FileName>MainSpiFlash.c</FileName>
+              <FileName>w25qxx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\W25QXX\MainSpiFlash.c</FilePath>
+              <FilePath>..\W25QXX\w25qxx.c</FilePath>
             </File>
           </Files>
         </Group>

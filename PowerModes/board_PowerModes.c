@@ -69,7 +69,7 @@ void SuperLoop_PowerModes(void)
 	    	racc=SuperLoop_Acc_SleepIn();
     		if (rdispl && rplayer)
 					{ 
-//            enterToStop();
+            enterToStop();
 						SLP_sleep=false;
       		};
 		    SuperLoop_Acc_SleepOut();

@@ -289,7 +289,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>4</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\ugfx_2.9\drivers\gdisp\ILI9341\gdisp_lld_ILI9341.c</PathWithFileName>
@@ -393,11 +393,11 @@
       <GroupNumber>6</GroupNumber>
       <FileNumber>10</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\W25QXX\MainSpiFlash.c</PathWithFileName>
-      <FilenameWithoutPath>MainSpiFlash.c</FilenameWithoutPath>
+      <PathWithFileName>..\W25QXX\w25qxx.c</PathWithFileName>
+      <FilenameWithoutPath>w25qxx.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

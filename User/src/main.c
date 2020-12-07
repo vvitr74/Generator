@@ -42,7 +42,6 @@
 #include "SL_CommModbus.h"
 #endif
 
-uint8_t spiDispCapture = 0;
 
 #ifdef RELEASE
 #define APPLICATION_ADDRESS (uint32_t)0x08001800 /**< Место старта прошивы, с 4-ой страницы памяти */

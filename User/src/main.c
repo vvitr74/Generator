@@ -1,8 +1,6 @@
-#define PowerUSE
-#define LCDUSE
-#define ACCUSE
-#define COMMS
-#define PLAYER
+#include "GlobalKey.h"
+
+//#define debug1
 
 #include <stdio.h>
 #include <string.h>
@@ -23,7 +21,7 @@
 
 #ifdef COMMS
 #include "SuperLoop_Comm.h"
-//#include "bluetooth.h"
+#include "bluetooth.h"
 //#include "rn4870Model.h"
 #include "uart.h"
 #include "flash.h"
@@ -38,6 +36,10 @@
 #include "Spi.h"
 #include "w25qxx.h"
 #include "tim3.h"
+#endif
+
+#ifdef MODBUS
+#include "SL_CommModbus.h"
 #endif
 
 uint8_t spiDispCapture = 0;
@@ -119,9 +121,9 @@ SuperLoopACC_init();
 #if defined COMMS || defined PLAYER
 	tim3Init();
 	initSpi_1();
-	//SLC_init();
-	//SLP_init();
- __flashInit();
+	SLC_init();
+	SLP_init();
+// __flashInit();
 #endif	
 
 #ifdef 	COMMS 
@@ -131,6 +133,20 @@ SLC_init();
 #ifdef 	PLAYER 
 SLP_init();
 #endif
+
+#ifdef MODBUS
+SL_CommModbusInit();
+#endif
+
+
+//test flash
+//uint8_t temp_pBuffer;
+//W25qxx_EraseSector(0);
+//W25qxx_WriteByte(0x55, 0);
+//W25qxx_ReadByte(&temp_pBuffer, 0);
+//end test flash
+
+
 
 		
   while(1){
@@ -160,7 +176,10 @@ SuperLoopACC();
 #ifdef PowerUSE
 SuperLoop_PowerModes();			
 #endif			
-		
+
+#ifdef MODBUS
+SL_CommModbus();
+#endif
 		
   }
 }

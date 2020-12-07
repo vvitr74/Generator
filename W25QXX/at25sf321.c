@@ -324,7 +324,13 @@ uint8_t W25qxx_Init(void)
 //			#endif
 		break;
 
-
+case 0x8701:	//	w25x10
+			w25qxx.ID = AT25SF321;
+			w25qxx.BlockCount = 64;
+//			#if (INIT_DEBUG == 1)
+//			HAL_UART_Transmit(DEBUG_UART, (uint8_t*)"Chip: w25x10\n", 13, 1000);
+//			#endif
+		break;
 
 		default:
 //			#if (INIT_DEBUG == 1)

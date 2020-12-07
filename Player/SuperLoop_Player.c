@@ -81,7 +81,9 @@ void spi2Transmit(uint8_t *pData, uint16_t Size)
 	  /* Transmit data in 8 Bit mode */
 	while (TxXferCount > 0U){
 		/* Wait until TXE flag is set to send data */
-		if (SPI2->SR & SPI_SR_TXE){
+		while(!(SPI2->SR & SPI_SR_TXE)){}
+//		if (SPI2->SR & SPI_SR_TXE)
+			{
 			if (TxXferCount > 1U){
 				/* write on the data register in packing mode */
 				SPI2->DR = *((uint16_t *)pData);
@@ -192,25 +194,76 @@ void TIM3_IRQHandler(void)
 //}
 
 //As in VV2
+/**
+\brief Passive Serial FPGA configuration
+
+  FPGA_CS 					PB12  output	FPGA_CS_L/H
+	SPI2_SCK 					PB13  spi
+	SPI2_MISO					PB14	spi
+	SPI2_MOSI 				PB15	spi 
+	CONF_DONE 				PC6		input
+	nSTATUS 					PC7		input
+	nCONFIG 					PB11	output 	nCONFIG_L/H
+	Reserv=LED_TEST 	PB10	output 	FPGA_Reserv_L/H
+	FPGA_START 				PA8		output	FPGA_START_L/H
+
+If your system exceeds the fast or standard POR time, you must hold nCONFIG low
+until all the power supplies are stable.
+MSEL[2:0] Pins 000 Standard POR Delay
+
+nSTATUS and CONF_DONE driven low
+• All I/Os pins are tied to an internal weak pull-up
+• Clears configuration RAM bits
+      ->
+nSTATUS and nCONFIG released high
+CONF_DONE pulled low
+      ->
+Writes configuration data to
+FPGA
+      ->
+• nSTATUS pulled low
+• CONF_DONE remains low
+• Restarts configuration if option
+enabled		
+      ->
+CONF_DONE released high
+      ->
+• Initializes internal logic and
+registers
+• Enables I/O buffers
+      ->
+INIT_DONE released high
+(if option enabled)
+      ->
+Executes your design
+*/
 void fpgaConfig(void)											//
 {
 	uint32_t bytesCnt=0;
 	uint8_t byteBuff;
+	byteBuff=0;
+	spi2Transmit(&byteBuff, 1);
+	
+	SPI2->CR1 &= ~SPI_CR1_SPE;
+	SPI2->CR1 |= SPI_CR1_LSBFIRST;
+	SPI2->CR1 |= SPI_CR1_SPE;
+	
 	switchOUTStageInterfacePinsToPwr(DISABLE);
-	delay_ms(20);
+	delay_ms(500);
 	switchOUTStageInterfacePinsToPwr(ENABLE);
-	delay_ms(20);
+	delay_ms(500);
 	spi1FifoClr();
 	GPIOB->BSRR=GPIO_BSRR_BR0;							//FPGA 1.2 V on
 	nCONFIG_H;
 	while(!(GPIOC->IDR & GPIO_IDR_ID7)){}
-	delay_ms(2);
+	delay_ms(500);
 	FPGA_CS_L;															//for logger
 	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
 		W25qxx_ReadByte(&byteBuff,FIRST_CONF_BYTE+bytesCnt);
 		spi2Transmit(&byteBuff, 1);
-		if(GPIOC->IDR & GPIO_IDR_ID6){
-			spi2Transmit(0x00, 1);
+		if(GPIOC->IDR & GPIO_IDR_ID6)
+			{byteBuff=0;
+			spi2Transmit(&byteBuff, 1);
 //			confComplete();
 			fpgaFlags.fpgaConfigComplete=1;
 			FPGA_CS_H;
@@ -220,6 +273,8 @@ void fpgaConfig(void)											//
 			return;
 		}
 	}
+	byteBuff=0;
+	spi2Transmit(&byteBuff, 1);
 	FPGA_CS_H;
 //	confFailed();
 	fpgaFlags.fpgaConfigComplete=0;
@@ -545,7 +600,9 @@ void SLP(void)
 			spi2FifoClr();
 			fpgaConfig();
 			GPIOB->BSRR=GPIO_BSRR_BS0;	//FPGA 1.2 V off
-			delay_ms(2);
+			delay_ms(20);
+			spi1FifoClr();
+			spi2FifoClr();
 			fpgaConfig();
 			fpgaFlags.labelsUpdate=1;
 			//******************************************

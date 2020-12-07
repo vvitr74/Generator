@@ -152,9 +152,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>219</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134245742</Address>
+          <LineNumber>271</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>134245796</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -163,14 +163,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\Player\SuperLoop_Player.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Generator070\../Player/SuperLoop_Player.c\219</Expression>
+          <Expression>\\Generator070\../Player/SuperLoop_Player.c\271</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>223</LineNumber>
+          <LineNumber>265</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134245766</Address>
+          <Address>134245758</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -179,7 +179,23 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\Player\SuperLoop_Player.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Generator070\../Player/SuperLoop_Player.c\223</Expression>
+          <Expression>\\Generator070\../Player/SuperLoop_Player.c\265</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>276</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134245826</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Player\SuperLoop_Player.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\Generator070\../Player/SuperLoop_Player.c\276</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -242,6 +258,10 @@
         <Entry>
           <Name>System Viewer\GPIOB</Name>
           <WinId>35905</WinId>
+        </Entry>
+        <Entry>
+          <Name>System Viewer\SPI2</Name>
+          <WinId>35904</WinId>
         </Entry>
       </SystemViewers>
       <DebugDescription>
@@ -412,7 +432,7 @@
       <GroupNumber>6</GroupNumber>
       <FileNumber>10</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\W25QXX\MainSpiFlash.c</PathWithFileName>

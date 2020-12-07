@@ -399,7 +399,7 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
   FPGA_CS 					PB12  output	FPGA_CS_L/H
 	SPI2_SCK 					PB13  spi
 	SPI2_MISO					PB14	spi
-	SPI2_MOSI 				PB15	spi 
+	SPI2_MOSI 				PB15	spi mosi
 	CONF_DONE 				PC6		input
 	nSTATUS 					PC7		input
 	nCONFIG 					PB11	output 	nCONFIG_L/H
@@ -422,6 +422,13 @@ void switchOUTStageInterfacePinsToPwr(FunctionalState pwrMode)
 		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
                      GPIO_MODER_MODE14_Msk |    
                      GPIO_MODER_MODE15_Msk);  
+		 
+//		GPIOB->MODER &= ~(GPIO_MODER_MODE15_1);
+//		GPIOB->BSRR = GPIO_BSRR_BR15;
+		 
+		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
+                     GPIO_MODER_MODE14_Msk |    
+                     GPIO_MODER_MODE15_Msk); 
     GPIOB->MODER &= ~(GPIO_MODER_MODE15_0 |                          // PB5 alternate function SPI1_MOSI 
                      GPIO_MODER_MODE14_0 |                           // PB4 alternate function SPI1_MISO
                      GPIO_MODER_MODE13_0);                           // PB3 alternate function SPI1_SCK

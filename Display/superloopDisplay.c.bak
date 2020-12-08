@@ -426,23 +426,23 @@ int SLDw(void)
 			fileSec=0;
 		}
 		else{
-			if(fileSec==0){
-				fileSec=59;
-				if(fileMin==0){
-					fileMin=59;
-					if(fileHour==0){
-						fileHour=99;
+			if(fileSec==59){
+				fileSec=0;
+				if(fileMin==59){
+					fileMin=0;
+					if(fileHour==99){
+						fileHour=0;
 					}
 					else{
-						fileHour--;
+						fileHour++;
 					}
 				}
 				else{
-					fileMin--;
+					fileMin++;
 				}
 			}
 			else{
-				fileSec--;
+				fileSec++;
 			}
 			fileTimeArr[0]=fileHour/10;
 			fileTimeArr[1]=fileHour%10;
@@ -455,23 +455,23 @@ int SLDw(void)
 		}
 		
 		//Total timer
-		if(totalSec==0){
-			totalSec=59;
-			if(totalMin==0){
-				totalMin=59;
-				if(totalHour==0){
-					totalHour=99;
+		if(totalSec==59){
+			totalSec=0;
+			if(totalMin==59){
+				totalMin=0;
+				if(totalHour==99){
+					totalHour=0;
 				}
 				else{
-					totalHour--;
+					totalHour++;
 				}
 			}
 			else{
-				totalMin--;
+				totalMin++;
 			}
 		}
 		else{
-			totalSec--;
+			totalSec++;
 		}
 		totalTimeArr[0]=totalHour/10;
 		totalTimeArr[1]=totalHour%10;

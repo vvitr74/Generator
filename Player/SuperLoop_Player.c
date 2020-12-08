@@ -559,7 +559,7 @@ void SecToHhMmSs(uint32_t timeInSec)
 
 void setFileTimer(void)
 {
-	SecToHhMmSs(playParamArr[1]*playParamArr[3]);
+	SecToHhMmSs((playParamArr[1]+1)*playParamArr[3]);
 	fileHour=timeArr[0];
 	fileMin=timeArr[1];
 	fileSec=timeArr[2];

@@ -10,7 +10,7 @@
 \brief info on display for debug ACC 
 
 */
-#define def_debug_AccDispay
+//#define def_debug_AccDispay
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -91,6 +91,8 @@ int SLD(void)
 				delayms(100);
 				SLD_DisplInit();
 
+				gwinRedrawDisplay(NULL,true);
+				
 				SLD_FSM_State=e_FSMS_SLD_On;
 		    state_inner=3;
 			}	
@@ -107,6 +109,7 @@ int SLD(void)
 				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_Off));
 				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_On));
 				SLD_DisplInit();
+		    gwinRedrawDisplay(NULL,true);
 				SLD_FSM_State=e_FSMS_SLD_On;
 		    state_inner=3;
 
@@ -186,14 +189,14 @@ void displayACC(void)
   //sprintf(str, "%d", mainFMSstate);
 	switch (mainFMSstate)
 	{
-		case e_FSM_Charge:		strcpy(str,"A: Charge"); 			break;
-		case 	e_FSM_Rest:    	strcpy(str,"A: Rest"); 				break;
-		case e_FSM_ChargeOff:	strcpy(str,"A: ChargeOff"); 		break;
-		case e_FSM_RestOff:  	strcpy(str,"A: RestOff"); 		break;
-		case e_FSM_Init: 			strcpy(str,"A: Init");					break;
-		default: 							strcpy(str,"A: Out of Range");
+		case e_FSM_Charge:		strcpy(str,"mainFMSstate: Charge"); 			break;
+		case 	e_FSM_Rest:    	strcpy(str,"mainFMSstate: Rest"); 				break;
+		case e_FSM_ChargeOff:	strcpy(str,"mainFMSstate: ChargeOff"); 		break;
+		case e_FSM_RestOff:  	strcpy(str,"mainFMSstate: RestOff"); 		break;
+		case e_FSM_Init: 			strcpy(str,"mainFMSstate: Init");					break;
+		default: 							strcpy(str,"mainFMSstate: Out of Range");
 	}	
-	gwinSetText(ghLabel12, str, TRUE);
+	gwinSetText(ghLabel7, str, TRUE);
 	
 	
 	sprintf(str, "V acc: %d", pv_BQ28z610_Voltage);
@@ -217,9 +220,8 @@ int SLDwACC(void)
 { 
 	//event handling
 	pe = geventEventWait(&gl,10 ); //gDelayForever
-	
-    displayACC();
-    return 0;
+	displayACC();
+	return 0;
 }
 
 static void createLists(void) {
@@ -328,11 +330,14 @@ static void createLabels(void) {
 
 int SLD_DisplInit(void)
 { 
-    initSpi_1();
-    GFXPreinit();	
-    gfxInit();	
+GFXPreinit();	
+gfxInit();	
 
 	
+	
+	GEvent* pe;
+
+
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("U11"));
 	gwinSetDefaultStyle(&WhiteWidgetStyle, gFalse);
@@ -421,23 +426,23 @@ int SLDw(void)
 			fileSec=0;
 		}
 		else{
-			if(fileSec==0){
-				fileSec=59;
-				if(fileMin==0){
-					fileMin=59;
-					if(fileHour==0){
-						fileHour=99;
+			if(fileSec==59){
+				fileSec=0;
+				if(fileMin==59){
+					fileMin=0;
+					if(fileHour==99){
+						fileHour=0;
 					}
 					else{
-						fileHour--;
+						fileHour++;
 					}
 				}
 				else{
-					fileMin--;
+					fileMin++;
 				}
 			}
 			else{
-				fileSec--;
+				fileSec++;
 			}
 			fileTimeArr[0]=fileHour/10;
 			fileTimeArr[1]=fileHour%10;
@@ -450,23 +455,23 @@ int SLDw(void)
 		}
 		
 		//Total timer
-		if(totalSec==0){
-			totalSec=59;
-			if(totalMin==0){
-				totalMin=59;
-				if(totalHour==0){
-					totalHour=99;
+		if(totalSec==59){
+			totalSec=0;
+			if(totalMin==59){
+				totalMin=0;
+				if(totalHour==99){
+					totalHour=0;
 				}
 				else{
-					totalHour--;
+					totalHour++;
 				}
 			}
 			else{
-				totalMin--;
+				totalMin++;
 			}
 		}
 		else{
-			totalSec--;
+			totalSec++;
 		}
 		totalTimeArr[0]=totalHour/10;
 		totalTimeArr[1]=totalHour%10;

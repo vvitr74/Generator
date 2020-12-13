@@ -503,7 +503,7 @@ void loadFreqToFpga(uint16_t addr)
 		}
 	}
 	FPGA_CS_H;
-	steps=steps+1000;
+	steps=steps+1;
 }
 
 void loadMultToFpga(void)

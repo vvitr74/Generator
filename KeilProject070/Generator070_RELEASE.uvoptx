@@ -163,7 +163,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\User\src\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../User/src/main.c\172</Expression>
+          <Expression>\\gen_g070_release\../User/src/main.c\172</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -602,7 +602,7 @@
 
   <Group>
     <GroupName>CommModbos</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -610,7 +610,7 @@
       <GroupNumber>11</GroupNumber>
       <FileNumber>25</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\CommModbus\SL_CommModbus.c</PathWithFileName>
@@ -622,7 +622,7 @@
 
   <Group>
     <GroupName>FreeModbus</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

@@ -10,7 +10,7 @@
 \brief info on display for debug ACC 
 
 */
-//#define def_debug_AccDispay
+#define def_debug_AccDispay
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -189,14 +189,14 @@ void displayACC(void)
   //sprintf(str, "%d", mainFMSstate);
 	switch (mainFMSstate)
 	{
-		case e_FSM_Charge:		strcpy(str,"mainFMSstate: Charge"); 			break;
-		case 	e_FSM_Rest:    	strcpy(str,"mainFMSstate: Rest"); 				break;
-		case e_FSM_ChargeOff:	strcpy(str,"mainFMSstate: ChargeOff"); 		break;
-		case e_FSM_RestOff:  	strcpy(str,"mainFMSstate: RestOff"); 		break;
-		case e_FSM_Init: 			strcpy(str,"mainFMSstate: Init");					break;
-		default: 							strcpy(str,"mainFMSstate: Out of Range");
+		case e_FSM_Charge:		strcpy(str,"A: Charge"); 			break;
+		case 	e_FSM_Rest:    	strcpy(str,"A: Rest"); 				break;
+		case e_FSM_ChargeOff:	strcpy(str,"A: ChargeOff"); 		break;
+		case e_FSM_RestOff:  	strcpy(str,"A: RestOff"); 		break;
+		case e_FSM_Init: 			strcpy(str,"A: Init");					break;
+		default: 							strcpy(str,"A: Out of Range");
 	}	
-	gwinSetText(ghLabel7, str, TRUE);
+	gwinSetText(ghLabel12, str, TRUE);
 	
 	
 	sprintf(str, "V acc: %d", pv_BQ28z610_Voltage);

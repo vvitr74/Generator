@@ -215,8 +215,8 @@ until all the power supplies are stable.
 MSEL[2:0] Pins 000 Standard POR Delay
 
 nSTATUS and CONF_DONE driven low
-• All I/Os pins are tied to an internal weak pull-up
-• Clears configuration RAM bits
+â€¢ All I/Os pins are tied to an internal weak pull-up
+â€¢ Clears configuration RAM bits
       ->
 nSTATUS and nCONFIG released high
 CONF_DONE pulled low
@@ -224,16 +224,16 @@ CONF_DONE pulled low
 Writes configuration data to
 FPGA
       ->
-• nSTATUS pulled low
-• CONF_DONE remains low
-• Restarts configuration if option
+â€¢ nSTATUS pulled low
+â€¢ CONF_DONE remains low
+â€¢ Restarts configuration if option
 enabled		
       ->
 CONF_DONE released high
       ->
-• Initializes internal logic and
+â€¢ Initializes internal logic and
 registers
-• Enables I/O buffers
+â€¢ Enables I/O buffers
       ->
 INIT_DONE released high
 (if option enabled)
@@ -302,42 +302,18 @@ extern uint8_t fileSect;
 //
 void timeToString(uint8_t* timeArr)
 {
-	for(int i=0;i<8;i++){
-		switch(timeArr[i]){
-			case 0:
-				timeArr[i]='0';
-				break;
-			case 1:
-				timeArr[i]='1';
-				break;
-			case 2:
-				timeArr[i]='2';
-				break;
-			case 3:
-				timeArr[i]='3';
-				break;
-			case 4:
-				timeArr[i]='4';
-				break;
-			case 5:
-				timeArr[i]='5';
-				break;
-			case 6:
-				timeArr[i]='6';
-				break;
-			case 7:
-				timeArr[i]='7';
-				break;
-			case 8:
-				timeArr[i]='8';
-				break;
-			case 9:
-				timeArr[i]='9';
-				break;
-			default:
-				break;
-		}
+	for (int i = 0; i < 8; i++)
+	{
+        if( timeArr[i] < 10) 
+        {
+            timeArr[i] = timeArr[i] + '0';
+        }
+        else
+        {
+            timeArr[i] = '?';
+        }
 	}
+    timeArr[9] = 0;
 }
 
 uint16_t getPlayFileSector(int fileInList)

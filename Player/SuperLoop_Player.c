@@ -310,7 +310,7 @@ void timeToString(uint8_t* timeArr)
         }
         else
         {
-            timeArr[i] = '?';
+					timeArr[i] = ':';
         }
 	}
     timeArr[9] = 0;

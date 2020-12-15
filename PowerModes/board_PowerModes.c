@@ -1,5 +1,6 @@
 #include "stm32g0xx.h"
 #include <stdbool.h>
+#include "PowerModes_Defs.h"
 #include "board_PowerModes.h"
 #include "BoardSetup.h"
 #include "superloop.h"
@@ -53,26 +54,36 @@ void SuperLoop_PowerModes_Init(void)
 	
 void SuperLoop_PowerModes(void)
 	{
-		bool rplayer;
-		bool rdispl;
-		bool racc;
+		e_PowerState rplayer,rdispl,racc,rcomm;
+
+		//rplayer=SLPl_GetPowerState();
+		rdispl=0;// debug//rdispl=SLD_GetPowerState();
+		//racc=SLAcc_GetPowerState();
+		rcomm=SLPo_GetPowerState();
+		
 		switch (SLP_state)
 		{
 			case 0://work mode
-				if (!SLP_sleep)
-					{break;
+				if (rcomm&&rdispl)
+					{
+						//SLPl_SetSleepState(true);
+						//SLD_SetSleepState(true);
+						//SLAcc_SetSleepState(true);
+						SLPo_SetSleepState(true);
+						SLP_state
 					}
-				SLP_state=1;
+				break;
 			case 1:	
     		rplayer=SuperLoop_Player_SleepIn();
     		rdispl=SuperLoop_Disp_SleepIn();
-	    	racc=SuperLoop_Acc_SleepIn();
+			extern __inline e_PowerState SLPo_GetPowerState(void);
+        SLPo_SetSleepState(true);
     		if (rdispl && rplayer)
 					{ 
 //            enterToStop();
 						SLP_sleep=false;
       		};
-		    SuperLoop_Acc_SleepOut();
+		    SLPo_SetSleepState(false);
 		    SuperLoop_Disp_SleepOut();
 	    	SuperLoop_Player_SleepOut();		
 			SLP_LastUpdateTime=SystemTicks;
@@ -203,26 +214,26 @@ static const key_type PWR2_TransitionKeys[4][4]=  //int a[ROWS][COLS] =
 
 //TransitionKeys[mainFMSstate][mainFMSstate]); 
 #define MStateP(d,p) ((((d)<<1)|((p)<<0))&0x3)
-e_FunctionReturnState  MainTransition_P_Displ(e_FSMState_SuperLoopDisplay state_Displ_new,e_FSMState_SuperLoopDisplay state_Displ_old)
+e_FunctionReturnState  MainTransition_P_Displ(bool PWR_state_Displ_new,bool PWR_state_Displ_old)
 {
 	uint8_t statenew;
 	uint8_t stateold;
-	e_FSMState_SuperLoopPlayer spl;
+	bool spl;
 //	e_FSMState_SuperLoopDisplay sd;
 	spl=SLPl_FSMState();
-	stateold=MStateP( state_Displ_old,spl);
-	statenew=MStateP( state_Displ_new,spl);
+	stateold=MStateP( PWR_state_Displ_old,spl);
+	statenew=MStateP( PWR_state_Displ_new,spl);
 	return FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[statenew][stateold]);
 };
 
-e_FunctionReturnState  MainTransition_P_Pl(e_FSMState_SuperLoopPlayer state_Pl_new,e_FSMState_SuperLoopPlayer state_Pl_old)
+e_FunctionReturnState  MainTransition_P_Pl(bool PWR_state_Pl_new,bool PWR_state_Pl_old)
 {
 	uint8_t statenew;
 	uint8_t stateold;
-	e_FSMState_SuperLoopDisplay sd;
+	bool sd;
 	sd=SLD_FSMState();
-	stateold=MStateP( sd,state_Pl_old);
-	statenew=MStateP( sd,state_Pl_new);
+	stateold=MStateP( sd,PWR_state_Pl_old);
+	statenew=MStateP( sd,PWR_state_Pl_new);
 	return FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[statenew][stateold]);
 };
 

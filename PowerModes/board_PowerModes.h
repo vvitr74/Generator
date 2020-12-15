@@ -8,9 +8,9 @@
 extern void SuperLoop_PowerModes_Init(void);
 extern void SuperLoop_PowerModes(void);
 
-extern e_FunctionReturnState  MainTransition_P_Displ(e_FSMState_SuperLoopDisplay state_Displ_new,e_FSMState_SuperLoopDisplay state_Displ_old);
+extern e_FunctionReturnState  MainTransition_P_Displ(bool PWR_state_new,bool PWR_state_old);
 
-extern e_FunctionReturnState  MainTransition_P_Pl(e_FSMState_SuperLoopPlayer state_Pl_new,e_FSMState_SuperLoopPlayer state_Pl_old);
+extern e_FunctionReturnState  MainTransition_P_Pl(bool PWR_state_new,bool PWR_state_old);
 
 
 #endif

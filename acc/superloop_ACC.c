@@ -1,5 +1,20 @@
-#include <stdint.h>
+/**
+\file high level file for Control TPS65987, bq25703a, bq 28z610
 
+For sleep mode:
+used typedef enum  {e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep} e_PowerState;
+e_PowerState SLPl_GetPoewerState(void);
+e_PowerState SLPl_SetSleepState(bool state);
+
+using:
+If all relevant modules have state e_PS_DontMindSleep or e_PS_ReadySleep -> 
+send to all modules requires for sleep SLPl_SetSleepState(true)->
+if all modules e_PS_ReadySleep-> sleep
+if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
+
+*/
+
+#include <stdint.h>
 #include "superloop.h"
 
 //#include "i2c_soft.h"
@@ -31,27 +46,20 @@ static uint16_t V86;
 
 
 //---------------------------------for power---------------------------------------------
-//TPS65982_6_RW(e_I2C_API_Devices device, e_TPS65982_6_Registers reg, uint8_t *data, uint8_t qntByte, uint8_t RW);
-//returnstateL1=TPS65982_6_RW(device,e_TPS65982_6_StatusRegister,data,255,I2C_OP_READ);
-static unsigned char u8_11_ff[11]={0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};//ToDo do const
-bool SuperLoop_Acc_SleepIn(void)
-{ 
-	e_FunctionReturnState returnstateL1;
-	//bool returnstateL;
-	returnstateL1=e_FRS_Processing;
-	do 
-		{
-	    returnstateL1 = TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);
-		}
-  while ((e_FRS_Done!=returnstateL1)&&(e_FRS_DoneError!=	returnstateL1))	;
-
-		return (e_FRS_Done==returnstateL1);
-};
-
-bool SuperLoop_Acc_SleepOut(void)
+static e_PowerState SLAcc_PowerState; 
+static bool SLAcc_GoToSleep;
+__inline e_PowerState SLPo_GetPowerState(void)
 {
-	return true;
+	 return SLAcc_PowerState;
 };
+
+__inline e_PowerState SLAcc_SetSleepState(bool state)
+{
+	SLPo_GoToSleep=state;
+	return SLPo_PowerState;
+};
+
+
 //-------------------------------- FSM -------------------------------------------------
 
 

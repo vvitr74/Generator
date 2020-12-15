@@ -32,6 +32,7 @@ typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inh
 #define m_hizOff (1<<e_TF_hizOff)
 #define m_inhOff (1<<e_TF_inhOff)
 
+//#define m_ClrTPSInt (1<<e_TF_ClrTPSInt)
 #define m_ReadTPSState (1<<e_TF_ReadTPSState)
 #define m_BQ28z610_Read_Temperature (1<<e_TF_BQ28z610_Read_Temperature)
 #define m_BQ28z610_Read_Voltage (1<<e_TF_BQ28z610_Read_Voltage)
@@ -242,7 +243,7 @@ e_FunctionReturnState  MainTransition(key_type key)
 //,e_TF_ReadTPSState,e_TF_BQ28z610_Read_Temperature,e_TF_BQ28z610_Read_Voltage,e_TF_BQ25703_ADCIBAT_Read	
 //,e_TF_BQ25703_InputCurrent,e_TF_BatteryFSM,e_TF_BQ25703_Charge_Check
 
-
+static unsigned char u8_11_ff[11]={0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};//ToDo do const
 static bool bADCVSYSVBAT;
 e_FunctionReturnState TransitionFunction(uint8_t state)
 {   e_FunctionReturnState rstate;
@@ -257,6 +258,7 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 			                if (currl>I87) currl=I87;
 			                rstate=BQ25703_IIN_Check(currl);
                       break;    //5
+//		case e_TF_ClrTPSInt:								 rstate=TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);// in TPS65982_6_RDO_R
 		case e_TF_ReadTPSState:              rstate=TPS65982_6_RDO_R(TPS87,  &I87, &V87);  break;//6
 		case e_TF_BQ28z610_Read_Temperature: rstate=BQ28z610_Read(e_BQ28z610_Temperature,&mFSM_BQ28z610_Temperature);break;//7  
 		case e_TF_BQ28z610_Read_Voltage:     rstate=BQ28z610_Read(e_BQ28z610_Voltage,&pv_BQ28z610_Voltage);   break;//8
@@ -360,18 +362,34 @@ e_FunctionReturnState ReadTPSState(void)
 	  returnstate=e_FRS_Processing;
 	  switch(state)
 	  {
-	  case 0: 
+	  case 0:  // clear interrupt
+			       returnstatel=TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);
+			   if (e_FRS_Done==returnstatel)
+	           {state++;};
+			   if (e_FRS_DoneError==returnstatel)
+	           {state=3;};
+						 break;
+		case 1:	
 	          {returnstatel=TPS65982_6_RDO_R(TPS87,  &I87, &V87);
 			   if (e_FRS_Done==returnstatel)
-	           {state++;returnstate=e_FRS_Done;};
+	           {state++;};
 			   if (e_FRS_DoneError==returnstatel)
-	           {state++;I87=0; V87=0;returnstate=e_FRS_Done;};
+	           {state+=2;};
 	          }
 			  break;
+		case 2:	returnstate=e_FRS_Done;//Normal exit
+						state=0;
+			      break;
+		case 3: I87=0; V87=0;
+						returnstate=e_FRS_DoneError;		//Error
+            state=0;						
+						break;
 	  default:  state=0;
 	  }
 	  return returnstate;
 }
+
+
 
 //  ----------------------- not used functions -------------------------------------------------
 

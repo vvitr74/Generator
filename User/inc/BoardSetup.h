@@ -71,6 +71,9 @@
 #define FPGA_START_H 		GPIOA->BSRR = GPIO_BSRR_BS8
 #define FPGA_START_L 		GPIOA->BSRR = GPIO_BSRR_BR8
 
+//For Charger
+#define TPSIRQ (!((GPIOA->IDR)& GPIO_IDR_ID7_Msk))
+
 typedef uint32_t systemticks_t;
 		
 extern volatile   systemticks_t SystemTicks;	
@@ -105,6 +108,10 @@ extern systemticks_t gfxMillisecondsToTicks(delaytime_t ms);
 //extern uint32_t tick;
 
 /* functions prototypes */
+		
+//for power
+extern void BoardSetup_InSleep(void);
+extern void BoardSetup_OutSleep(void);
 		
 extern int BSInit(void);		
 extern uint32_t setSystemClock(void);

@@ -167,11 +167,11 @@ e_FunctionReturnState  mainFSMfunction(void)
           if (e_FRS_Done==rstatel)
              { mainFMSstate=sign;
                state++;
-               rstate=e_FRS_Done;
+//               rstate=e_FRS_Done;
              };
           if (e_FRS_DoneError==rstatel)   //if error on transition, go to previos state ????
              { state++;
-               rstate=e_FRS_Done;
+//               rstate=e_FRS_Done;
              };
           break;
   case 1: rstatel=MainTransition(TransitionKeys[mainFMSstate][mainFMSstate]);    //Steady state

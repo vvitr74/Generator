@@ -16,7 +16,7 @@ extern void SuperLoopACC(void);
 extern void SuperLoopACC_init(void);
 
 //---------------------------------for power---------------------------------------------
-typedef enum  {e_AS_NoSysPwr,e_AS_IsSysPwr,e_AS_NumOfel} e_Acc_State;
+//typedef enum  {e_AS_NoSysPwr,e_AS_IsSysPwr,e_AS_NumOfel} e_Acc_State;
 
 extern __inline e_PowerState SLAcc_GetPowerState(void);
 extern __inline e_PowerState SLAcc_SetSleepState(bool state);

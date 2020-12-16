@@ -2,7 +2,7 @@
 \file
 \brief High Level Display control
 
-
+\todo SLD_PowerState
 */	
 
 
@@ -34,18 +34,30 @@ void GFXPreinit (void)
 	hThread=0;
 };
 
-//------------------------- for power--------------------------------------
-bool SuperLoop_Disp_SleepIn(void)
+
+//---------------------------------for power sleep---------------------------------------------
+static e_PowerState SLD_PowerState; 
+static bool SLD_GoToSleep;
+
+__inline e_PowerState SLD_GetPowerState(void)
 {
-	return true;
-};
-bool SuperLoop_Disp_SleepOut(void)
-{
-	return true;
+	 return SLD_PowerState;
 };
 
-//------------------------for FSM-------------------------------------------
-static e_FSMState_SuperLoopDisplay SLD_FSM_State;
+__inline e_PowerState SLD_SetSleepState(bool state)
+{
+	SLD_GoToSleep=state;
+	return SLD_PowerState;
+};
+
+//----------------------------------for power on off--------------------------------------------
+static bool SLD_PWR_State;
+
+__inline bool SLD_PWRState(void)
+{
+	return SLD_PWR_State;
+};
+
 
 //------------------------ for update ------------------------------------------
 static systemticks_t LastUpdateTime;
@@ -72,48 +84,51 @@ int SLD_DisplReInit(void);
 int SLD_DisplDeInit(void);
 
 
-__inline e_FSMState_SuperLoopDisplay SLD_FSMState(void)
-{
-	return SLD_FSM_State;
-};
-static uint8_t state_inner;
 //-------------------------for main-----------------------------------------------
+void OnOffPWR(bool newstate)
+{
+				while (e_FRS_Done!=MainTransition_P_Displ(newstate,SLD_PWR_State));
+		    SLD_PWR_State=	newstate;
+				while (e_FRS_Done!=MainTransition_P_Displ(SLD_PWR_State,SLD_PWR_State));
+};
+
+
+typedef enum  
+{SLD_FSM_InitialWait  //work
+,SLD_FSM_Off  //work
+,SLD_FSM_OnTransition //work
+,SLD_FSM_On //work
+,SLD_FSM_OffTransition //work
+,SLD_FSM_SleepTransition //work
+,SLD_FSM_Sleep           //  ready for sleep
+,SLD_FSM_WakeTransition  //work
+} e_SLD_FSM;
+static e_SLD_FSM state_inner;
 int SLD(void)
 {
 	switch (state_inner)
 	{
-		case 0: 
-			SLD_FSM_State=	e_FSMS_SLD_Off;
-			if (bVSYS)
-			{
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_Off));
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_On));
-				delayms(100);
-				SLD_DisplInit();
-
-				gwinRedrawDisplay(NULL,true);
-				
-				SLD_FSM_State=e_FSMS_SLD_On;
-		    state_inner=3;
-			}	
+		case SLD_FSM_InitialWait: // initial on
+			if (bVSYS) {state_inner=SLD_FSM_OnTransition;};
 			break;
-		case 1:	
-			SLD_FSM_State=	e_FSMS_SLD_Off;
+		case SLD_FSM_Off:	// off
 			if (button_sign&&bVSYS)
 			{
-				state_inner=2;
+				state_inner=SLD_FSM_OnTransition;
 				button_sign=0;
+			}
+			else
+			{ 
+			//	if (SLD_GoToSleep) && (now-lastbuttontime>delay) state_inner=SLD_FSM_SleepTransition;
 			};
 			break;
-		case 2:
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_Off));
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_On));
+		case SLD_FSM_OnTransition: //on transition
+				OnOffPWR(true);
 				SLD_DisplInit();
-		    gwinRedrawDisplay(NULL,true);
-				SLD_FSM_State=e_FSMS_SLD_On;
-		    state_inner=3;
-
-		case 3: 
+//		    gwinRedrawDisplay(NULL,true);
+		    state_inner=SLD_FSM_On;
+//   break;
+		case SLD_FSM_On: // on
 #ifdef def_debug_AccDispay
 	    	SLDwACC();
 #else
@@ -121,17 +136,31 @@ int SLD(void)
 #endif		
   		if ((!bVSYS)|button_sign)
 			{
-				SLD_DisplDeInit();
-				
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_Off,e_FSMS_SLD_On));
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_Off,e_FSMS_SLD_Off));
-				
 				button_sign=0;
-				SLD_FSM_State=e_FSMS_SLD_Off;
-				state_inner=1;
+				state_inner=SLD_FSM_OffTransition;
 			};
 			break;
-    default: SLD_FSM_State=	e_FSMS_SLD_Off;		
+		case SLD_FSM_OffTransition: 
+      	SLD_DisplDeInit();               //off transition
+        OnOffPWR(false);				
+				state_inner=SLD_FSM_Off;
+		  break;	
+		case SLD_FSM_SleepTransition:// sleep transition
+		  //last buttontime = now-delay
+		  state_inner=SLD_FSM_Sleep; 
+		  //break;
+		case SLD_FSM_Sleep:
+			SLD_PowerState= e_PS_ReadySleep;
+			SLD_PWR_State=	false;		
+		  //if now-lastbuttontime<delay 
+		    {
+		      state_inner=SLD_FSM_WakeTransition;
+				};
+			break;
+		case SLD_FSM_WakeTransition: //wake transition
+		  state_inner=SLD_FSM_Off;
+		break;
+    default: state_inner=SLD_FSM_InitialWait;		
 	};
 	return 0;
 }

@@ -10,6 +10,14 @@ Setting up shared resources that are used by multiple software modules
 #include "BoardSetup.h"
 #include "fpga.h"
 
+//for power
+void BoardSetup_InSleep(void)
+{
+};
+void BoardSetup_OutSleep(void)
+{
+};
+
 
 /*************************************************************************************************************************
 *

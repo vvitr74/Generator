@@ -75,8 +75,10 @@
 #define TPSIRQ (!((GPIOA->IDR)& GPIO_IDR_ID7_Msk))
 
 typedef uint32_t systemticks_t;
+
 		
 extern volatile   systemticks_t SystemTicks;	
+extern volatile   systemticks_t BS_LastButtonPress;
 extern uint16_t button_sign;		
 extern uint8_t  SystemStatus;
 

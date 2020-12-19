@@ -8,10 +8,8 @@
 extern void SuperLoop_PowerModes_Init(void);
 extern void SuperLoop_PowerModes(void);
 
-extern e_FunctionReturnState  MainTransition_P_Displ(bool PWR_state_new,bool PWR_state_old);
-
-extern e_FunctionReturnState  MainTransition_P_Pl(bool PWR_state_new,bool PWR_state_old);
-
+extern void PM_OnOffPWR_D(bool newstate);
+extern void PM_OnOffPWR_Pl(bool newstate);
 
 #endif
 

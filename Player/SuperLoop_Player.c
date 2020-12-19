@@ -8,6 +8,7 @@
 
 #include "Spi1.h"
 #include "SuperLoop_Player.h"
+#include "board_PowerModes.h"
 
 uint16_t freqStartByte;
 uint32_t freq;
@@ -601,6 +602,7 @@ void SLP(void)
 			//spi1FifoClr();
 			//spi2FifoClr();
 			SLPl_PowerState=e_PS_Work;//RDD for pwr
+			PM_OnOffPWR_Pl(true);
 			fpgaConfig();
 			fpgaFlags.labelsUpdate=1;
 			//******************************************
@@ -661,6 +663,7 @@ void SLP(void)
 		fpgaFlags.clockStart=0;
 		fpgaFlags.labelsUpdate=1;
 		SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
+		PM_OnOffPWR_Pl(false);
 		//NVIC_SystemReset();
 	}
 	

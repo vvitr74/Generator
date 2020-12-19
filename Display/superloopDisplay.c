@@ -19,61 +19,61 @@
 #include "mainFSM.h"
 #include "board_PowerModes.h"
 
-extern char	heap[GFX_OS_HEAP_SIZE];
-extern gThread	hThread;
+//-------------------------for main-----------------------------------------------
 
-uint8_t fileSect=0;
+typedef enum  
+{SLD_FSM_InitialWait  		//work
+,SLD_FSM_Off  						//work
+,SLD_FSM_OnTransition 		//work
+,SLD_FSM_On 							//work
+,SLD_FSM_OffTransition 		//work
+,SLD_FSM_DontMindSleep		//e_PS_DontMindSleep
+,SLD_FSM_SleepTransition 	//work
+,SLD_FSM_Sleep           	//  ready for sleep
+,SLD_FSM_WakeTransition  	//work
+,SLD_FSM_NumOfEl	
+} e_SLD_FSM;
 
+/**
+\brief Map e_SLD_FSM onto e_PowerState
 
-void GFXPreinit (void)
-{ 
-	uint32_t i;
-
-	for (i=0;i<GFX_OS_HEAP_SIZE;i++)
-	{heap[i]=0;};
-	hThread=0;
+e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
+*/
+const e_PowerState SLD_Encoder[SLD_FSM_NumOfEl]=
+{e_PS_Work						//SLD_FSM_InitialWait
+,e_PS_Work						//SLD_FSM_Off
+,e_PS_Work						//SLD_FSM_OnTransition
+,e_PS_Work						//SLD_FSM_On
+,e_PS_Work						//SLD_FSM_OffTransition 
+,e_PS_DontMindSleep		//SLD_FSM_DontMindSleep	
+,e_PS_DontMindSleep		//SLD_FSM_SleepTransition
+,e_PS_ReadySleep			//SLD_FSM_Sleep
+,e_PS_Work						//SLD_FSM_WakeTransition
 };
 
+static e_SLD_FSM state_inner;
 
 //---------------------------------for power sleep---------------------------------------------
-static e_PowerState SLD_PowerState; 
+//static e_PowerState SLD_PowerState; 
 static bool SLD_GoToSleep;
 
 __inline e_PowerState SLD_GetPowerState(void)
 {
-	 return SLD_PowerState;
+	 return SLD_Encoder[state_inner];
 };
 
 __inline e_PowerState SLD_SetSleepState(bool state)
 {
 	SLD_GoToSleep=state;
-	return SLD_PowerState;
-};
-
-//----------------------------------for power on off--------------------------------------------
-static bool SLD_PWR_State;
-
-__inline bool SLD_PWRState(void)
-{
-	return SLD_PWR_State;
+	return SLD_Encoder[state_inner];
 };
 
 
-//------------------------ for update ------------------------------------------
+//------------------------ for Display update ----------------------------------
 static systemticks_t LastUpdateTime;
 #define DisplayUpdatePeriod 1000
 
-//--------------------------------for uGFX--------------------------------------
-GListener	gl;
-GHandle	ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
-GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12;
-GHandle	ghList1;
 
-static	GEvent* pe;
-//static const gOrientation	orients[] = { gOrientation0, gOrientation90, gOrientation180, gOrientation270 };
-//static	unsigned which;
-
-static void createDebugLabels(void);
 //---------------------- Control grafical objects------------------------------
 int SLDw(void);
 void displayACC(void);
@@ -83,29 +83,11 @@ int SLD_DisplInit(void);
 int SLD_DisplReInit(void);
 int SLD_DisplDeInit(void);
 
+#define SLD_SleepDelay 1000
 
-//-------------------------for main-----------------------------------------------
-void OnOffPWR(bool newstate)
-{
-				while (e_FRS_Done!=MainTransition_P_Displ(newstate,SLD_PWR_State));
-		    SLD_PWR_State=	newstate;
-				while (e_FRS_Done!=MainTransition_P_Displ(SLD_PWR_State,SLD_PWR_State));
-};
-
-
-typedef enum  
-{SLD_FSM_InitialWait  //work
-,SLD_FSM_Off  //work
-,SLD_FSM_OnTransition //work
-,SLD_FSM_On //work
-,SLD_FSM_OffTransition //work
-,SLD_FSM_SleepTransition //work
-,SLD_FSM_Sleep           //  ready for sleep
-,SLD_FSM_WakeTransition  //work
-} e_SLD_FSM;
-static e_SLD_FSM state_inner;
 int SLD(void)
 {
+	systemticks_t SLD_LastButtonPress;
 	switch (state_inner)
 	{
 		case SLD_FSM_InitialWait: // initial on
@@ -119,11 +101,13 @@ int SLD(void)
 			}
 			else
 			{ 
-			//	if (SLD_GoToSleep) && (now-lastbuttontime>delay) state_inner=SLD_FSM_SleepTransition;
+				SLD_LastButtonPress=BS_LastButtonPress;
+				if (((SystemTicks-SLD_LastButtonPress)>SLD_SleepDelay)) 
+					 state_inner=SLD_FSM_SleepTransition;
 			};
 			break;
 		case SLD_FSM_OnTransition: //on transition
-				OnOffPWR(true);
+				PM_OnOffPWR_D(true);
 				SLD_DisplInit();
 //		    gwinRedrawDisplay(NULL,true);
 		    state_inner=SLD_FSM_On;
@@ -142,17 +126,27 @@ int SLD(void)
 			break;
 		case SLD_FSM_OffTransition: 
       	SLD_DisplDeInit();               //off transition
-        OnOffPWR(false);				
+        PM_OnOffPWR_D(false);				
 				state_inner=SLD_FSM_Off;
 		  break;	
+		case SLD_FSM_DontMindSleep:
+			  SLD_LastButtonPress=BS_LastButtonPress;
+		    if (SLD_GoToSleep) 
+						state_inner=SLD_FSM_SleepTransition;
+				if (((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) 
+						state_inner=SLD_FSM_Off;  //has more priority
+			break;
 		case SLD_FSM_SleepTransition:// sleep transition
-		  //last buttontime = now-delay
+		  //reset interrupt pending
+		  EXTI->RPR1=EXTI_RPR1_RPIF5;//reset interrupt pending
+		  EXTI->FPR1=EXTI_FPR1_FPIF5;//reset interrupt pending
 		  state_inner=SLD_FSM_Sleep; 
 		  //break;
 		case SLD_FSM_Sleep:
-			SLD_PowerState= e_PS_ReadySleep;
-			SLD_PWR_State=	false;		
-		  //if now-lastbuttontime<delay 
+			//SLD_PowerState= e_PS_ReadySleep;
+//			SLD_PWR_State=	false;		
+        SLD_LastButtonPress=BS_LastButtonPress;
+				if ((!SLD_GoToSleep) || ((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) state_inner=SLD_FSM_SleepTransition;
 		    {
 		      state_inner=SLD_FSM_WakeTransition;
 				};
@@ -170,14 +164,34 @@ int SLD_init(void)
 	return 0;
 };
 
-////------------------------FSM control--------------------------------------------
 
-//GListener	gl;
-//GHandle		ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
-//GHandle		ghList1 /*, ghList2*/;
-//static	GEvent* pe;
+////------------------------Display control--------------------------------------------
+GListener	gl;
+GHandle	ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
+GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12;
+GHandle	ghList1;
+
+static	GEvent* pe;
+//static const gOrientation	orients[] = { gOrientation0, gOrientation90, gOrientation180, gOrientation270 };
 //static	unsigned which;
-//static GHandle  ghButton1, ghButton2;
+
+static void createDebugLabels(void);
+
+//--------------------------------for uGFX--------------------------------------
+extern char	heap[GFX_OS_HEAP_SIZE];
+extern gThread	hThread;
+
+uint8_t fileSect=0;
+
+void GFXPreinit (void)
+{ 
+	uint32_t i;
+
+	for (i=0;i<GFX_OS_HEAP_SIZE;i++)
+	{heap[i]=0;};
+	hThread=0;
+};
+
 
 int SLD_DisplDeInit(void)
 {

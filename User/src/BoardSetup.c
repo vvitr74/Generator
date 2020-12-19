@@ -13,9 +13,13 @@ Setting up shared resources that are used by multiple software modules
 //for power
 void BoardSetup_InSleep(void)
 {
+	__DMB();
+	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
+	__DMB();
 };
 void BoardSetup_OutSleep(void)
 {
+	 SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 };
 
 
@@ -28,6 +32,7 @@ void BoardSetup_OutSleep(void)
 uint8_t SystemStatus;
 
 volatile systemticks_t SystemTicks;
+volatile systemticks_t BS_LastButtonPress;
 
 int BSInit(void)
 {
@@ -44,7 +49,7 @@ int BSInit(void)
 uint16_t button_sign;
 
 //******************************************** for Display period= 1 ms ***************************************************
-
+ 
 void SysTick_Handler(void) 
 {
   static uint32_t ledTick = 0;
@@ -73,6 +78,7 @@ void SysTick_Handler(void)
 //		 };       
 //    }
   button_new =(GPIOA->IDR)& GPIO_IDR_ID5_Msk ;
+	if (button_new) {BS_LastButtonPress=SystemTicks;};
 	if  (((uint16_t)button_new)==button_old) 
 		    button_stable_new =button_new;
 	button_old=button_new;
@@ -199,6 +205,8 @@ void boardIoPinInit(void){
 										
 	/*                   button                  */									
 	GPIOA->MODER &= ~(GPIO_MODER_MODE5_Msk);                  // input 
+	/*                   TPS                       */
+	GPIOA->MODER &= ~(GPIO_MODER_MODE7_Msk);                  // input
   //GPIOA->IDR;
   /* SETTING GPIO FOR TOUCHPAD */ 
 	//i2c2

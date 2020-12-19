@@ -259,7 +259,7 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 			                rstate=BQ25703_IIN_Check(currl);
                       break;    //5
 //		case e_TF_ClrTPSInt:								 rstate=TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);// in TPS65982_6_RDO_R
-		case e_TF_ReadTPSState:              rstate=TPS65982_6_RDO_R(TPS87,  &I87, &V87);  break;//6
+		case e_TF_ReadTPSState:              rstate=ReadTPSState();  break;//6
 		case e_TF_BQ28z610_Read_Temperature: rstate=BQ28z610_Read(e_BQ28z610_Temperature,&mFSM_BQ28z610_Temperature);break;//7  
 		case e_TF_BQ28z610_Read_Voltage:     rstate=BQ28z610_Read(e_BQ28z610_Voltage,&pv_BQ28z610_Voltage);   break;//8
 		case e_TF_BQ25703_ADCIBAT_Read:      rstate=BQ25703_ADCIBAT_Read(&pvIcharge,&pvIdescharge);   break;//9
@@ -358,18 +358,34 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 
 e_FunctionReturnState ReadTPSState(void)
 { static uint8_t state;
+	static uint8_t buf[20];
 	e_FunctionReturnState returnstate,returnstatel;
 	  returnstate=e_FRS_Processing;
 	  switch(state)
 	  {
-	  case 0:  // clear interrupt
+	  case 0:  //read interrupt    //debug
+      	  returnstatel=TPS65982_6_RW(TPS87,  e_TPS65987_IntEvent1, buf,  11,  I2C_OP_READ);
+			   if (e_FRS_Done==returnstatel)
+	           {state++;};
+			   if (e_FRS_DoneError==returnstatel)
+	           {state=5;};
+						 break;
+    case 1:			// clear interrupt
 			       returnstatel=TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);
 			   if (e_FRS_Done==returnstatel)
 	           {state++;};
 			   if (e_FRS_DoneError==returnstatel)
-	           {state=3;};
+	           {state=5;};
 						 break;
-		case 1:	
+		case 2:				 //read interrupt    //debug
+		      	  returnstatel=TPS65982_6_RW(TPS87,  e_TPS65987_IntEvent1, buf,  11,  I2C_OP_READ);
+			   if (e_FRS_Done==returnstatel)
+	           {state++;};
+			   if (e_FRS_DoneError==returnstatel)
+	           {state=5;};
+						 break;
+				 
+		case 3:	
 	          {returnstatel=TPS65982_6_RDO_R(TPS87,  &I87, &V87);
 			   if (e_FRS_Done==returnstatel)
 	           {state++;};
@@ -377,10 +393,10 @@ e_FunctionReturnState ReadTPSState(void)
 	           {state+=2;};
 	          }
 			  break;
-		case 2:	returnstate=e_FRS_Done;//Normal exit
+		case 4:	returnstate=e_FRS_Done;//Normal exit
 						state=0;
 			      break;
-		case 3: I87=0; V87=0;
+		case 5: I87=0; V87=0;
 						returnstate=e_FRS_DoneError;		//Error
             state=0;						
 						break;

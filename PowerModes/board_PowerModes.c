@@ -1,20 +1,18 @@
 #include "stm32g0xx.h"
 #include <stdbool.h>
+#include "PowerModes_Defs.h"
 #include "board_PowerModes.h"
 #include "BoardSetup.h"
 #include "superloop.h"
 #include "superloopDisplay.h"
 #include "superloop_Player.h"
 
-#define SLP_WakeUpPause 500
+//#define SLP_WakeUpPause 500
 
-
-
-
-static systemticks_t SLP_LastUpdateTime;
+//static systemticks_t SLP_LastUpdateTime;
 static uint8_t SLP_state;
-static bool SLP_sleep;
-static bool SLP_WakeUP;
+//static bool SLP_sleep;
+//static bool SLP_WakeUP;
 
 /*************************************************************************************************************************
 *
@@ -28,7 +26,7 @@ void EXTI4_15_IRQHandler(void)
 }
 //***********************************************************************************************************************
 
-
+void bPM_FSMPower_Init(void);
 
 void enterToStop(void);
 
@@ -47,65 +45,57 @@ void SuperLoop_PowerModes_Init(void)
 	EXTI->EMR1 |= EXTI_EMR1_EM5; // EXTI5 event unmasked
 	NVIC_SetPriority(EXTI4_15_IRQn, 0);
 	NVIC_EnableIRQ(EXTI4_15_IRQn);
+		
+  bPM_FSMPower_Init();
     
 	}		
 	
+/**
+\brief  control entering into sleep
 	
+	0: All 	DontMindSleep ? - > 	sleep request		-> 	goto 1
+	1: All ready for sleep ?- > 	goto 2
+	   Any in work mode ? 	- > 	goto 3
+	2: Sleep/wakeup       	- > 	goto 2
+	3: wakeup             	- > 	wake up request	->	goto 0
+	
+*/	
 void SuperLoop_PowerModes(void)
 	{
-		bool rplayer;
-		bool rdispl;
-		bool racc;
+		e_PowerState rplayer,rdispl,racc,rcomm;
+
+		rplayer=	SLPl_GetPowerState();
+		rdispl=		SLD_GetPowerState();
+		racc=			SLAcc_GetPowerState();
+		//rcomm=SLPo_GetPowerState();
+		
 		switch (SLP_state)
 		{
 			case 0://work mode
-				if (!SLP_sleep)
-					{break;
-					}
-				SLP_state=1;
-			case 1:	
-    		rplayer=SuperLoop_Player_SleepIn();
-    		rdispl=SuperLoop_Disp_SleepIn();
-	    	racc=SuperLoop_Acc_SleepIn();
-    		if (rdispl && rplayer)
-					{ 
-//            enterToStop();
-						SLP_sleep=false;
-      		};
-		    SuperLoop_Acc_SleepOut();
-		    SuperLoop_Disp_SleepOut();
-	    	SuperLoop_Player_SleepOut();		
-			SLP_LastUpdateTime=SystemTicks;
-            button_sign = 1;            
-			SLP_state=2;	
-			break;	
-			
-            case 2: //WakeUp?
-			
-				 if (SLP_WakeUP)
-				  {
-						SLP_state=0;
-						SLP_WakeUP=false;
-						break;
-				  }
-//				if (SLP_sleep)
-//					{
-//						SLP_state=1;
-//				    SLP_sleep=false;
-//						break;
-//					};	
-			   if (!(SLD_FSMState()||SLPl_FSMState()))
-				    { 
-				  	 SLP_state=0;
-						 break;
-				    }
-						
-				if (SLP_WakeUpPause<(SystemTicks-SLP_LastUpdateTime))
+				if (rdispl&&racc&&rplayer)
 					{
-					  SLP_state=1;
-						break;
-          };
-					break;
+						SLPl_SetSleepState(true);
+						SLD_SetSleepState(true);
+						SLAcc_SetSleepState(true);
+						SLP_state++;
+					}
+				break;
+			case 1:	//wait transition for sleep
+					if (!(rcomm&&rdispl)) SLP_state= 3;
+					if ((e_PS_ReadySleep==rcomm)&&(e_PS_ReadySleep==rdispl)) SLP_state++;
+				break;
+			case 2:
+				    BoardSetup_InSleep();
+//            enterToStop();
+			      BoardSetup_OutSleep(); 
+			      SLP_state=1;
+              break;			
+			case 3: //weakup
+						SLAcc_SetSleepState(false);	
+            SLD_SetSleepState(false);	
+            SLPl_SetSleepState(false);	
+			      SLP_state=0;
+				break;	
 			default: 	SLP_state=0;
 	   };
 	 }		
@@ -115,7 +105,7 @@ void enterToStop(void)
     while (GPIOA->IDR & GPIO_IDR_ID5);
 
   
-  	NVIC_DisableIRQ(TIM3_IRQn);
+  NVIC_DisableIRQ(TIM3_IRQn);
 	NVIC_DisableIRQ(I2C2_IRQn);
 	NVIC_DisableIRQ(I2C1_IRQn);
 	NVIC_DisableIRQ(USART1_IRQn);
@@ -150,7 +140,46 @@ void enterToStop(void)
     
 }	 
 	 
-	 
+	
+
+
+//------------------------------power on off----------------------------------------
+
+static bool PM_PWR_State_D;
+static bool PM_PWR_State_Pl;
+
+e_FunctionReturnState  MainTransition_P_Displ(bool PWR_state_Displ_new,bool PWR_state_Displ_old);
+e_FunctionReturnState  MainTransition_P_Pl(bool PWR_state_Pl_new,bool PWR_state_Pl_old);
+
+//--------------------------interface functions-----------------------------------------------
+
+void PM_OnOffPWR_D(bool newstate)
+{
+				while (e_FRS_Done!=MainTransition_P_Displ(newstate,PM_PWR_State_D));
+		    PM_PWR_State_D=	newstate;
+				while (e_FRS_Done!=MainTransition_P_Displ(PM_PWR_State_D,PM_PWR_State_D));
+};
+
+void PM_OnOffPWR_Pl(bool newstate)
+{
+				while (e_FRS_Done!=MainTransition_P_Pl(newstate,PM_PWR_State_Pl));
+		    PM_PWR_State_Pl=	newstate;
+				while (e_FRS_Done!=MainTransition_P_Pl(PM_PWR_State_Pl,PM_PWR_State_Pl));
+};
+
+
+void bPM_FSMPower_Init(void)
+{
+	PM_PWR_State_D=true;
+	PM_PWR_State_Pl=true;
+	PM_OnOffPWR_D(false);
+	PM_OnOffPWR_Pl(false);
+	PM_OnOffPWR_D(true);
+	PM_OnOffPWR_Pl(true);
+};
+
+//------------------------- FSM data  ---------------------------------------------
+
 typedef uint32_t key_type;
 	
 typedef
@@ -158,7 +187,8 @@ typedef
 			key_type mFSM_Error;
 		  uint8_t state;
     } s_FSM_Data;
-
+	 
+//------------------------- FSM functions  ---------------------------------------
 
 		
 s_FSM_Data FDMD_Power;
@@ -170,7 +200,7 @@ typedef enum  {e_P_DN,e_P_DY,e_P_PlN,e_P_PlY // 4 interface pins
 	,e_P_SPI1N
 	,e_P_GLOBAL_ON,e_P_TFT_ON, e_P_UTSTAGE_ON ,e_P_UTSTAGE_OFF  ,e_P_TFT_OFF  ,e_P_GLOBAL_OFF //PWR 4+6=10
 	,e_P_SPI1Y //interface 10+2=12
-	,e_P_sleep,e_P_wakeup // 12+1=13
+	//,e_P_sleep,e_P_wakeup // 12+1=13
 ,e_P_NumOfel} e_TransitionFunctionType;// 13+1=14
 
 #define Nxx (1<<e_P_DN)   // digital pins and PWR
@@ -189,40 +219,40 @@ typedef enum  {e_P_DN,e_P_DY,e_P_PlN,e_P_PlY // 4 interface pins
 
 #define SPI1Y (1<<e_P_SPI1Y)
 
-#define sleepx (1<<e_P_sleep)
-#define wakeupx (1<<e_P_wakeup)
+//#define sleepx (1<<e_P_sleep)
+//#define wakeupx (1<<e_P_wakeup)
 
 //Display Player
 static const key_type PWR2_TransitionKeys[4][4]=  //int a[ROWS][COLS] = 
 {//     NN                                                       NY       YN         YY 
-/*NN*/{Nxx|xNx|SPI1N|Pl_P_Off|D_P_Off|Pl_G_Off|sleepx,            0,       0,        0  },
-/*NY*/{Pl_G_On|D_P_On|Pl_P_On|SPI1Y|wakeupx,                   Yxx|xYx, Pl_P_On,     0  },
-/*YN*/{Pl_G_On|D_P_On|SPI1Y|wakeupx,                           Pl_P_Off, Yxx|xNx, Pl_P_Off  },
-/*YY*/{Pl_G_On|D_P_On|Pl_P_On|SPI1Y|wakeupx,                      0,        0,    Yxx|xYx},
+/*NN*/{Nxx|xNx|SPI1N|Pl_P_Off|D_P_Off|Pl_G_Off,            0,       0,        0  },
+/*NY*/{Pl_G_On|D_P_On|Pl_P_On|SPI1Y,                   Yxx|xYx, Pl_P_On,     0  },
+/*YN*/{Pl_G_On|D_P_On|SPI1Y,                           Pl_P_Off, Yxx|xNx, Pl_P_Off  },
+/*YY*/{Pl_G_On|D_P_On|Pl_P_On|SPI1Y,                      0,        0,    Yxx|xYx},
 };
 
 //TransitionKeys[mainFMSstate][mainFMSstate]); 
 #define MStateP(d,p) ((((d)<<1)|((p)<<0))&0x3)
-e_FunctionReturnState  MainTransition_P_Displ(e_FSMState_SuperLoopDisplay state_Displ_new,e_FSMState_SuperLoopDisplay state_Displ_old)
+e_FunctionReturnState  MainTransition_P_Displ(bool PWR_state_Displ_new,bool PWR_state_Displ_old)
 {
 	uint8_t statenew;
 	uint8_t stateold;
-	e_FSMState_SuperLoopPlayer spl;
+	bool spl;
 //	e_FSMState_SuperLoopDisplay sd;
-	spl=SLPl_FSMState();
-	stateold=MStateP( state_Displ_old,spl);
-	statenew=MStateP( state_Displ_new,spl);
+	spl=PM_PWR_State_Pl;
+	stateold=MStateP( PWR_state_Displ_old,spl);
+	statenew=MStateP( PWR_state_Displ_new,spl);
 	return FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[statenew][stateold]);
 };
 
-e_FunctionReturnState  MainTransition_P_Pl(e_FSMState_SuperLoopPlayer state_Pl_new,e_FSMState_SuperLoopPlayer state_Pl_old)
+e_FunctionReturnState  MainTransition_P_Pl(bool PWR_state_Pl_new,bool PWR_state_Pl_old)
 {
 	uint8_t statenew;
 	uint8_t stateold;
-	e_FSMState_SuperLoopDisplay sd;
-	sd=SLD_FSMState();
-	stateold=MStateP( sd,state_Pl_old);
-	statenew=MStateP( sd,state_Pl_new);
+	bool sd;
+	sd=PM_PWR_State_D;
+	stateold=MStateP( sd,PWR_state_Pl_old);
+	statenew=MStateP( sd,PWR_state_Pl_new);
 	return FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[statenew][stateold]);
 };
 
@@ -284,8 +314,8 @@ e_FunctionReturnState TransitionFunction_P(uint8_t state)
 		
   	case e_P_SPI1Y: 			switchSPI1InterfacePinsToPwr(ENABLE);			rstate=e_FRS_Done; break;//4
 		
-    case e_P_sleep: SLP_sleep=true ;	SLP_WakeUP=false;									rstate=e_FRS_Done; break;
-    case e_P_wakeup:SLP_sleep=false ;	SLP_WakeUP=true;									rstate=e_FRS_Done; break;
+//    case e_P_sleep: SLP_sleep=true ;	SLP_WakeUP=false;									rstate=e_FRS_Done; break;
+//    case e_P_wakeup:SLP_sleep=false ;	SLP_WakeUP=true;									rstate=e_FRS_Done; break;
 
   	default: 																												rstate=e_FRS_DoneError;
 	}

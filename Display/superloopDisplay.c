@@ -2,7 +2,7 @@
 \file
 \brief High Level Display control
 
-
+\todo SLD_PowerState
 */	
 
 
@@ -19,39 +19,153 @@
 #include "mainFSM.h"
 #include "board_PowerModes.h"
 
-extern char	heap[GFX_OS_HEAP_SIZE];
-extern gThread	hThread;
+//-------------------------for main-----------------------------------------------
 
-uint8_t fileSect=0;
+typedef enum  
+{SLD_FSM_InitialWait  		//work
+,SLD_FSM_Off  						//work
+,SLD_FSM_OnTransition 		//work
+,SLD_FSM_On 							//work
+,SLD_FSM_OffTransition 		//work
+,SLD_FSM_DontMindSleep		//e_PS_DontMindSleep
+,SLD_FSM_SleepTransition 	//work
+,SLD_FSM_Sleep           	//  ready for sleep
+,SLD_FSM_WakeTransition  	//work
+,SLD_FSM_NumOfEl	
+} e_SLD_FSM;
 
+/**
+\brief Map e_SLD_FSM onto e_PowerState
 
-void GFXPreinit (void)
-{ 
-	uint32_t i;
-
-	for (i=0;i<GFX_OS_HEAP_SIZE;i++)
-	{heap[i]=0;};
-	hThread=0;
+e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
+*/
+const e_PowerState SLD_Encoder[SLD_FSM_NumOfEl]=
+{e_PS_Work						//SLD_FSM_InitialWait
+,e_PS_Work						//SLD_FSM_Off
+,e_PS_Work						//SLD_FSM_OnTransition
+,e_PS_Work						//SLD_FSM_On
+,e_PS_Work						//SLD_FSM_OffTransition 
+,e_PS_DontMindSleep		//SLD_FSM_DontMindSleep	
+,e_PS_DontMindSleep		//SLD_FSM_SleepTransition
+,e_PS_ReadySleep			//SLD_FSM_Sleep
+,e_PS_Work						//SLD_FSM_WakeTransition
 };
 
-//------------------------- for power--------------------------------------
-bool SuperLoop_Disp_SleepIn(void)
+static e_SLD_FSM state_inner;
+
+//---------------------------------for power sleep---------------------------------------------
+//static e_PowerState SLD_PowerState; 
+static bool SLD_GoToSleep;
+
+__inline e_PowerState SLD_GetPowerState(void)
 {
-	return true;
+	 return SLD_Encoder[state_inner];
 };
-bool SuperLoop_Disp_SleepOut(void)
+
+__inline e_PowerState SLD_SetSleepState(bool state)
 {
-	return true;
+	SLD_GoToSleep=state;
+	return SLD_Encoder[state_inner];
 };
 
-//------------------------for FSM-------------------------------------------
-static e_FSMState_SuperLoopDisplay SLD_FSM_State;
 
-//------------------------ for update ------------------------------------------
+//------------------------ for Display update ----------------------------------
 static systemticks_t LastUpdateTime;
 #define DisplayUpdatePeriod 1000
 
-//--------------------------------for uGFX--------------------------------------
+
+//---------------------- Control grafical objects------------------------------
+int SLDw(void);
+void displayACC(void);
+int SLDwACC(void);
+//------------------------FSM control--------------------------------------------
+int SLD_DisplInit(void);
+int SLD_DisplReInit(void);
+int SLD_DisplDeInit(void);
+
+#define SLD_SleepDelay 1000
+
+int SLD(void)
+{
+	systemticks_t SLD_LastButtonPress;
+	switch (state_inner)
+	{
+		case SLD_FSM_InitialWait: // initial on
+			if (bVSYS) {state_inner=SLD_FSM_OnTransition;};
+			break;
+		case SLD_FSM_Off:	// off
+			if (button_sign&&bVSYS)
+			{
+				state_inner=SLD_FSM_OnTransition;
+				button_sign=0;
+			}
+			else
+			{ 
+				SLD_LastButtonPress=BS_LastButtonPress;
+				if (((SystemTicks-SLD_LastButtonPress)>SLD_SleepDelay)) 
+					 state_inner=SLD_FSM_SleepTransition;
+			};
+			break;
+		case SLD_FSM_OnTransition: //on transition
+				PM_OnOffPWR_D(true);
+				SLD_DisplInit();
+//		    gwinRedrawDisplay(NULL,true);
+		    state_inner=SLD_FSM_On;
+//   break;
+		case SLD_FSM_On: // on
+#ifdef def_debug_AccDispay
+	    	SLDwACC();
+#else
+		    SLDw();
+#endif		
+  		if ((!bVSYS)|button_sign)
+			{
+				button_sign=0;
+				state_inner=SLD_FSM_OffTransition;
+			};
+			break;
+		case SLD_FSM_OffTransition: 
+      	SLD_DisplDeInit();               //off transition
+        PM_OnOffPWR_D(false);				
+				state_inner=SLD_FSM_Off;
+		  break;	
+		case SLD_FSM_DontMindSleep:
+			  SLD_LastButtonPress=BS_LastButtonPress;
+		    if (SLD_GoToSleep) 
+						state_inner=SLD_FSM_SleepTransition;
+				if (((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) 
+						state_inner=SLD_FSM_Off;  //has more priority
+			break;
+		case SLD_FSM_SleepTransition:// sleep transition
+		  //reset interrupt pending
+		  EXTI->RPR1=EXTI_RPR1_RPIF5;//reset interrupt pending
+		  EXTI->FPR1=EXTI_FPR1_FPIF5;//reset interrupt pending
+		  state_inner=SLD_FSM_Sleep; 
+		  //break;
+		case SLD_FSM_Sleep:
+			//SLD_PowerState= e_PS_ReadySleep;
+//			SLD_PWR_State=	false;		
+        SLD_LastButtonPress=BS_LastButtonPress;
+				if ((!SLD_GoToSleep) || ((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) state_inner=SLD_FSM_SleepTransition;
+		    {
+		      state_inner=SLD_FSM_WakeTransition;
+				};
+			break;
+		case SLD_FSM_WakeTransition: //wake transition
+		  state_inner=SLD_FSM_Off;
+		break;
+    default: state_inner=SLD_FSM_InitialWait;		
+	};
+	return 0;
+}
+
+int SLD_init(void)
+{
+	return 0;
+};
+
+
+////------------------------Display control--------------------------------------------
 GListener	gl;
 GHandle	ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
 GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12;
@@ -62,93 +176,22 @@ static	GEvent* pe;
 //static	unsigned which;
 
 static void createDebugLabels(void);
-//---------------------- Control grafical objects------------------------------
-int SLDw(void);
-void displayACC(void);
-int SLDwACC(void);
-//------------------------FSM control--------------------------------------------
-int SLD_DisplInit(void);
-int SLD_DisplReInit(void);
-int SLD_DisplDeInit(void);
 
+//--------------------------------for uGFX--------------------------------------
+extern char	heap[GFX_OS_HEAP_SIZE];
+extern gThread	hThread;
 
-__inline e_FSMState_SuperLoopDisplay SLD_FSMState(void)
-{
-	return SLD_FSM_State;
-};
-static uint8_t state_inner;
-//-------------------------for main-----------------------------------------------
-int SLD(void)
-{
-	switch (state_inner)
-	{
-		case 0: 
-			SLD_FSM_State=	e_FSMS_SLD_Off;
-			if (bVSYS)
-			{
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_Off));
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_On));
-				delayms(100);
-				SLD_DisplInit();
+uint8_t fileSect=0;
 
-				gwinRedrawDisplay(NULL,true);
-				
-				SLD_FSM_State=e_FSMS_SLD_On;
-		    state_inner=3;
-			}	
-			break;
-		case 1:	
-			SLD_FSM_State=	e_FSMS_SLD_Off;
-			if (button_sign&&bVSYS)
-			{
-				state_inner=2;
-				button_sign=0;
-			};
-			break;
-		case 2:
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_Off));
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_On,e_FSMS_SLD_On));
-				SLD_DisplInit();
-		    gwinRedrawDisplay(NULL,true);
-				SLD_FSM_State=e_FSMS_SLD_On;
-		    state_inner=3;
+void GFXPreinit (void)
+{ 
+	uint32_t i;
 
-		case 3: 
-#ifdef def_debug_AccDispay
-	    	SLDwACC();
-#else
-		    SLDw();
-#endif		
-  		if ((!bVSYS)|button_sign)
-			{
-				SLD_DisplDeInit();
-				
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_Off,e_FSMS_SLD_On));
-				while (e_FRS_Done!=MainTransition_P_Displ(e_FSMS_SLD_Off,e_FSMS_SLD_Off));
-				
-				button_sign=0;
-				SLD_FSM_State=e_FSMS_SLD_Off;
-				state_inner=1;
-			};
-			break;
-    default: SLD_FSM_State=	e_FSMS_SLD_Off;		
-	};
-	return 0;
-}
-
-int SLD_init(void)
-{
-	return 0;
+	for (i=0;i<GFX_OS_HEAP_SIZE;i++)
+	{heap[i]=0;};
+	hThread=0;
 };
 
-////------------------------FSM control--------------------------------------------
-
-//GListener	gl;
-//GHandle		ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
-//GHandle		ghList1 /*, ghList2*/;
-//static	GEvent* pe;
-//static	unsigned which;
-//static GHandle  ghButton1, ghButton2;
 
 int SLD_DisplDeInit(void)
 {

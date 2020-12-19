@@ -144,7 +144,7 @@ SL_CommModbusInit();
 //fpgaConfig();
 //fpgaConfig();
 //end debug FPGA config	
-		
+	PM_OnOffPWR_Pl(false);	
   while(1){
 
 #ifdef 	COMMS 

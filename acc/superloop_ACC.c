@@ -1,5 +1,23 @@
-#include <stdint.h>
+/**
+\file high level file for Control TPS65987, bq25703a, bq 28z610
 
+For sleep mode:
+used typedef enum  {e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep} e_PowerState;
+e_PowerState SLPl_GetPoewerState(void);
+e_PowerState SLPl_SetSleepState(bool state);
+
+using:
+If all relevant modules have state e_PS_DontMindSleep or e_PS_ReadySleep -> 
+send to all modules requires for sleep SLPl_SetSleepState(true)->
+if all modules e_PS_ReadySleep-> sleep
+if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
+
+\todo clear interrupt pending
+\todo exit mainFSMfunction on only on steady state - > need check
+
+*/
+
+#include <stdint.h>
 #include "superloop.h"
 
 //#include "i2c_soft.h"
@@ -31,34 +49,65 @@ static uint16_t V86;
 
 
 //---------------------------------for power---------------------------------------------
-//TPS65982_6_RW(e_I2C_API_Devices device, e_TPS65982_6_Registers reg, uint8_t *data, uint8_t qntByte, uint8_t RW);
-//returnstateL1=TPS65982_6_RW(device,e_TPS65982_6_StatusRegister,data,255,I2C_OP_READ);
-static unsigned char u8_11_ff[11]={0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};//ToDo do const
-bool SuperLoop_Acc_SleepIn(void)
-{ 
-	e_FunctionReturnState returnstateL1;
-	//bool returnstateL;
-	returnstateL1=e_FRS_Processing;
-	do 
-		{
-	    returnstateL1 = TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);
-		}
-  while ((e_FRS_Done!=returnstateL1)&&(e_FRS_DoneError!=	returnstateL1))	;
+static e_PowerState SLAcc_PowerState; 
+static bool SLAcc_GoToSleep;
 
-		return (e_FRS_Done==returnstateL1);
-};
-
-bool SuperLoop_Acc_SleepOut(void)
+__inline e_PowerState SLAcc_GetPowerState(void)
 {
-	return true;
+	 return SLAcc_PowerState;
 };
-//-------------------------------- FSM -------------------------------------------------
+
+__inline e_PowerState SLAcc_SetSleepState(bool state)
+{
+	SLAcc_GoToSleep=state;
+	return SLAcc_PowerState;
+};
+//-------------------------------- loop -------------------------------------------------
+
+const e_PowerState encoderPowerState[16]=
+{e_PS_DontMindSleep //0
+,e_PS_ReadySleep   //1
+,e_PS_Work //2
+,e_PS_Work //3
+,e_PS_Work //4
+,e_PS_Work //5
+,e_PS_Work //6
+,e_PS_Work //7
+,e_PS_Work //8
+,e_PS_Work //9
+,e_PS_Work //10
+,e_PS_Work //11
+,e_PS_Work //12
+,e_PS_Work //13
+,e_PS_Work //14
+,e_PS_Work //15	
+};
+e_PowerState GetNewPowerState(e_FunctionReturnState rstatel);
 
 
-void maintask()
-{e_FunctionReturnState returnstate;
-e_FunctionReturnState rstatel;
-  returnstate=e_FRS_Processing;
+
+void SuperLoopACC_init(void)
+{
+  SLAcc_GoToSleep=false;	
+	SLAcc_PowerState=e_PS_Work;
+	
+	initI2c1();
+  I2C_API_INIT();
+  BQ25703_DriverReset();
+  //while ((get_sysTick_ms()-time) <500) {;};
+};
+
+
+/**
+\brief control sleep state
+
+
+*/
+void SuperLoopACC(void)
+{ //e_FunctionReturnState returnstate;
+  e_FunctionReturnState rstatel;
+	e_PowerState SLAcc_PowerStateL;
+  //returnstate=e_FRS_Processing;
 
   switch(maintaskstate)
   {
@@ -114,46 +163,50 @@ e_FunctionReturnState rstatel;
 //                                 {maintaskstate++;};
            break;
    case 15://do	{
-							rstatel=mainFSMfunction(); 
+					 rstatel=mainFSMfunction(); 
 					 SystemStatus=mainFMSstate;	 
 		       if (e_FRS_Done==rstatel)
-             {maintaskstate=15;};
+             {maintaskstate=16;};
 					if (e_FRS_DoneError==rstatel)
-             {maintaskstate=15;};//reset to init state	 
+             {maintaskstate=16;};//	 
 					// } while ((e_FRS_Done!=rstatel)&&(e_FRS_DoneError!=rstatel));
            break;
-
+   case 16: //work or don't mind sleep
+          SLAcc_PowerState=GetNewPowerState(rstatel);
+					if (e_PS_ReadySleep!=SLAcc_PowerState) 
+						{maintaskstate=15;}
+					else
+            { //off i2c
+						  maintaskstate=17;};
+		 break;
+	 case 17://ready
+		    SLAcc_PowerState=GetNewPowerState(rstatel);
+				if (e_PS_ReadySleep!=SLAcc_PowerState)
+				{	// on i2c
+					maintaskstate=15;
+				};	
+		 break;
+	 
   default: maintaskstate=0;
   };
 
 };
 
-
-
-void SuperLoopACC_init(void)
+e_PowerState GetNewPowerState(e_FunctionReturnState rstatel)
 {
-//	type_sysTick_ms time;
-//		time = get_sysTick_ms();
-//i2c_init_node();
-	initI2c1();
-I2C_API_INIT();
-//i2c_init_tasklocal();
-BQ25703_DriverReset();
-//while ((get_sysTick_ms()-time) <500) {;};
-};
+	uint8_t DataFor_SLAcc_PowerState; // into function?
+			    DataFor_SLAcc_PowerState=0;
+		      if (SLAcc_GoToSleep ) 										DataFor_SLAcc_PowerState|=(1<<0);
+					if (TPSIRQ) 															DataFor_SLAcc_PowerState|=(1<<1);
+	        if (e_FRS_DoneError==rstatel)             DataFor_SLAcc_PowerState|=(1<<2);
+	        if (!(
+						     (e_FSM_ChargeOff==mainFMSstate)
+					     ||(e_FSM_RestOff  ==mainFMSstate)
+	             )
+					   )	
+			                              DataFor_SLAcc_PowerState|=(1<<3);
+					
+					return encoderPowerState[DataFor_SLAcc_PowerState];
+					
+}
 
-void SuperLoopACC(void)
-{
-//type_sysTick_ms time;
-//	time = get_sysTick_ms();
-//	i2c2_cycle_main(time, i2c_PB_HANDLE);
-//	time = get_sysTick_ms();
-//	if (1==state_of_I2Cpower_bus(eI2CofTPS82))
-//	{i2c2_cycle_main(time, i2c_82_HANDLE);};
-//	time = get_sysTick_ms();
-//	//if (1==state_of_I2Cpower_bus(eI2CofTPS86))
-//	{i2c2_cycle_main(time, i2c_86_HANDLE);};
-	maintask();
-
-
-};

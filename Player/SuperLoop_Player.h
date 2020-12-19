@@ -4,21 +4,21 @@
 #include <stdbool.h>
 #include <math.h>
 #include "stm32g0xx.h"
+#include "PowerModes_Defs.h"
 #include "SuperLoop_Comm.h"
 #include "superloopDisplay.h"
 
-// for interraction with PWR
-typedef enum  {e_FSMS_SLPl_Off,e_FSMS_SLPl_On,e_FSMS_SLPl_NumOfEl} e_FSMState_SuperLoopPlayer;
-extern __inline e_FSMState_SuperLoopPlayer SLPl_FSMState(void);
 
+//for power
+extern __inline e_PowerState SLPl_GetPowerState(void);
+extern __inline e_PowerState SLPl_SetSleepState(bool state);
+extern __inline bool SLPl_PWRState(void);
 
 // For main
 extern void SLP_init(void);
 extern void SLP(void);
 
-//for power
-extern bool SuperLoop_Player_SleepIn(void);
-extern bool SuperLoop_Player_SleepOut(void);
+
 
 //for player
 

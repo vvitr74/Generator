@@ -1,5 +1,14 @@
+/**
+\file
+
+
+\todo on/off PWR
+
+*/
+
 #include "Spi1.h"
 #include "SuperLoop_Player.h"
+#include "board_PowerModes.h"
 
 uint16_t freqStartByte;
 uint32_t freq;
@@ -41,22 +50,29 @@ uint8_t fileSec=0;
 uint8_t fileMin=0;
 uint8_t fileHour=0;
 
-//------------------------ for power---------------------------------------------
-e_FSMState_SuperLoopPlayer SLPl_FSM_State;
 
-__inline e_FSMState_SuperLoopPlayer SLPl_FSMState(void)
+//---------------------------------for power sleep---------------------------------------------
+static e_PowerState SLPl_PowerState; 
+static bool SLPl_GoToSleep;
+
+__inline e_PowerState SLPl_GetPowerState(void)
 {
-	return SLPl_FSM_State;
+	 return SLPl_PowerState;
 };
 
-
-bool SuperLoop_Player_SleepIn(void)
+__inline e_PowerState SLPl_SetSleepState(bool state)
 {
-	return true;
+	SLPl_GoToSleep=state;
+	return SLPl_PowerState;
 };
-bool SuperLoop_Player_SleepOut(void)
+
+//---------------------------------- for power on off ------------------------------------------
+
+bool SLPl_PWR_State;
+
+__inline bool SLPl_PWRState(void)
 {
-	return true;
+	return SLPl_PWR_State;
 };
 
 //-------------------------for SPI2-----------------------------------------------
@@ -565,6 +581,7 @@ void setTotalTimer(void)
 void SLP_init(void)
 {
 	initSpi_2();
+	SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
 //	fpgaFlags.fileListUpdate=1;
 }
 
@@ -584,6 +601,8 @@ void SLP(void)
 			//delay_ms(20);
 			//spi1FifoClr();
 			//spi2FifoClr();
+			SLPl_PowerState=e_PS_Work;//RDD for pwr
+			PM_OnOffPWR_Pl(true);
 			fpgaConfig();
 			fpgaFlags.labelsUpdate=1;
 			//******************************************
@@ -643,6 +662,8 @@ void SLP(void)
 		fpgaFlags.playBegin=0;
 		fpgaFlags.clockStart=0;
 		fpgaFlags.labelsUpdate=1;
+		SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
+		PM_OnOffPWR_Pl(false);
 		//NVIC_SystemReset();
 	}
 	

@@ -47,14 +47,25 @@ eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT us
 
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
-    if(usAddress >= VERSION_REG && usAddress <= SERIAL_REG)
+    if(usAddress >= VERSION_REG && usAddress < SERIAL_REG)
     {
         if((usNRegs < 1) > sizeof(VERSION))
         {
-            usNRegs = (sizeof(VERSION_REG)+1)/2;
+            usNRegs = (sizeof(VERSION)+1)/2;
         }
         
         memcpy(pucRegBuffer,VERSION, usNRegs > 1);
+        return MB_ENOERR;
+    }
+    
+    if(usAddress >= SERIAL_REG && usAddress < (SERIAL_REG + (sizeof(SERIAL)>>1)))
+    {
+        if((usNRegs < 1) > sizeof(SERIAL))
+        {
+            usNRegs = (sizeof(SERIAL)+1)/2;
+        }
+        
+        memcpy(pucRegBuffer,SERIAL, usNRegs > 1);
         return MB_ENOERR;
     }
     

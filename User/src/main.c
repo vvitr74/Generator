@@ -42,6 +42,15 @@
 #include "SL_CommModbus.h"
 #endif
 
+#ifdef SPIFFS
+#include <spiffs.h>
+  
+extern spiffs fs;
+
+int spiffs_init();
+ 
+#endif
+
 #ifdef RELEASE
 #define APPLICATION_ADDRESS (uint32_t)0x08001800 /**  offset start address */
 
@@ -122,8 +131,13 @@ SuperLoopACC_init();
 	initSpi_1();
 	SLC_init();
 	SLP_init();
-// __flashInit();
+    __flashInit();
 #endif	
+
+#ifdef SPIFFS
+spiffs_init();
+#endif
+
 
 #ifdef 	COMMS 
 SLC_init();

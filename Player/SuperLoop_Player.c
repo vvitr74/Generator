@@ -129,21 +129,27 @@ void tim3Init(void)
 	TIM3->CR1 = TIM_CR1_CEN;
 }
 
-void delay_ms(uint32_t delayTime){
-	tim3TickCounter = delayTime;
-	while(tim3TickCounter){}
+void delay_ms(uint32_t delayTime)
+{
+	uint32_t timeout = tim3TickCounter + delayTime;
+	while(tim3TickCounter < timeout)
+    {}
 }
 
 void TIM3_IRQHandler(void)
 {
-	if(TIM3->SR & TIM_SR_UIF){
+	if(TIM3->SR & TIM_SR_UIF)
+    {
 		TIM3->SR = ~TIM_SR_UIF;
-		tim3TickCounter--;
-		if(fpgaFlags.clockStart==1){
+		tim3TickCounter++;
+		
+        if(fpgaFlags.clockStart==1)
+        {
 			playClk++;
 			durTimeMs++;
 		}
-		else{
+		else
+        {
 			playClk=0;
 			durTimeMs=0;
 		}
@@ -242,6 +248,7 @@ Executes your design
 */
 void fpgaConfig(void)											//
 {
+    /*
 	uint32_t bytesCnt=0;
 	uint8_t byteBuff;
 //	byteBuff=0;
@@ -258,11 +265,11 @@ void fpgaConfig(void)											//
 	spi1FifoClr();
 //	GPIOB->BSRR=GPIO_BSRR_BR0;							//FPGA 1.2 V on
 	nCONFIG_H;
-	while(!(GPIOC->IDR & GPIO_IDR_ID7)){/** \todo timeout */}
+	while(!(GPIOC->IDR & GPIO_IDR_ID7)){}
 	delay_ms(10);
 	FPGA_CS_L;															//for logger
 	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
-		W25qxx_ReadByte(&byteBuff,FIRST_CONF_BYTE+bytesCnt);
+//		W25qxx_ReadByte(&byteBuff,FIRST_CONF_BYTE+bytesCnt);
 		spi2Transmit(&byteBuff, 1);
 		if(GPIOC->IDR & GPIO_IDR_ID6)
 			{byteBuff=0;
@@ -281,6 +288,7 @@ void fpgaConfig(void)											//
 	FPGA_CS_H;
 //	confFailed();
 	fpgaFlags.fpgaConfigComplete=0;
+    */
 }
 
 extern uint8_t fileName[50];
@@ -355,6 +363,7 @@ uint16_t getPlayFileSector(int fileInList)
 
 void getControlParam(uint16_t fileSect)
 {
+    /*
 	uint8_t temp;
 	uint8_t tempArr[6];
 	uint16_t byteCnt=0;
@@ -362,10 +371,12 @@ void getControlParam(uint16_t fileSect)
 	uint8_t chrCnt=0;
 	uint32_t startAddr=fileSect*SECTOR_SIZE;
 	
-	do{																							//skip first line	
+	
+    do{																							//skip first line	
 		W25qxx_ReadByte(&temp,startAddr+byteCnt);
 		byteCnt++;
 	}while(temp!='\n');
+    
 	
 	for(int i=0;i<playParamArr_size;i++) {playParamArr[i]=0;}
 	
@@ -373,7 +384,7 @@ void getControlParam(uint16_t fileSect)
 		W25qxx_ReadByte(&temp,startAddr+byteCnt);
 		byteCnt++;
 		if((temp>='0')&&(temp<='9')){
-			tempArr[chrCnt]=temp; /** \todo check array overflow */
+			tempArr[chrCnt]=temp; // \todo check array overflow 
 			chrCnt++;
 			continue;
 		}
@@ -388,6 +399,7 @@ void getControlParam(uint16_t fileSect)
 		}
 	}
 	freqStartByte=startAddr+byteCnt;
+    */
 }
 
 uint32_t freqInverse(uint32_t freq)
@@ -463,7 +475,7 @@ uint32_t calcFreq(uint32_t val)
 
 void loadFreqToFpga(uint16_t addr)
 {
-	uint16_t byteCnt=0;
+/*	uint16_t byteCnt=0;
 	uint8_t strCnt=0;
 	uint8_t chrCnt=0;
 //	uint32_t c;
@@ -480,7 +492,7 @@ void loadFreqToFpga(uint16_t addr)
 		W25qxx_ReadByte(&temp,addr+byteCnt);
 		byteCnt++;
 		if((temp>='0')&&(temp<='9')){
-			tempArr[chrCnt]=temp;/** \todo check overflow array */
+			tempArr[chrCnt]=temp;// \todo check overflow array 
 			chrCnt++;
 			continue;
 		}
@@ -504,6 +516,7 @@ void loadFreqToFpga(uint16_t addr)
 	}
 	FPGA_CS_H;
 	steps=steps+1;
+    */
 }
 
 void loadMultToFpga(void)
@@ -567,7 +580,8 @@ void setFileTimer(void)
 
 void setTotalTimer(void)
 {
-	uint32_t time=0;
+	/*
+    uint32_t time=0;
 	
 	playParamArr[1]=0;
 	playParamArr[3]=0;
@@ -583,6 +597,7 @@ void setTotalTimer(void)
 	totalHour=timeArr[0];
 	totalMin=timeArr[1];
 	totalSec=timeArr[2];
+    */
 }
 
 //-----------------------------------for main---------------------------------------
@@ -672,11 +687,15 @@ void SLP(void)
 	
 	//get list of files
 	if(fpgaFlags.fileListUpdate==1){
-		if(!W25qxx_IsEmptySector(fileSect,0)){
+		
+        /*
+        if(!W25qxx_IsEmptySector(fileSect,0)){
 			spi1FifoClr();
 			W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
 			fpgaFlags.addListItem=1;
 		}
+        */
+        
 		if(fileSect>=MAX_FILES_NUM){
 			fileSect=0;
 			fpgaFlags.fileListUpdate=0;

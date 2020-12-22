@@ -148,16 +148,16 @@ void W25qxx_WriteDisable(void)
 void W25qxx_WaitForWriteEnd(void)
 {
 	W25qxx_Delay(1);
-	W25QFLASH_CS_SELECT;
-	W25qxx_Spi(W25_READ_STATUS_1);
+
 
 	do{
+        W25QFLASH_CS_SELECT;
+        W25qxx_Spi(W25_READ_STATUS_1);
 		w25qxx.StatusRegister1 = W25qxx_Spi(W25QXX_DUMMY_BYTE);
-		W25qxx_Delay(1);
+        W25QFLASH_CS_UNSELECT;
+		W25qxx_Delay(5);
 	}
 	while((w25qxx.StatusRegister1 & 0x01) == 0x01);
-
-	W25QFLASH_CS_UNSELECT;
 }
 
 //###################################################################################################################

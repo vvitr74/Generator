@@ -3,6 +3,12 @@
 #include "mb.h"
 #include "mbport.h"
 #include "tim1.h"
+#include "version.h"
+
+#define VERSION_REG 0x10
+#define SERIAL_REG 0x30
+#define ERASE_FILENAME_REG 0x38
+
 
 #define REG_HOLDING_START   1000
 #define REG_HOLDING_NREGS   5
@@ -41,6 +47,17 @@ eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT us
 
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
+    if(usAddress >= VERSION_REG && usAddress <= SERIAL_REG)
+    {
+        if((usNRegs < 1) > sizeof(VERSION))
+        {
+            usNRegs = (sizeof(VERSION_REG)+1)/2;
+        }
+        
+        memcpy(pucRegBuffer,VERSION, usNRegs > 1);
+        return MB_ENOERR;
+    }
+    
     return MB_ENOREG;
 }
 

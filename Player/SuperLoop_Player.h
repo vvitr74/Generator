@@ -44,6 +44,9 @@ typedef struct {
 	uint16_t nextFreq							:1;
 	uint16_t endOfFile						:1;
 	uint16_t addListItem					:1;
+	uint16_t addNewListItem				:1;
+	uint16_t clearList						:1;
+	uint16_t timeUpdate						:1;
 } t_fpgaFlags;
 
 extern volatile t_fpgaFlags fpgaFlags;
@@ -52,16 +55,22 @@ void fpgaConfig(void);
 void getFileList(void);
 void timeToString(uint8_t* timeArr);
 void getControlParam(uint16_t fileSect);
+int verifyControlParam(void);
+void getFreq(uint16_t fileSect);
+void getFile(uint8_t fid);
 //void loadDataToFpga(uint16_t fileSect);
-uint32_t calcFreq(uint32_t val);
+//uint32_t calcFreq(uint32_t val);
+void setInitFreq(void);
+void calcFreq(void);
 void getCrc(void);
 void spi2FifoClr(void);
 void loadMultToFpga(void);
-void loadFreqToFpga(uint16_t addr);
+void loadFreqToFpga(void);
 void startFpga(void);
 
 extern void setTotalTimer(void);
 extern void setFileTimer(void);
+void getTimers(void);
 extern void SecToHhMmSs(uint32_t timeInSec);
 
 //for SPI2

@@ -20,6 +20,11 @@
 #include "board_PowerModes.h"
 
 //-------------------------for main-----------------------------------------------
+uint16_t playFileSector;
+
+
+uint8_t fileSect=0;
+uint8_t curState;
 
 typedef enum  
 {SLD_FSM_InitialWait  		//work
@@ -181,7 +186,7 @@ static void createDebugLabels(void);
 extern char	heap[GFX_OS_HEAP_SIZE];
 extern gThread	hThread;
 
-uint8_t fileSect=0;
+//uint8_t fileSect=0;
 
 void GFXPreinit (void)
 { 
@@ -221,7 +226,7 @@ extern uint8_t totalHour;
 extern uint8_t fileSec;
 extern uint8_t fileMin;
 extern uint8_t fileHour;
-volatile uint32_t playClk;
+//volatile uint32_t playClk;
 volatile int playFileInList;
 uint8_t fileName[50];
 void displayACC(void)
@@ -414,7 +419,9 @@ int SLDw(void)
 //				fpgaFlags.labelsUpdate=1;
 			}
 			if (((GEventGWinButton*)pe)->gwin == ghButton2){
-				fpgaFlags.playStop=1;
+				if(curState==3){
+					fpgaFlags.playStop=1;
+				}
 			}
 			break;
 		default:
@@ -430,73 +437,98 @@ int SLDw(void)
 		}
 	}
 	
+	if(fpgaFlags.addNewListItem==1){
+		fpgaFlags.addNewListItem=0;
+		gwinListAddItem(ghList1, (char*)fileName, gTrue);
+	}
+	
+	if(fpgaFlags.clearList==1){
+		fpgaFlags.clearList=0;
+		gwinListDeleteAll(ghList1);
+	}
+	
+	if(fpgaFlags.endOfFile==1){
+		fpgaFlags.endOfFile=0;
+		gwinListSetSelected(ghList1,playFileSector,TRUE);
+		gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
+//			playFileInList=gwinListGetSelected(ghList1);
+	}
+	
+	if(fpgaFlags.playStop==1){
+//		fpgaFlags.playStop=0;
+		gwinSetText(ghLabel3,"Init OK",gFalse);
+		gwinSetText(ghLabel4,"Stop",gFalse);
+		gwinSetText(ghLabel5,"Not selected",gFalse);
+		gwinSetText(ghLabel6,"00:00:00",gFalse);
+		gwinSetText(ghLabel7,"00:00:00",gFalse);
+		totalSec=0;
+		totalMin=0;
+		totalHour=0;
+		fileSec=0;
+		fileMin=0;
+		fileHour=0;
+	}
+	
+	if(fpgaFlags.fpgaConfig==1){
+		fpgaFlags.fpgaConfig=0;
+		gwinSetText(ghLabel3,"Config. Please wait",gFalse);
+	}
+	
 	if(fpgaFlags.labelsUpdate==1){
 		fpgaFlags.labelsUpdate=0;
 		if(fpgaFlags.fpgaConfigComplete==1){
-			gwinSetText(ghLabel3,"Config OK",gTrue);
+			gwinSetText(ghLabel3,"Config OK",gFalse);
 		}
 		else{
-			gwinSetText(ghLabel3,"Config failed",gTrue);
+			gwinSetText(ghLabel3,"Config failed",gFalse);
 		}
 		if(fpgaFlags.playBegin==1){
-			gwinSetText(ghLabel4,"Start",gTrue);
-			gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gTrue);
-		}
-		if(fpgaFlags.playStop==1){
-			fpgaFlags.playStop=0;
-			gwinSetText(ghLabel3,"Init OK",gTrue);
-			gwinSetText(ghLabel4,"Stop",gTrue);
-			gwinSetText(ghLabel5,"Not selected",gTrue);
-			gwinSetText(ghLabel6,"00:00:00",gTrue);
-			gwinSetText(ghLabel7,"00:00:00",gTrue);
-			totalSec=0;
-			totalMin=0;
-			totalHour=0;
-			fileSec=0;
-			fileMin=0;
-			fileHour=0;
+			gwinSetText(ghLabel4,"Start",gFalse);
+			gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
 		}
 	}
+	
+//	if(fpgaFlags.timeUpdate==1){
+//		fpgaFlags.timeUpdate=0;
+//	
+//		gwinSetText(ghLabel6,fileTimeArr,gFalse);
+//		
+//		
+//		gwinSetText(ghLabel7,totalTimeArr,gFalse);
+//		
+//	}
 	
 	if(playClk>=999){
 		playClk=0;
 		
 		//Program timer
-		if(fpgaFlags.endOfFile==1){
-			fpgaFlags.endOfFile=0;
-			fileHour=0;
-			fileMin=0;
-			fileSec=0;
-		}
-		else{
-			if(fileSec==0){
-				fileSec=59;
-				if(fileMin==0){
-					fileMin=59;
-					if(fileHour==0){
-						fileHour=99;
-					}
-					else{
-						fileHour--;
-					}
+		if(fileSec==0){
+			fileSec=59;
+			if(fileMin==0){
+				fileMin=59;
+				if(fileHour==0){
+					fileHour=99;
 				}
 				else{
-					fileMin--;
+					fileHour--;
 				}
 			}
 			else{
-				fileSec--;
+				fileMin--;
 			}
-			fileTimeArr[0]=fileHour/10;
-			fileTimeArr[1]=fileHour%10;
-			fileTimeArr[3]=fileMin/10;
-			fileTimeArr[4]=fileMin%10;
-			fileTimeArr[6]=fileSec/10;
-			fileTimeArr[7]=fileSec%10;
-			timeToString(fileTimeArr);
-			gwinSetText(ghLabel6,fileTimeArr,gTrue);
 		}
-		
+		else{
+			fileSec--;
+		}
+		fileTimeArr[0]=fileHour/10;
+		fileTimeArr[1]=fileHour%10;
+		fileTimeArr[3]=fileMin/10;
+		fileTimeArr[4]=fileMin%10;
+		fileTimeArr[6]=fileSec/10;
+		fileTimeArr[7]=fileSec%10;
+		timeToString(fileTimeArr);
+		gwinSetText(ghLabel6,fileTimeArr,gFalse);
+	
 		//Total timer
 		if(totalSec==0){
 			totalSec=59;
@@ -523,7 +555,7 @@ int SLDw(void)
 		totalTimeArr[6]=totalSec/10;
 		totalTimeArr[7]=totalSec%10;
 		timeToString(totalTimeArr);
-		gwinSetText(ghLabel7,totalTimeArr,gTrue);
+		gwinSetText(ghLabel7,totalTimeArr,gFalse);
 	}
 
 return 0;	

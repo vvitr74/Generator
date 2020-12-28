@@ -2,6 +2,7 @@
 #include "SuperLoop_Comm.h"
 
 uint8_t usbCmd;
+extern uint16_t startSectAddr;
 uint16_t startPageAddr;
 uint32_t rxIrqCnt;
 uint16_t startPageAddr;
@@ -75,8 +76,6 @@ void procCmdFromUsb(void)
 			return;
 		case WR_PLAY_FILES:
 			wrPlayFiles();
-//			NVIC_SystemReset();
-//			fpgaFlags.fileListUpdate=1;
 			return;
 		case RD_CONF_FILE:
 //			rdConfFile();
@@ -87,15 +86,16 @@ void procCmdFromUsb(void)
 //			rdFlash();
 			return;
 		case ER_CONF_FILE:
-			erFlash(FIRST_CONF_SECT,LAST_CONF_SECT);
-			confSectorsStatus();
+//			erFlash(FIRST_CONF_SECT,LAST_CONF_SECT);
+		W25qxx_EraseChip();
+//			confSectorsStatus();
 			usbCmd=0;
 		  rxIrqCnt=0;
 			//NVIC_SystemReset();
 			return;
 		case ER_PLAY_FILES:
 			erFlash(FIRST_PLAY_SECT,LAST_PLAY_SECT);
-			playSectorsStatus();
+//			playSectorsStatus();
 			usbCmd=0;
 		  rxIrqCnt=0;
 			//NVIC_SystemReset();
@@ -115,7 +115,9 @@ void procCmdFromUsb(void)
 void wrPlayFiles(void)
 {
 	if(usbFlags.getStartAddr==0){
-		startPageAddr=W25qxx_SectorToPage(findEmptySector());
+		//startPageAddr=W25qxx_SectorToPage(findEmptySector());
+		startSectAddr=findEmptySector();
+		startPageAddr=W25qxx_SectorToPage(startSectAddr);
 		usbFlags.getStartAddr=1;
 	}
 	wrPage();
@@ -129,7 +131,8 @@ void wrPlayFiles(void)
 		usbFlags.buff0DataRdy=0;
 		usbFlags.buff1DataRdy=0;
 		usbFlags.getStartAddr=0;
-		fpgaFlags.fileListUpdate=1;
+//		fpgaFlags.fileListUpdate=1;
+		fpgaFlags.addNewListItem=1;
 	}
 }
 
@@ -150,7 +153,7 @@ void wrConfFile(void)
 		usbFlags.buff0DataRdy=0;
 		usbFlags.buff1DataRdy=0;
 		usbFlags.getStartAddr=0;
-		fpgaFlags.fileListUpdate=1;
+//		fpgaFlags.fileListUpdate=1;
 	}
 }
 
@@ -222,6 +225,7 @@ void erFlash(uint8_t firstSectAddr, uint8_t lastSectAddr)
 		spi1FifoClr();
 		W25qxx_EraseSector(firstSectAddr);
 	}
+	fpgaFlags.clearList=1;
 }
 
 void rdFlash(void)

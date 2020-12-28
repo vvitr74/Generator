@@ -5,7 +5,10 @@
 #include "tim1.h"
 #include "version.h"
 
-#define VERSION_REG 0x10
+#define VERSION_MAJOR_REG 0x10
+#define VERSION_MINOR_REG 0x11
+#define VERSION_BUILD_REG 0x12
+
 #define SERIAL_REG 0x30
 #define ERASE_FILENAME_REG 0x38
 
@@ -47,25 +50,40 @@ eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT us
 
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
-    if(usAddress >= VERSION_REG && usAddress < SERIAL_REG)
+    uint8_t reg = pucRegBuffer[0];
+    
+    if(reg >= VERSION_MAJOR_REG && reg <= VERSION_BUILD_REG)
     {
-        if((usNRegs < 1) > sizeof(VERSION))
+        for(uint16_t i = 0; i<  usNRegs; i++)
         {
-            usNRegs = (sizeof(VERSION)+1)/2;
+            switch(reg + i)
+            {
+                case VERSION_MAJOR_REG: 
+                      pucRegBuffer[i << 1] = VERSION_MAJOR >> 8;
+                      pucRegBuffer[(i << 1)+1] = VERSION_MAJOR & 0xff;
+                break;
+                
+                case VERSION_MINOR_REG:
+                      pucRegBuffer[i << 1] = VERSION_MINOR >> 8;
+                      pucRegBuffer[(i << 1)+1] = VERSION_MINOR & 0xff;
+                break;
+                
+                case VERSION_BUILD_REG:
+                     pucRegBuffer[i << 1] = VERSION_BUILD >> 8;
+                     pucRegBuffer[(i << 1)+1] = VERSION_BUILD & 0xff;
+                break;
+                
+                default:  return MB_ENOREG;
+            }
         }
         
-        memcpy(pucRegBuffer,VERSION, usNRegs > 1);
-        return MB_ENOERR;
+      return MB_ENOERR;
     }
     
-    if(usAddress >= SERIAL_REG && usAddress < (SERIAL_REG + (sizeof(SERIAL)>>1)))
-    {
-        if((usNRegs < 1) > sizeof(SERIAL))
-        {
-            usNRegs = (sizeof(SERIAL)+1)/2;
-        }
         
-        memcpy(pucRegBuffer,SERIAL, usNRegs > 1);
+    if(reg >= SERIAL_REG && reg < (SERIAL_REG + (sizeof(SERIAL)>>1)))
+    {     
+        memcpy(pucRegBuffer,SERIAL, sizeof(SERIAL));
         return MB_ENOERR;
     }
     

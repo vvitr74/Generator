@@ -24,7 +24,7 @@ uint16_t playFileSector;
 
 
 uint8_t fileSect=0;
-uint8_t curState;
+
 
 typedef enum  
 {SLD_FSM_InitialWait  		//work
@@ -112,7 +112,7 @@ int SLD(void)
 			};
 			break;
 		case SLD_FSM_OnTransition: //on transition
-				PM_OnOffPWR_D(true);
+				PM_OnOffPWR(PM_Display,true );
 				SLD_DisplInit();
 //		    gwinRedrawDisplay(NULL,true);
 		    state_inner=SLD_FSM_On;
@@ -131,7 +131,7 @@ int SLD(void)
 			break;
 		case SLD_FSM_OffTransition: 
       	SLD_DisplDeInit();               //off transition
-        PM_OnOffPWR_D(false);				
+        PM_OnOffPWR(PM_Display,false );				
 				state_inner=SLD_FSM_Off;
 		  break;	
 		case SLD_FSM_DontMindSleep:

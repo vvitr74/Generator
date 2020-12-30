@@ -143,41 +143,6 @@ void enterToStop(void)
 	
 
 
-//------------------------------power on off----------------------------------------
-
-static bool PM_PWR_State_D;
-static bool PM_PWR_State_Pl;
-
-e_FunctionReturnState  MainTransition_P_Displ(bool PWR_state_Displ_new,bool PWR_state_Displ_old);
-e_FunctionReturnState  MainTransition_P_Pl(bool PWR_state_Pl_new,bool PWR_state_Pl_old);
-
-//--------------------------interface functions-----------------------------------------------
-
-void PM_OnOffPWR_D(bool newstate)
-{
-				while (e_FRS_Done!=MainTransition_P_Displ(newstate,PM_PWR_State_D));
-		    PM_PWR_State_D=	newstate;
-				while (e_FRS_Done!=MainTransition_P_Displ(PM_PWR_State_D,PM_PWR_State_D));
-};
-
-void PM_OnOffPWR_Pl(bool newstate)
-{
-				while (e_FRS_Done!=MainTransition_P_Pl(newstate,PM_PWR_State_Pl));
-		    PM_PWR_State_Pl=	newstate;
-				while (e_FRS_Done!=MainTransition_P_Pl(PM_PWR_State_Pl,PM_PWR_State_Pl));
-};
-
-
-void bPM_FSMPower_Init(void)
-{
-	PM_PWR_State_D=true;
-	PM_PWR_State_Pl=true;
-	PM_OnOffPWR_D(false);
-	PM_OnOffPWR_Pl(false);
-	PM_OnOffPWR_D(true);
-	PM_OnOffPWR_Pl(true);
-};
-
 //------------------------- FSM data  ---------------------------------------------
 
 typedef uint32_t key_type;
@@ -188,73 +153,127 @@ typedef
 		  uint8_t state;
     } s_FSM_Data;
 	 
+typedef enum  {e_P_SPI1Y,e_P_DY,e_P_PlY // 3 interface pins
+	            ,e_P_PlN,e_P_DN,e_P_SPI1N
+	//,e_P_GLOBAL_ON,e_P_TFT_ON, e_P_UTSTAGE_ON ,e_P_UTSTAGE_OFF  ,e_P_TFT_OFF  ,e_P_GLOBAL_OFF //PWR 4+6=10
+,e_P_NumOfel} e_TransitionFunctionType;// 13+1=14
+
+#define dxx (1<<e_P_DN)   // digital pins and PWR
+#define Dxx (1<<e_P_DY) 
+#define xpx (1<<e_P_PlN)
+#define xPx (1<<e_P_PlY)
+
+#define xxc (1<<e_P_SPI1N)
+
+#define G_P_On (1<<e_P_GLOBAL_ON)
+#define D_P_On  (1<<e_P_TFT_ON)
+#define Pl_P_On (1<<e_P_UTSTAGE_ON)
+#define Pl_P_Off (1<<e_P_UTSTAGE_OFF)
+#define D_P_Off (1<<e_P_TFT_OFF)
+#define G_P_Off (1<<e_P_GLOBAL_OFF)
+
+#define xxC (1<<e_P_SPI1Y)
+
+
+/**
+
+Display Player / communication (geberal 3.3V)
+
+Capital letter - enabled, lowercase letter - disabled, x - does not matter
+D/d - display
+P/p - player
+C/c - communication
+
+*/
+static const key_type PWR2_TransitionKeys[5][5]=  //int a[ROWS][COLS] // NEW OLD 
+{//     dpc            dPx       Dpx      DPx   dpC
+/*dpc*/{xxc|xpx|dxx,      0,        0,    		0,   	0 			},
+/*dPx*/{xxC|xPx|Dxx,   		0,        dxx|xPx,	Dxx, 	xPx 		},
+/*Dpx*/{xxC|    Dxx,   	  Dxx|xpx, 	0,    		xpx,  Dxx 		},
+/*DPx*/{xxC|xPx|Dxx,   		0,        xPx,    	0,   	xPx|Dxx	},
+/*dpC*/{xxC|Dxx    ,   		Dxx|xpx,  Dxx,    	xpx,  0 			},
+};
+		
 //------------------------- FSM functions  ---------------------------------------
 
 		
 s_FSM_Data FDMD_Power;
 e_FunctionReturnState  FSM_MainTransition_P(s_FSM_Data * pFDMD_Power,key_type key);
-e_FunctionReturnState TransitionFunction_P(uint8_t state);		
+e_FunctionReturnState TransitionFunction_P(uint8_t state);
+e_FunctionReturnState  MainTransition_Po(uint8_t NEW);
+		
+//------------------------------power on off----------------------------------------
+static uint8_t PWR_STATE;
 
-
-typedef enum  {e_P_DN,e_P_DY,e_P_PlN,e_P_PlY // 4 interface pins
-	,e_P_SPI1N
-	,e_P_GLOBAL_ON,e_P_TFT_ON, e_P_UTSTAGE_ON ,e_P_UTSTAGE_OFF  ,e_P_TFT_OFF  ,e_P_GLOBAL_OFF //PWR 4+6=10
-	,e_P_SPI1Y //interface 10+2=12
-	//,e_P_sleep,e_P_wakeup // 12+1=13
-,e_P_NumOfel} e_TransitionFunctionType;// 13+1=14
-
-#define Nxx (1<<e_P_DN)   // digital pins and PWR
-#define Yxx (1<<e_P_DY) 
-#define xNx (1<<e_P_PlN)
-#define xYx (1<<e_P_PlY)
-
-#define SPI1N (1<<e_P_SPI1N)
-
-#define Pl_G_On (1<<e_P_GLOBAL_ON)
-#define D_P_On  (1<<e_P_TFT_ON)
-#define Pl_P_On (1<<e_P_UTSTAGE_ON)
-#define Pl_P_Off (1<<e_P_UTSTAGE_OFF)
-#define D_P_Off (1<<e_P_TFT_OFF)
-#define Pl_G_Off (1<<e_P_GLOBAL_OFF)
-
-#define SPI1Y (1<<e_P_SPI1Y)
-
-//#define sleepx (1<<e_P_sleep)
-//#define wakeupx (1<<e_P_wakeup)
-
-//Display Player
-static const key_type PWR2_TransitionKeys[4][4]=  //int a[ROWS][COLS] = 
-{//     NN                                                       NY       YN         YY 
-/*NN*/{Nxx|xNx|SPI1N|Pl_P_Off|D_P_Off|Pl_G_Off,            0,       0,        0  },
-/*NY*/{Pl_G_On|D_P_On|Pl_P_On|SPI1Y,                   Yxx|xYx, Pl_P_On,     0  },
-/*YN*/{Pl_G_On|D_P_On|SPI1Y,                           Pl_P_Off, Yxx|xNx, Pl_P_Off  },
-/*YY*/{Pl_G_On|D_P_On|Pl_P_On|SPI1Y,                      0,        0,    Yxx|xYx},
+//--------------------------interface functions-----------------------------------------------
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void PM_OnOffPWR(uint8_t modul, bool newstate)
+{ 
+	      uint8_t PWR_STATE_NEW;
+	      if (newstate) 
+        {PWR_STATE_NEW=(PWR_STATE | modul)&7;}
+				else
+				{PWR_STATE_NEW=(PWR_STATE & (~modul))&7;}
+				MainTransition_Po(PWR_STATE_NEW);
+				PWR_STATE=	PWR_STATE_NEW;
 };
+
+//----------------------------------------------------------------------------
+const static uint8_t inner_PWR_state_encoder[8]={0,1,2,3,4,1,2,3};
+e_FunctionReturnState  MainTransition_Po(uint8_t NEW)
+{
+	      uint8_t inner_PWR_state_new	= inner_PWR_state_encoder[NEW];
+	      uint8_t inner_PWR_state			= inner_PWR_state_encoder[PWR_STATE];
+				while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state]));
+				while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state_new]));
+	      return e_FRS_Done;
+};
+
+
+
+void bPM_FSMPower_Init(void)
+{
+	PM_OnOffPWR(PM_Display,false );
+	PM_OnOffPWR(PM_Player,false );
+	PM_OnOffPWR(PM_Communication,false );
+	PM_OnOffPWR(PM_Display,true );
+	PM_OnOffPWR(PM_Player,true );
+	PM_OnOffPWR(PM_Communication,true );
+};
+
 
 //TransitionKeys[mainFMSstate][mainFMSstate]); 
-#define MStateP(d,p) ((((d)<<1)|((p)<<0))&0x3)
-e_FunctionReturnState  MainTransition_P_Displ(bool PWR_state_Displ_new,bool PWR_state_Displ_old)
-{
-	uint8_t statenew;
-	uint8_t stateold;
-	bool spl;
-//	e_FSMState_SuperLoopDisplay sd;
-	spl=PM_PWR_State_Pl;
-	stateold=MStateP( PWR_state_Displ_old,spl);
-	statenew=MStateP( PWR_state_Displ_new,spl);
-	return FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[statenew][stateold]);
-};
+//#define MStateP(d,p) ((((d)<<1)|((p)<<0))&0x3)
 
-e_FunctionReturnState  MainTransition_P_Pl(bool PWR_state_Pl_new,bool PWR_state_Pl_old)
-{
-	uint8_t statenew;
-	uint8_t stateold;
-	bool sd;
-	sd=PM_PWR_State_D;
-	stateold=MStateP( sd,PWR_state_Pl_old);
-	statenew=MStateP( sd,PWR_state_Pl_new);
-	return FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[statenew][stateold]);
-};
+
+
+e_FunctionReturnState TransitionFunction_P(uint8_t state)
+{   e_FunctionReturnState rstate;
+	switch (state)
+	{ int currl;
+	  case e_P_DN:	 				switchDisplayInterfacePinsToPwr(DISABLE);	rstate=e_FRS_Done; break;//0
+	  case e_P_DY: 					switchDisplayInterfacePinsToPwr(ENABLE);	rstate=e_FRS_Done; break;//1
+	  case e_P_PlN: 				switchOUTStageInterfacePinsToPwr(DISABLE);rstate=e_FRS_Done; break;//2
+	  case e_P_PlY: 				switchOUTStageInterfacePinsToPwr(ENABLE);	rstate=e_FRS_Done; break;//2
+		
+	  case e_P_SPI1N: 			switchSPI1InterfacePinsToPwr(DISABLE);		rstate=e_FRS_Done; break;//3
+		
+//		case e_P_GLOBAL_ON:   PWR_GLOBAL_ON;														rstate=e_FRS_Done; break;
+//		case e_P_TFT_ON:			PWR_TFT_ON;																rstate=e_FRS_Done; break;
+//		case e_P_UTSTAGE_ON:	PWR_UTSTAGE_ON;														rstate=e_FRS_Done; break;
+//		case e_P_UTSTAGE_OFF:	PWR_UTSTAGE_OFF;													rstate=e_FRS_Done; break;
+//		case e_P_TFT_OFF:			PWR_TFT_OFF;															rstate=e_FRS_Done; break;
+//		case e_P_GLOBAL_OFF:	PWR_GLOBAL_OFF;														rstate=e_FRS_Done; break;
+		
+  	case e_P_SPI1Y: 			switchSPI1InterfacePinsToPwr(ENABLE);			rstate=e_FRS_Done; break;//4
+		
+//    case e_P_sleep: SLP_sleep=true ;	SLP_WakeUP=false;									rstate=e_FRS_Done; break;
+//    case e_P_wakeup:SLP_sleep=false ;	SLP_WakeUP=true;									rstate=e_FRS_Done; break;
+
+  	default: 																												rstate=e_FRS_DoneError;
+	}
+	return rstate;
+}
 
 
 e_FunctionReturnState  FSM_MainTransition_P(s_FSM_Data * pFDMD_Power,key_type key)
@@ -294,33 +313,6 @@ while(1)
 	return rstate;
 }
 
-e_FunctionReturnState TransitionFunction_P(uint8_t state)
-{   e_FunctionReturnState rstate;
-	switch (state)
-	{ int currl;
-	  case e_P_DN:	 				switchDisplayInterfacePinsToPwr(DISABLE);	rstate=e_FRS_Done; break;//0
-	  case e_P_DY: 					switchDisplayInterfacePinsToPwr(ENABLE);	rstate=e_FRS_Done; break;//1
-	  case e_P_PlN: 				switchOUTStageInterfacePinsToPwr(DISABLE);rstate=e_FRS_Done; break;//2
-	  case e_P_PlY: 				switchOUTStageInterfacePinsToPwr(ENABLE);	rstate=e_FRS_Done; break;//2
-		
-	  case e_P_SPI1N: 			switchSPI1InterfacePinsToPwr(DISABLE);		rstate=e_FRS_Done; break;//3
-		
-		case e_P_GLOBAL_ON:   PWR_GLOBAL_ON;														rstate=e_FRS_Done; break;
-		case e_P_TFT_ON:			PWR_TFT_ON;																rstate=e_FRS_Done; break;
-		case e_P_UTSTAGE_ON:	PWR_UTSTAGE_ON;														rstate=e_FRS_Done; break;
-		case e_P_UTSTAGE_OFF:	PWR_UTSTAGE_OFF;													rstate=e_FRS_Done; break;
-		case e_P_TFT_OFF:			PWR_TFT_OFF;															rstate=e_FRS_Done; break;
-		case e_P_GLOBAL_OFF:	PWR_GLOBAL_OFF;														rstate=e_FRS_Done; break;
-		
-  	case e_P_SPI1Y: 			switchSPI1InterfacePinsToPwr(ENABLE);			rstate=e_FRS_Done; break;//4
-		
-//    case e_P_sleep: SLP_sleep=true ;	SLP_WakeUP=false;									rstate=e_FRS_Done; break;
-//    case e_P_wakeup:SLP_sleep=false ;	SLP_WakeUP=true;									rstate=e_FRS_Done; break;
-
-  	default: 																												rstate=e_FRS_DoneError;
-	}
-	return rstate;
-}
 
 
 

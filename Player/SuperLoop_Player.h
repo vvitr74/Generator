@@ -18,6 +18,9 @@ extern __inline bool SLPl_PWRState(void);
 extern void SLP_init(void);
 extern void SLP(void);
 
+//For display
+extern uint8_t curState;
+
 
 
 //for player

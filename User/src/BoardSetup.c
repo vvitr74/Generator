@@ -273,7 +273,7 @@ void boardIoPinInit(void){
 									(0<<GPIO_AFRL_AFSEL4_Pos) |										//PB4 - SPI1 MISO
 									(0<<GPIO_AFRL_AFSEL5_Pos);										//PB5 - SPI1 MOSI
 									
-	GPIOA->MODER |= GPIO_MODER_MODE15_0;	//PA15 ?- output CS
+	GPIOA->MODER |= GPIO_MODER_MODE15_0;	//PA15 ?- output FLASH CS
 	
 	GPIOD->MODER &= ~(GPIO_MODER_MODE3_Msk);		//for debug
 	GPIOD->MODER |= GPIO_MODER_MODE3_0;														//for debug
@@ -333,7 +333,6 @@ void boardIoPinInit(void){
 void switchDisplayInterfacePinsToPwr(FunctionalState pwrMode){
 // Displey 7 lines
 // CTP 3 lines	
- // uint32_t tmp = GPIOA->MODER & ~(GPIO_MODER_MODE12_Msk | GPIO_MODER_MODE11_Msk); // clear PA11, PA12 mode bits //PA11 PA12 i2c2 CTP
  
   if (pwrMode == DISABLE){                                          // if mode is DISABLE 
     
@@ -342,31 +341,24 @@ void switchDisplayInterfacePinsToPwr(FunctionalState pwrMode){
 //    NVIC_DisableIRQ(EXTI4_15_IRQn);                                 // disable EXTI4_15 interrupt
  
     GPIOA->BSRR = GPIO_BSRR_BR12 | GPIO_BSRR_BR11;                  // out LOW to PA11, PA12                          // PA11 PA12 i2c2 CTP
-  //  tmp |= (GPIO_MODER_MODE11_0 | GPIO_MODER_MODE12_0);             // TP I2C pins set as general purpose output mode // PA11 PA12  i2c2  CTP
 		
 		GPIOA->MODER &=~(GPIO_MODER_MODE12_Msk |GPIO_MODER_MODE11_Msk);
     GPIOA->MODER |= (GPIO_MODER_MODE11_0 | GPIO_MODER_MODE12_0); // TP I2C pins set as general purpose output mode // PA11 PA12  i2c2  CTP   
                                                                                                                       
-//    GPIOB->MODER |= (GPIO_MODER_MODE5_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
-//                     GPIO_MODER_MODE4_Msk |    
-//                     GPIO_MODER_MODE3_Msk);  
     
     GPIOD->MODER |= (GPIO_MODER_MODE3_Msk | GPIO_MODER_MODE2_Msk |  // PD0..PD3 mode bits switch to analog mode       //PD0 PD1 PD2 PD3 TFT_LED TFT_RST TFT_D/I TFT_CS
                     GPIO_MODER_MODE1_Msk | GPIO_MODER_MODE0_Msk);    
 	/*                   button                  */									
 	GPIOA->MODER &= ~(GPIO_MODER_MODE5_Msk);                  // input 
  
-    
+    PWR_TFT_OFF;
   } else { 
+		PWR_TFT_ON;
     
- //   tmp |= (GPIO_MODER_MODE11_1 |                                   // PA11 alternate function I2C2_SCL
- //           GPIO_MODER_MODE12_1);                                   // PA12 alternate function I2C2_SDA 
     GPIOA->MODER &=~(GPIO_MODER_MODE12_Msk |GPIO_MODER_MODE11_Msk);// PA11 alternate function I2C2_SCL
     GPIOA->MODER |= (GPIO_MODER_MODE11_1 | GPIO_MODER_MODE12_1);// PA12 alternate function I2C2_SDA
         
-//    GPIOB->MODER &= ~(GPIO_MODER_MODE5_0 |                          // PB5 alternate function SPI1_MOSI 
-//                     GPIO_MODER_MODE4_0 |                           // PB4 alternate function SPI1_MISO
-//                     GPIO_MODER_MODE3_0);                           // PB3 alternate function SPI1_SCK
+
  
     GPIOD->BSRR = GPIO_BSRR_BR3 | GPIO_BSRR_BR2 |                   // out LOW to the PD0..PD3 pins
                   GPIO_BSRR_BR1 | GPIO_BSRR_BR0;
@@ -386,6 +378,10 @@ void switchDisplayInterfacePinsToPwr(FunctionalState pwrMode){
  TFT_LED_OFF;                      
 }
 
+/**
+\brief  Global Power + FLASH CS+ SPI1 (for flash and display)
+
+*/
 void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
 {
   if (pwrMode == DISABLE){                                          // if mode is DISABLE 
@@ -395,7 +391,13 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
                      GPIO_MODER_MODE4_Msk |    
                      GPIO_MODER_MODE3_Msk);  
     
+//		FLASH_CS_L;
+		PWR_GLOBAL_OFF;
+		
    } else { 
+		 
+		PWR_GLOBAL_ON; 
+		//FLASH_CS_H; 
 		 
 		GPIOB->MODER |= (GPIO_MODER_MODE5_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
                      GPIO_MODER_MODE4_Msk |    
@@ -410,7 +412,7 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
 
 /**
 
-\brief switch OUTStage Interface Pins To Power state ENABLE or DISABLE
+\brief switch OUTStage Interface Pins To Power state ENABLE or DISABLE AND POWER
 
   FPGA_CS 					PB12  output	FPGA_CS_L/H
 	SPI2_SCK 					PB13  spi
@@ -426,21 +428,20 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
 void switchOUTStageInterfacePinsToPwr(FunctionalState pwrMode)
 {
 	//SPI
-  if (pwrMode == DISABLE){                                          // if mode is DISABLE 
+  if (pwrMode == DISABLE){  
+		// if mode is DISABLE 
    
-
-		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
-                     GPIO_MODER_MODE14_Msk |    
-                     GPIO_MODER_MODE15_Msk);  
     
+		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
+                     GPIO_MODER_MODE14_Msk |    
+                     GPIO_MODER_MODE15_Msk);  
+    //PWR_UTSTAGE_OFF;
    } else { 
-		 
+		//PWR_UTSTAGE_ON;
 		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
                      GPIO_MODER_MODE14_Msk |    
                      GPIO_MODER_MODE15_Msk);  
 		 
-//		GPIOB->MODER &= ~(GPIO_MODER_MODE15_1);
-//		GPIOB->BSRR = GPIO_BSRR_BR15;
 		 
 		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
                      GPIO_MODER_MODE14_Msk |    

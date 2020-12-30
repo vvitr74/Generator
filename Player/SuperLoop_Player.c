@@ -24,7 +24,6 @@ extern volatile int playFileInList;
 extern uint16_t playFileSector;
 uint16_t playFileSectorBegin;
 uint8_t i=0;
-extern uint8_t curState;
 uint16_t frstChMult=0;
 uint16_t scndChMult=0;
 
@@ -66,29 +65,6 @@ uint8_t fileHour=0;
 
 volatile uint32_t playClk;
 
-//---------------------------------for power sleep---------------------------------------------
-static e_PowerState SLPl_PowerState; 
-static bool SLPl_GoToSleep;
-
-__inline e_PowerState SLPl_GetPowerState(void)
-{
-	 return SLPl_PowerState;
-};
-
-__inline e_PowerState SLPl_SetSleepState(bool state)
-{
-	SLPl_GoToSleep=state;
-	return SLPl_PowerState;
-};
-
-//---------------------------------- for power on off ------------------------------------------
-
-bool SLPl_PWR_State;
-
-__inline bool SLPl_PWRState(void)
-{
-	return SLPl_PWR_State;
-};
 
 //-------------------------for SPI2-----------------------------------------------
 void initSpi_2(void)
@@ -702,7 +678,61 @@ void setTotalTimer(void)
 //	
 //}
 
-//-----------------------------------for main---------------------------------------
+//-----------------------------------Hi level function---------------------------------------
+uint8_t curState;
+
+//typedef enum  
+//{SLD_FSM_InitialWait  		//work
+//,SLD_FSM_Off  						//work
+//,SLD_FSM_OnTransition 		//work
+//,SLD_FSM_On 							//work
+//,SLD_FSM_OffTransition 		//work
+//,SLD_FSM_DontMindSleep		//e_PS_DontMindSleep
+//,SLD_FSM_SleepTransition 	//work
+//,SLD_FSM_Sleep           	//  ready for sleep
+//,SLD_FSM_WakeTransition  	//work
+//,SLD_FSM_NumOfEl	
+//} e_SLD_FSM;
+
+/**
+\brief Map e_SLD_FSM onto e_PowerState
+
+e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
+*/
+const e_PowerState SLPl_Encoder[4]=
+{e_PS_ReadySleep						//SLD_FSM_InitialWait
+,e_PS_ReadySleep						//SLD_FSM_Off
+,e_PS_Work						//SLD_FSM_OnTransition
+,e_PS_Work						//SLD_FSM_On
+};
+
+//---------------------------------for power sleep---------------------------------------------
+static e_PowerState SLPl_PowerState; 
+//static bool SLPl_GoToSleep;
+
+__inline e_PowerState SLPl_GetPowerState(void)
+{
+	 return SLPl_Encoder[curState];
+};
+
+__inline e_PowerState SLPl_SetSleepState(bool state)
+{
+	//SLPl_GoToSleep=state;
+	return SLPl_PowerState;
+};
+
+//---------------------------------- for power on off ------------------------------------------
+
+bool SLPl_PWR_State;
+
+__inline bool SLPl_PWRState(void)
+{
+	return SLPl_PWR_State;
+};
+
+//-------------------------for main------------------------------------------------------------
+
+
 void SLP_init(void)
 {
 	initSpi_2();
@@ -753,7 +783,9 @@ void SLP(void)
 			spi1FifoClr();
 			spi2FifoClr();
 			SLPl_PowerState=e_PS_Work;//RDD for pwr
-//			PM_OnOffPWR_Pl(true);
+		
+			PM_OnOffPWR(PM_Player,true );//RDD ON POWER
+		
 			fpgaFlags.fpgaConfig=1;
 			fpgaConfig();
 //			fpgaFlags.fpgaConfigComplete=1;	//for debug
@@ -832,7 +864,9 @@ void SLP(void)
 				fpgaFlags.playBegin=0;
 				fpgaFlags.clockStart=0;
 				SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
-		//		PM_OnOffPWR_Pl(false);
+				
+				PM_OnOffPWR(PM_Player,false );//RDD OFF POWER
+				
 				curState=1;
 			}
 			break;

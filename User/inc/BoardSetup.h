@@ -9,15 +9,15 @@
 #define CLK_TICK_FOR_1MS  64000U;          
 
 //DEFINE POWER SWITCHES PIN IO
-#define	PWR_OUTSTAGE			0				// OUT	PB0
+//#define	PWR_OUTSTAGE			0				// OUT	PB0
 #define	PWR_UTSTAGE_ON    GPIOB->BSRR = GPIO_BSRR_BR0
 #define	PWR_UTSTAGE_OFF   GPIOB->BSRR = GPIO_BSRR_BS0
 
-#define	PWR_TFT			      1				// OUT	PB1
+//#define	PWR_TFT			      1				// OUT	PB1
 #define	PWR_TFT_ON        GPIOB->BSRR = GPIO_BSRR_BR1
 #define	PWR_TFT_OFF       GPIOB->BSRR = GPIO_BSRR_BS1
 
-#define	PWR_GLOBAL			  2				// OUT	PB2
+//#define	PWR_GLOBAL			  2				// OUT	PB2
 #define	PWR_GLOBAL_ON     GPIOB->BSRR = GPIO_BSRR_BS2
 #define	PWR_GLOBAL_OFF    GPIOB->BSRR = GPIO_BSRR_BR2
  
@@ -70,6 +70,9 @@
 #define FPGA_CS_L				GPIOB->BSRR = GPIO_BSRR_BR12
 #define FPGA_START_H 		GPIOA->BSRR = GPIO_BSRR_BS8
 #define FPGA_START_L 		GPIOA->BSRR = GPIO_BSRR_BR8
+
+#define FLASH_CS_H 		  GPIOA->BSRR = GPIO_BSRR_BS15
+#define FLASH_CS_L 		  GPIOA->BSRR = GPIO_BSRR_BR15
 
 //For Charger
 #define TPSIRQ (!((GPIOA->IDR)& GPIO_IDR_ID7_Msk))

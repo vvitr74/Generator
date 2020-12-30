@@ -72,7 +72,7 @@ void SuperLoop_PowerModes(void)
 		switch (SLP_state)
 		{
 			case 0://work mode
-				if (rdispl&&racc&&rplayer)
+				if (!(rdispl||racc||rplayer))
 					{
 						SLPl_SetSleepState(true);
 						SLD_SetSleepState(true);
@@ -141,7 +141,12 @@ void enterToStop(void)
 }	 
 	 
 	
+/**
 
+  Display off/on:								PM_OnOffPWR(PM_Display,false/true );				
+  Player off/on:								PM_OnOffPWR(PM_Player,false/true );					
+	Communication(Flash) off/on:	PM_OnOffPWR(PM_Communication,false/true );	
+*/
 
 //------------------------- FSM data  ---------------------------------------------
 

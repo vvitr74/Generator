@@ -391,13 +391,13 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
                      GPIO_MODER_MODE4_Msk |    
                      GPIO_MODER_MODE3_Msk);  
     
-//		FLASH_CS_L;
+		FLASH_CS_L;
 		PWR_GLOBAL_OFF;
 		
    } else { 
 		 
 		PWR_GLOBAL_ON; 
-		//FLASH_CS_H; 
+		FLASH_CS_H; 
 		 
 		GPIOB->MODER |= (GPIO_MODER_MODE5_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
                      GPIO_MODER_MODE4_Msk |    
@@ -435,9 +435,9 @@ void switchOUTStageInterfacePinsToPwr(FunctionalState pwrMode)
 		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
                      GPIO_MODER_MODE14_Msk |    
                      GPIO_MODER_MODE15_Msk);  
-    //PWR_UTSTAGE_OFF;
+    PWR_UTSTAGE_OFF;
    } else { 
-		//PWR_UTSTAGE_ON;
+		PWR_UTSTAGE_ON;
 		GPIOB->MODER |= (GPIO_MODER_MODE13_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
                      GPIO_MODER_MODE14_Msk |    
                      GPIO_MODER_MODE15_Msk);  

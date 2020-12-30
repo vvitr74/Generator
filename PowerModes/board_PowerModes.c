@@ -90,7 +90,7 @@ void SuperLoop_PowerModes(void)
 				break;
 			case 2:
 				    BoardSetup_InSleep();
-//            enterToStop();
+            enterToStop();
 			      BoardSetup_OutSleep(); 
 			      SLP_state=1;
               break;			

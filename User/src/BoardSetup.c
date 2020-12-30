@@ -20,6 +20,7 @@ void BoardSetup_InSleep(void)
 void BoardSetup_OutSleep(void)
 {
 	 SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
+	 BS_LastButtonPress=SystemTicks;
 };
 
 

@@ -62,7 +62,7 @@ void SuperLoop_PowerModes_Init(void)
 */	
 void SuperLoop_PowerModes(void)
 	{
-		e_PowerState rplayer,rdispl,racc,rcomm;
+		e_PowerState rplayer,rdispl,racc;//rcomm;
 
 		rplayer=	SLPl_GetPowerState();
 		rdispl=		SLD_GetPowerState();
@@ -72,7 +72,7 @@ void SuperLoop_PowerModes(void)
 		switch (SLP_state)
 		{
 			case 0://work mode
-				if (!(rdispl||racc||rplayer))
+				if ((rdispl&&racc&&rplayer))
 					{
 						SLPl_SetSleepState(true);
 						SLD_SetSleepState(true);
@@ -81,8 +81,12 @@ void SuperLoop_PowerModes(void)
 					}
 				break;
 			case 1:	//wait transition for sleep
-					if (!(rcomm&&rdispl)) SLP_state= 3;
-					if ((e_PS_ReadySleep==rcomm)&&(e_PS_ReadySleep==rdispl)) SLP_state++;
+					if (!(rdispl&&racc&&rplayer)) SLP_state= 3;
+					if ((e_PS_ReadySleep==rplayer)
+						&&(e_PS_ReadySleep==rdispl)
+					  &&(e_PS_ReadySleep==racc)
+				     ) 
+					  SLP_state++;
 				break;
 			case 2:
 				    BoardSetup_InSleep();

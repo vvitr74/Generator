@@ -108,7 +108,7 @@ int SLD(void)
 			{ 
 				SLD_LastButtonPress=BS_LastButtonPress;
 				if (((SystemTicks-SLD_LastButtonPress)>SLD_SleepDelay)) 
-					 state_inner=SLD_FSM_SleepTransition;
+					 state_inner=SLD_FSM_DontMindSleep;
 			};
 			break;
 		case SLD_FSM_OnTransition: //on transition
@@ -151,10 +151,10 @@ int SLD(void)
 			//SLD_PowerState= e_PS_ReadySleep;
 //			SLD_PWR_State=	false;		
         SLD_LastButtonPress=BS_LastButtonPress;
-				if ((!SLD_GoToSleep) || ((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) state_inner=SLD_FSM_SleepTransition;
-		    {
-		      state_inner=SLD_FSM_WakeTransition;
+				if ((!SLD_GoToSleep) || ((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) 
+				{state_inner=SLD_FSM_WakeTransition;
 				};
+		    
 			break;
 		case SLD_FSM_WakeTransition: //wake transition
 		  state_inner=SLD_FSM_Off;

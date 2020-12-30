@@ -305,8 +305,8 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 		                          { 
 															 bVSYS=pvVSYS>6000;
 															 bADCVSYSVBAT=false;
-															 if (!((e_FSM_Rest==mainFMSstate)||(e_FSM_Charge==mainFMSstate)))//debug
-																 bVSYS=false;                                                  //debug
+															 //if (!((e_FSM_Rest==mainFMSstate)||(e_FSM_Charge==mainFMSstate)))//debug
+															 //	 bVSYS=false;                                                  //debug
 															};	
 		                       rstate=e_FRS_Done;
 		                       break;

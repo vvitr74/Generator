@@ -327,9 +327,20 @@ void boardIoPinInit(void){
   
 }
 
-/*************************************************************************************************************************
-*
-*
+/**
+***********************************************************************************************************************
+*RST				PD1 	39	A	
+*LED_PWM		PD0		38	A
+*SPI_D_C		PD2		40	A
+TFT_CS			PD3		41	A
+SPI1_CLK		PB3		42	A
+SPI1_MISO		PB4		43	A
+SPI1_MOSI		PB5		44	A
+CTP_IRQ			PC13	1		A
+CTP_RST			PA6		17	O
+I2C2_SCL		PA11	33	O
+I2CI_SDA		PA12	34	O
+
 **************************************************************************************************************************/
 void switchDisplayInterfacePinsToPwr(FunctionalState pwrMode){
 // Displey 7 lines
@@ -351,11 +362,15 @@ void switchDisplayInterfacePinsToPwr(FunctionalState pwrMode){
                     GPIO_MODER_MODE1_Msk | GPIO_MODER_MODE0_Msk);    
 	/*                   button                  */									
 	GPIOA->MODER &= ~(GPIO_MODER_MODE5_Msk);                  // input 
- 
+		
+    TP_RST_LOW;// out LOW CTP_RST
+		
     PWR_TFT_OFF;
   } else { 
 		PWR_TFT_ON;
-    
+    TP_RST_LOW;
+		TFT_RST_LOW;
+		
     GPIOA->MODER &=~(GPIO_MODER_MODE12_Msk |GPIO_MODER_MODE11_Msk);// PA11 alternate function I2C2_SCL
     GPIOA->MODER |= (GPIO_MODER_MODE11_1 | GPIO_MODER_MODE12_1);// PA12 alternate function I2C2_SDA
         
@@ -393,11 +408,23 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
                      GPIO_MODER_MODE3_Msk);  
     
 		FLASH_CS_L;
+		
+    GPIOA->PUPDR &=  ~(GPIO_PUPDR_PUPD9_Msk | GPIO_PUPDR_PUPD10_Msk);//2bits
+    GPIOA->PUPDR |=  (GPIO_PUPDR_PUPD9_0 | GPIO_PUPDR_PUPD10_0);//2bits
+		GPIOA->MODER &= ~(GPIO_MODER_MODE9_Msk |                         // switch to analog mode       USB-COM
+                      GPIO_MODER_MODE10_Msk);
+		
+		TFT_LED_OFF;
 		PWR_GLOBAL_OFF;
+		PWR_TFT_ON;
+		PWR_UTSTAGE_ON;
 		
    } else { 
 		 
+		PWR_UTSTAGE_OFF; 
+		PWR_TFT_OFF; 
 		PWR_GLOBAL_ON; 
+		 
 		FLASH_CS_H; 
 		 
 		GPIOB->MODER |= (GPIO_MODER_MODE5_Msk |                         // PB3..PB5 switch to analog mode                 //PB3..PB5 SPI1 Flash+Displ
@@ -406,6 +433,14 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
     GPIOB->MODER &= ~(GPIO_MODER_MODE5_0 |                          // PB5 alternate function SPI1_MOSI 
                      GPIO_MODER_MODE4_0 |                           // PB4 alternate function SPI1_MISO
                      GPIO_MODER_MODE3_0);                           // PB3 alternate function SPI1_SCK
+		 
+    GPIOA->PUPDR &=  ~(GPIO_PUPDR_PUPD9_Msk | GPIO_PUPDR_PUPD10_Msk);//2bits
+    GPIOA->PUPDR |=  (GPIO_PUPDR_PUPD9_0 | GPIO_PUPDR_PUPD10_0);//2bits
+		GPIOA->MODER &= ~(GPIO_MODER_MODE9_Msk |                     // switch to analog mode       USB-COM
+                      GPIO_MODER_MODE10_Msk);
+ 		GPIOA->MODER |= (GPIO_MODER_MODE9_1 |                       // alternate function       USB-COM
+                     GPIO_MODER_MODE10_1);
+
  
   }   
                     
@@ -469,3 +504,22 @@ void switchOUTStageInterfacePinsToPwr(FunctionalState pwrMode)
  };
 	
 };
+/**
+
+I2C1_SCL	PB8	47
+I2C1_SDA	PB9 48
+*/
+void B_ACC_PinsOnOff(FunctionalState pwrMode)
+{
+	
+  if (pwrMode == DISABLE)
+		{  
+			GPIOB->MODER &=~(GPIO_MODER_MODE8_Msk |GPIO_MODER_MODE9_Msk);//Charger I2C pins set as general purpose input mode 
+		}
+		else
+		{
+			GPIOB->MODER &=~(GPIO_MODER_MODE8_Msk |GPIO_MODER_MODE9_Msk);
+			GPIOB->MODER |= (GPIO_MODER_MODE8_1 | GPIO_MODER_MODE9_1); // Charger I2C pins set as alternative    
+		};
+};
+

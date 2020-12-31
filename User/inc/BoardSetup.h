@@ -121,9 +121,12 @@ extern void BoardSetup_OutSleep(void);
 extern int BSInit(void);		
 extern uint32_t setSystemClock(void);
 extern void boardIoPinInit(void);
+
 extern void switchDisplayInterfacePinsToPwr(FunctionalState pwrMode);
 extern void switchOUTStageInterfacePinsToPwr(FunctionalState pwrMode);
 extern void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode);
+extern void B_ACC_PinsOnOff(FunctionalState pwrMode);
+
 extern void delayms(uint16_t tt);
 extern void delay_x10ms(uint32_t tensMs);
 

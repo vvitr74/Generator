@@ -174,16 +174,21 @@ void SuperLoopACC(void)
    case 16: //work or don't mind sleep
           SLAcc_PowerState=GetNewPowerState(rstatel);
 					if (e_PS_ReadySleep!=SLAcc_PowerState) 
-						{maintaskstate=15;}
+						{maintaskstate=15;}   //work or don't mind sleep
 					else
-            { //off i2c
-						  maintaskstate=17;};
+            { //off i2c           //sleep don't mind sleep
+						  maintaskstate=17; 
+							//off 25703
+							B_ACC_PinsOnOff(DISABLE);
+						
+						};
 		 break;
 	 case 17://ready
 		    SLAcc_PowerState=GetNewPowerState(rstatel);
 				if (e_PS_ReadySleep!=SLAcc_PowerState)
 				{	// on i2c
 					maintaskstate=15;
+					B_ACC_PinsOnOff(ENABLE);
 				};	
 		 break;
 	 

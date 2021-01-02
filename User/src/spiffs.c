@@ -3,24 +3,78 @@
 
 spiffs fs;
 
+extern uint8_t spiDispCapture;
+
 static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
 static u8_t spiffs_fds[32 * 4];
 static u8_t spiffs_cache_buf[(SPIFFS_CFG_LOG_PAGE_SZ() + 32) * 4];
 
+static uint8_t transfer(uint8_t data)
+{
+    if(SPI1->SR & SPI_SR_OVR)
+    {
+        (void)SPI1->DR;
+    }
+    while (!(SPI1->SR & SPI_SR_TXE));     
+    *(__IO uint8_t *) (&SPI1->DR) = data;    
+    while (!(SPI1->SR & SPI_SR_RXNE));     
+    return *(__IO uint8_t *) (&SPI1->DR);
+}
+
+static void cs_on()
+{
+    while(spiDispCapture)
+    {
+        gfxYield();
+    }
+    
+    GPIOA->BSRR = GPIO_BSRR_BR15; //GPIOD->BSRR = GPIO_BSRR_BR3
+}
+
+static void cs_off()
+{
+    GPIOA->BSRR = GPIO_BSRR_BS15; //GPIOD->BSRR = GPIO_BSRR_BS3
+}
+
+
 static s32_t w25_flash_read(int addr, int size, char *buf)
 {
-    W25qxx_ReadBytes(buf, addr, size);
+  
+    cs_on();
+    transfer(3);
+    transfer(addr >> 16);
+    transfer(addr >> 8);
+    transfer(addr & 0xff);
+    
+    while(size)
+    {
+        *buf++ = transfer(0);
+        size--;
+    }
+    
+    cs_off();
+    
     return SPIFFS_OK;
 }
 
 static s32_t w25_flash_write(int addr, int size, char *buf)
 {
+    while(spiDispCapture)
+    {
+        gfxYield();
+    }
+    
     W25qxx_WritePage(buf, addr >> 8, addr & 0xff , size);
     return SPIFFS_OK;
 }
 
 static s32_t w25_flash_erase(int addr, int size)
 {
+    while(spiDispCapture)
+    {
+        gfxYield();
+    }
+    
     if(size == 0x1000)
     {
         W25qxx_EraseSector(addr / 0x1000);
@@ -140,14 +194,15 @@ int spiffs_init()
 int on_modbus_write_file(uint8_t* buf, size_t len)
 {
     uint8_t fname_len = buf[0];
-    char fname[17] = {};
-    if(buf[0] >= sizeof(fname))
+    char fname[18] = {};
+    fname[0]='/';
+    if(buf[0] >= sizeof(fname) - 1)
     {
         return 0x81;
     }
     
     char* ptr = (char*) &buf[1];
-    memcpy(fname, ptr, fname_len);        
+    memcpy(&fname[1], ptr, fname_len);        
     ptr += fname_len;
     
     uint32_t offset = ptr[0] | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);

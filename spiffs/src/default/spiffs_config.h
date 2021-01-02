@@ -272,7 +272,7 @@ typedef uint8_t u8_t;
 // returned.
 // Might be useful for e.g. bootloaders and such.
 //#ifndef SPIFFS_READ_ONLY
-//#define SPIFFS_READ_ONLY                      0
+#define SPIFFS_READ_ONLY                      0
 //#endif
 
 // Enable this to add a temporal file cache using the fd buffer.
@@ -294,7 +294,7 @@ typedef uint8_t u8_t;
 // directly. If all available descriptors become opened, all cache memory is
 // lost.
 //#ifndef SPIFFS_TEMPORAL_FD_CACHE
-//#define SPIFFS_TEMPORAL_FD_CACHE              1
+#define SPIFFS_TEMPORAL_FD_CACHE              1
 //#endif
 
 // Temporal file cache hit score. Each time a file is opened, all cached files
@@ -303,7 +303,7 @@ typedef uint8_t u8_t;
 // value for the specific access patterns of the application. However, it must
 // be between 1 (no gain for hitting a cached entry often) and 255.
 //#ifndef SPIFFS_TEMPORAL_CACHE_HIT_SCORE
-//#define SPIFFS_TEMPORAL_CACHE_HIT_SCORE       4
+#define SPIFFS_TEMPORAL_CACHE_HIT_SCORE       4
 //#endif
 
 // Enable to be able to map object indices to memory.

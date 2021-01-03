@@ -1,5 +1,23 @@
+
+#include "stm32g0xx.h"
 #include "spiffs.h"
-#include "w25qxx.h"
+
+#define W25_CHIP_ERASE 0x60
+#define W25_READ_CMD 0x0b
+#define W25_WRITE_CMD 2
+#define W25_STATUS_CMD 5
+#define W25_WRITE_ENA_CMD 6
+
+#define W25_4K_ERASE_CMD 0x20
+#define W25_4K_ERASE_TIME 50
+
+#define W25_32K_ERASE_CMD 0x52
+#define W25_32K_ERASE_TIME 300
+
+#define W25_64K_ERASE_CMD 0xd8
+#define W25_64K_ERASE_TIME 500
+
+#define W25_ERASE_TIMEOUT 3000
 
 spiffs fs;
 
@@ -8,6 +26,16 @@ extern uint8_t spiDispCapture;
 static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
 static u8_t spiffs_fds[32 * 4];
 static u8_t spiffs_cache_buf[(SPIFFS_CFG_LOG_PAGE_SZ() + 32) * 4];
+
+static void delay_us(uint32_t i)
+{
+    // 255 -> 52.917us
+    volatile uint32_t j = i * 5;
+    while(j)
+    {
+        j--;
+    }
+}
 
 static uint8_t transfer(uint8_t data)
 {
@@ -33,23 +61,59 @@ static void cs_on()
 
 static void cs_off()
 {
+    delay_us(5);
     GPIOA->BSRR = GPIO_BSRR_BS15; //GPIOD->BSRR = GPIO_BSRR_BS3
+    delay_us(5);
 }
 
+
+/**
+* Retrieve flash memory status
+*/
+static uint8_t get_status()
+{
+    cs_on();
+    transfer(W25_STATUS_CMD);
+    uint8_t status = transfer(0);
+    cs_off();
+    
+    return status;
+}
+
+
+
+/**
+* Erase entire chip
+*/
+static void flash_chip_erase()
+{
+    if(!(get_status() & 2))
+    {
+        cs_on();
+        transfer(W25_WRITE_ENA_CMD);
+        cs_off();
+    }
+    
+    cs_on();
+    transfer(W25_CHIP_ERASE);
+    cs_off();
+    delay_ms(25000);
+    
+}
 
 static s32_t w25_flash_read(int addr, int size, char *buf)
 {
   
     cs_on();
-    transfer(3);
+    transfer(W25_READ_CMD);
     transfer(addr >> 16);
     transfer(addr >> 8);
     transfer(addr & 0xff);
+    transfer(0);
     
-    while(size)
+    for(size_t i = 0; i< size; i++)
     {
-        *buf++ = transfer(0);
-        size--;
+        buf[i] = transfer(0);
     }
     
     cs_off();
@@ -57,30 +121,100 @@ static s32_t w25_flash_read(int addr, int size, char *buf)
     return SPIFFS_OK;
 }
 
+
+
+/**
+* Write data into flash, up-to 256 bytes
+*/
 static s32_t w25_flash_write(int addr, int size, char *buf)
 {
-    while(spiDispCapture)
+    
+    if(!(get_status() & 2))
     {
-        gfxYield();
+        cs_on();
+        transfer(W25_WRITE_ENA_CMD);
+        cs_off();
+    }
+   
+    cs_on();
+    transfer(W25_WRITE_CMD);
+    transfer(addr >> 16);
+    transfer(addr >> 8);
+    transfer(addr & 0xff);
+    
+    for(size_t i = 0; i< size; i++)
+    {
+        transfer(buf[i]);
     }
     
-    W25qxx_WritePage(buf, addr >> 8, addr & 0xff , size);
+    cs_off();
+    delay_us(10);
     return SPIFFS_OK;
 }
 
+/**
+* Erase flash page/sector/block 
+* @param addr Erase address
+* @apram size Size which should be erased
+*/
 static s32_t w25_flash_erase(int addr, int size)
 {
-    while(spiDispCapture)
+    
+    if(!(get_status() & 2))
     {
-        gfxYield();
+        cs_on();
+        transfer(W25_WRITE_ENA_CMD);
+        cs_off();
     }
     
-    if(size == 0x1000)
+    
+    uint16_t time = W25_4K_ERASE_TIME;
+    cs_on();
+    if(size <= 4096)
     {
-        W25qxx_EraseSector(addr / 0x1000);
+         transfer(W25_4K_ERASE_CMD);
+    } 
+    else if(size <= 32768)
+    {
+        transfer(W25_32K_ERASE_CMD);
+        time = W25_32K_ERASE_TIME;
+    }
+    else if(size <= 65536)
+    {
+        transfer(W25_64K_ERASE_CMD);
+        time = W25_64K_ERASE_TIME;
     }
     
-    return SPIFFS_OK;    
+    transfer(addr >> 16);
+    transfer(addr >> 8);
+    transfer(addr & 0xff);
+    
+    cs_off();
+    uint16_t timeout = time;
+    delay_ms(time);  
+    while(1)
+    {
+        uint8_t status = get_status();
+        
+        if( status == 0xff)
+        {
+             return SPIFFS_ERR_ERASE_FAIL;
+        }
+        
+        if((status & 1) == 0)
+        {
+            break;
+        }
+        
+        delay_ms(time);
+        timeout += time;
+        if(timeout > W25_ERASE_TIMEOUT)
+        {
+            return SPIFFS_ERR_ERASE_FAIL;
+        }
+    }
+    
+    return SPIFFS_OK;
 }
 
 /**
@@ -94,13 +228,11 @@ static s32_t w25_flash_erase(int addr, int size)
 */
 int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offset, uint8_t *data, size_t data_len)
 {
-    spiffs_file fd = SPIFFS_open(&fs, filename, SPIFFS_O_CREAT | SPIFFS_RDWR, 0);
-
-    if(SPIFFS_errno(&fs) < 0)
-    {
-        return SPIFFS_errno(&fs);
-    }
+    GPIOB->BSRR = GPIO_BSRR_BS2;
+    delay_ms(10);
     
+    spiffs_file fd = SPIFFS_open(&fs, "f.txt", SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
+
     /*
     if (SPIFFS_lseek(&fs, fd, offset, SPIFFS_SEEK_SET) < 0)
     {
@@ -148,13 +280,26 @@ int spiffs_erase_all()
 int spiffs_init()
 {
     spiffs_config cfg;
-
-    //W25qxx_EraseChip();
+   
+    GPIOB->BSRR = GPIO_BSRR_BS2;
     
     cfg.hal_read_f = w25_flash_read;
     cfg.hal_write_f = w25_flash_write;
     cfg.hal_erase_f = w25_flash_erase;
 
+    cs_off(); 
+    
+   
+    delay_ms(10);
+    
+    flash_chip_erase();
+    if(!(get_status() & 2))
+    {
+        cs_on();
+        transfer(W25_WRITE_ENA_CMD);
+        cs_off();
+    }
+    
     
     int32_t res = SPIFFS_mount(&fs,
                                &cfg,
@@ -195,14 +340,14 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
 {
     uint8_t fname_len = buf[0];
     char fname[18] = {};
-    fname[0]='/';
+  
     if(buf[0] >= sizeof(fname) - 1)
     {
         return 0x81;
     }
     
     char* ptr = (char*) &buf[1];
-    memcpy(&fname[1], ptr, fname_len);        
+    memcpy(&fname[0], ptr, fname_len);        
     ptr += fname_len;
     
     uint32_t offset = ptr[0] | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);

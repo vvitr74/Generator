@@ -18,6 +18,7 @@
 #include "superloopDisplay.h"
 #include "mainFSM.h"
 #include "board_PowerModes.h"
+#include "BoardSetup.h"
 
 extern char	heap[GFX_OS_HEAP_SIZE];
 extern gThread	hThread;

@@ -1,5 +1,6 @@
 #include "Spi1.h"
 #include "SuperLoop_Player.h"
+#include "fpga.h"
 
 uint16_t freqStartByte;
 uint32_t freq;
@@ -350,15 +351,7 @@ void timeToString(uint8_t* timeArr)
 
 uint16_t getPlayFileSector(int fileInList)
 {
-	uint16_t sect=0;
-	
-	for(sect=0;sect<MAX_FILES_NUM;sect++){
-		if(!W25qxx_IsEmptySector(sect,0)){
-			if(sect==fileInList){
-				return sect;
-			}
-		}
-	} /** \todo no return, no error detect */
+    return 0;
 }
 
 void getControlParam(uint16_t fileSect)

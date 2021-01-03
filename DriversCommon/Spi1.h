@@ -2,7 +2,6 @@
 #define __SPI1_H
 
 #include "stm32g0xx.h"
-#include "w25qxx.h"
 
 extern void initSpi_1(void);
 extern void spi1Receive(uint8_t *pData, uint16_t Size, uint32_t Timeout);

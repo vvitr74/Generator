@@ -2,22 +2,17 @@
 
 uint32_t txallowed = 1U;
 
-void initSpi_1(void){
-	NVIC_DisableIRQ(SPI1_IRQn); 
-  RCC->APBENR2 |= RCC_APBENR2_SPI1EN;                     // enable SPI1 clk
-  SPI1->CR1 &= ~SPI_CR1_SPE;                              // disable SPI1 perif
-	SPI1->CR1 &= ~(
-						 SPI_CR1_CPOL |															// SPI_CPOL_High
-						 SPI_CR1_CPHA 													// SPI_CPHA_2Edge
-						) ;                            
-  SPI1->CR1 |= /*SPI_CR1_BR_2 | SPI_CR1_BR_1 |*/ SPI_CR1_BR_0 |       
-               SPI_CR1_SSM |															// SPI_NSS_Soft
-               SPI_CR1_SSI |
-//               SPI_CR1_CPOL |															// SPI_CPOL_High
-//               SPI_CR1_CPHA |															// SPI_CPHA_2Edge
-               SPI_CR1_MSTR;                              // master mode select
-	SPI1->CR2 |= SPI_CR2_FRXTH;															// RXNE event is generated if the FIFO level is greater than or equal to 1/4 (8-bit)
-  SPI1->CR1 |= SPI_CR1_SPE;                               // enable SPI1 perif
+void initSpi_1(void)
+{
+    NVIC_DisableIRQ(SPI1_IRQn); 
+    RCC->APBENR2 |= RCC_APBENR2_SPI1EN;                     // enable SPI1 clk
+  
+    SPI1->CR1 = 0x0000;        
+    SPI1->CR2 = 0x0000;        
+    SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_BR_0 | SPI_CR1_BR_1 | SPI_CR1_BR_2   ;     
+    SPI1->CR2 |= SPI_CR2_DS_0| SPI_CR2_DS_1|SPI_CR2_DS_2| SPI_CR2_FRXTH;    
+    
+    SPI1->CR1 |= SPI_CR1_SPE;                               // enable SPI1 perif
 }
 
 /*************************************************************************************************************************
@@ -31,7 +26,7 @@ void spi1Receive(uint8_t *pData, uint16_t Size, uint32_t Timeout)
 	for(int i=0;i<2;i++){
 		Temp=SPI1->DR;
 	}
-	*(__IO uint8_t *)&SPI1->DR = W25QXX_DUMMY_BYTE;
+	*(__IO uint8_t *)&SPI1->DR = 0xa5;
 	while (RxXferCount > 0U){
 //		*(__IO uint8_t *)&SPI1->DR = W25QXX_DUMMY_BYTE;
 		if (SPI1->SR & SPI_SR_RXNE){
@@ -40,7 +35,7 @@ void spi1Receive(uint8_t *pData, uint16_t Size, uint32_t Timeout)
 			pData += sizeof(uint8_t);
 			RxXferCount--;
 			if(RxXferCount>0){
-				*(__IO uint8_t *)&SPI1->DR = W25QXX_DUMMY_BYTE;
+				*(__IO uint8_t *)&SPI1->DR = 0xa5;
 			}
 		}
 	}

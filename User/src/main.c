@@ -26,7 +26,6 @@
 #include "uart.h"
 #include "flash.h"
 #include "Spi.h"
-#include "w25qxx.h"
 #include "tim3.h"
 #endif
 
@@ -34,7 +33,6 @@
 #include "fpga.h"
 #include "flash.h"
 #include "Spi.h"
-#include "w25qxx.h"
 #include "tim3.h"
 #endif
 
@@ -131,7 +129,7 @@ SuperLoopACC_init();
 	initSpi_1();
 	SLC_init();
 	SLP_init();
-    __flashInit();
+
 #endif	
 
 #ifdef SPIFFS

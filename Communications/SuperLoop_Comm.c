@@ -36,7 +36,6 @@ volatile struct{
 void SLC_init(void)
 {
 	uart1Init();
-	__flashInit();
 }
 
 void SLC(void)

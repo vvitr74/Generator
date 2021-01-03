@@ -456,16 +456,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>W25qxx</GroupName>
-          <Files>
-            <File>
-              <FileName>w25qxx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\W25QXX\w25qxx.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>Player</GroupName>
           <Files>
             <File>

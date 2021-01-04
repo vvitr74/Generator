@@ -89,9 +89,11 @@ void SuperLoop_PowerModes(void)
 					  SLP_state++;
 				break;
 			case 2:
+				    Communication_InSleep();
 				    BoardSetup_InSleep();
             enterToStop();
 			      BoardSetup_OutSleep(); 
+ 			      Communication_OutSleep(); 
 			      SLP_state=1;
               break;			
 			case 3: //weakup
@@ -103,7 +105,12 @@ void SuperLoop_PowerModes(void)
 			default: 	SLP_state=0;
 	   };
 	 }		
+/**
 
+PWR_CR1->FPD_STOP: Flash memory powered down during Stop mode
+PWR_CR4->VBE:	 0: VBAT battery charging disable
+	 
+*/	 
 void enterToStop(void)
 {
     while (GPIOA->IDR & GPIO_IDR_ID5);
@@ -113,13 +120,14 @@ void enterToStop(void)
 	NVIC_DisableIRQ(I2C2_IRQn);
 	NVIC_DisableIRQ(I2C1_IRQn);
 	NVIC_DisableIRQ(USART1_IRQn);
-	RCC->CSR |= RCC_CSR_LSION;
+//	RCC->CSR |= RCC_CSR_LSION;
     
 
     
-	GPIOB->BSRR = GPIO_BSRR_BS10;
-	PWR->CR1 |= PWR_CR1_LPR |	// the regulator is switched from main mode (MR) to low-power mode
-				PWR_CR1_LPMS_0; // select Stop 1 low-power mode
+	//GPIOB->BSRR = GPIO_BSRR_BS10;
+	PWR->CR1 |= PWR_CR1_LPR 		// the regulator is switched from main mode (MR) to low-power mode
+	         | PWR_CR1_FPD_STOP //RDD
+	         | PWR_CR1_LPMS_0; 	// select Stop 1 low-power mode
 	__DMB();
 	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 	__DMB();

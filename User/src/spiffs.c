@@ -246,6 +246,7 @@ int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offs
     SPIFFS_fflush(&fs,fd);
     
     SPIFFS_close(&fs, fd);
+    delay_ms(25);
     return res;
 }
 

@@ -132,6 +132,7 @@ void tim3Init(void)
 
 void delay_ms(uint32_t delayTime)
 {
+    TIM3->CNT = 0;
 	uint32_t timeout = tim3TickCounter + delayTime;
 	while(tim3TickCounter < timeout)
     {}
@@ -609,7 +610,7 @@ void SLP(void)
 	if(fpgaFlags.playStart==1){
 		if(fpgaFlags.fpgaConfig==1){
 			fpgaFlags.fpgaConfig=0;
-			spi1FifoClr();
+//			spi1FifoClr();
 			spi2FifoClr();
 			//fpgaConfig();
 			//GPIOB->BSRR=GPIO_BSRR_BS0;	//FPGA 1.2 V off
@@ -660,7 +661,7 @@ void SLP(void)
 			delay_ms(1);
 			FPGA_START_L;
 			durTimeS=0;
-			spi1FifoClr();
+//			spi1FifoClr();
 			spi2FifoClr();
 //			steps=steps+1000;
 //			freq=calcFreq(freq);

@@ -34,7 +34,7 @@ if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
 
 
 
-uint8_t maintaskstate=15;
+uint8_t maintaskstate=10;
 
 
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
@@ -68,10 +68,10 @@ e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 */
 const e_PowerState SLA_Encoder[SLA_FSM_NumOfEl]=
 {e_PS_Work							//SLA_FSM_WORK  								//
-,e_PS_DontMindSleep   	//SLA_FSM_DontMindSleep  			//
+,e_PS_DontMindSleep   	//SLA_FSM_DontMindSleep  		  	//
 ,e_PS_DontMindSleep			//SLA_FSM_SleepTransition 			//
 ,e_PS_ReadySleep				//SLA_FSM_Sleep 								//
-,e_PS_Work							//SLA_FSM_WakeTransition 			//
+,e_PS_Work							//SLA_FSM_WakeTransition 			  //
 };
 //---------------------------------for power---------------------------------------------
 static e_PowerState SLAcc_PowerState; 
@@ -339,15 +339,17 @@ e_FunctionReturnState testACC(void)
 		        {maintaskstate++;};
 						break;
 				
-   case 11: //if (e_FRS_Done==BQ28z610_Read(e_BQ28z610_Temperature,&pv_BQ28z610_Temperature))
+   case 11: if (e_FRS_Done==BQ28z610_Read(e_BQ28z610_Temperature,&pv_BQ28z610_Temperature))
 		        {maintaskstate++;};
   	  	  	  break; 		 
-   case 12: 
-           {maintaskstate++;};
-           break;
-   case 13: if (e_FRS_Done==ReadTPSState())
-           {maintaskstate++;};
-           break;
+   case 12: data=3300;
+		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2))
+            {maintaskstate++;};
+            break;
+   case 13: data=4400;
+		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2))
+            {maintaskstate++;};
+            break;
    case 14: if (e_FRS_Done==TPS65982_6_RDO_R(TPS87,  &I86, &V86))
 		         {maintaskstate++;};
 //	       rstatel=MainTransition(testkey);
@@ -365,6 +367,8 @@ return rstatel;
 
 void SuperLoopACC(void)
 {
+	uint16_t data;
+	e_FunctionReturnState wrstate;
 	static uint8_t state=0;
 	switch (state)
 	{ 
@@ -372,6 +376,8 @@ void SuperLoopACC(void)
             {maintaskstate=0;
 							state++;
 					  };
+//						data=5500;                                                                 //test defence
+//		        wrstate=BQ28z610_AltManufacturerAccessDFWrite(0x46b9, (uint8_t*)&data, 2); //test defence
        break;
 		case 1: LoopACC();
 			 break;

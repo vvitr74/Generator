@@ -99,7 +99,7 @@ extern int on_modbus_write_file(uint8_t* buf, size_t len);
 eMBException  
 eMBFuncWriteFile( UCHAR * pucFrame, USHORT * usLen )
 {
-    return on_modbus_write_file(pucFrame + 9, *usLen);
+    return on_modbus_write_file(pucFrame + 9, *usLen - 9);
 }
 
 #endif

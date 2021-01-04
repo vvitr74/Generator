@@ -2,6 +2,7 @@
 #include "stm32g0xx.h"
 #include "spiffs.h"
 
+//#define FLASH_TEST
 #define W25_CHIP_ERASE 0x60
 #define W25_READ_CMD 0x03
 #define W25_WRITE_CMD 2
@@ -85,7 +86,7 @@ static s32_t w25_flash_read(int addr, int size, char *buf)
 /**
 * Write flash page
 */
-static void w25_write_page(uint32_t addr, uint8_t size, char* buf)
+static void w25_write_page(uint32_t addr, size_t size, char* buf)
 {
     spi_cs_on();
     spi_transfer(W25_WRITE_ENA_CMD);
@@ -202,28 +203,50 @@ static s32_t w25_flash_erase(int addr, int size)
 */
 int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offset, uint8_t *data, size_t data_len)
 {
+    int32_t res = 0;
     if(! (GPIOB->ODR & (1<<2)))
     {        
         GPIOB->BSRR = GPIO_BSRR_BS2;
         delay_ms(10);
     }
     
-    spiffs_file fd = SPIFFS_open(&fs, filename, SPIFFS_CREAT | SPIFFS_RDWR, 0);
-
-    
-    if (SPIFFS_lseek(&fs, fd, offset, SPIFFS_SEEK_SET) < 0)
+    spiffs_file fd;
+    if(offset == 0)
     {
-        return SPIFFS_errno(&fs);
+        fd = SPIFFS_open(&fs, filename, SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
+    }
+    else
+    {
+        fd = SPIFFS_open(&fs, filename, SPIFFS_RDWR | SPIFFS_APPEND, 0);
+        spiffs_stat s;
+        res = SPIFFS_fstat(&fs, fd, &s);
+        
+        if(res == 0 && offset > s.size)
+        {
+            res = SPIFFS_ERR_END_OF_OBJECT;
+        }
+        
+        if(res == 0)
+        {
+            if (SPIFFS_lseek(&fs, fd, offset, SPIFFS_SEEK_SET) < 0)
+            {
+                res = SPIFFS_errno(&fs);
+            }
+        }
     }
     
-    if (SPIFFS_write(&fs, fd, data, data_len) < 0)
+    if( res == 0)
     {
-        return SPIFFS_errno(&fs);
+        if (SPIFFS_write(&fs, fd, data, data_len) < 0)
+        {
+            res = SPIFFS_errno(&fs);
+        }
     }
-
+    
+    SPIFFS_fflush(&fs,fd);
+    
     SPIFFS_close(&fs, fd);
-
-    return 0;
+    return res;
 }
 
 /**
@@ -250,6 +273,18 @@ int spiffs_erase_all()
     return 0;
 }
 
+#ifdef FLASH_TEST
+const char test_text[] = "Thank you Jack,\
+With the oscilloscope,i can see that the frame is shifted.\
+The thing is i don't have the information about the frame at t0, because the master sending request continuously. So, the frame visualized using oscilloscope shows (0x47, 0xAF, 0x41, 0x05, 0x05)instead of (0x00, 0x41,0x05, 0x47, 0xAF),the frame send by the Slave is 0x410547AF.\
+The explanation that i find is at t0, the Slave is synchronized to the Master only with the two last bytes 0x41, 0x05 shifted by Two, the two first bytes, i imagine that are 0 . Then the 0x47, 0xAF still in the Tx FIFO(this explains the FIFO level is usually at 2 bytes). At t1, the Slave sends 0x47, 0xAF, then 0x41, 0x05 placed between time in the FIFO. This why in MISO line, i can see (0x47, 0xAF, 0x41, 0x05, 0x05)but i can't understand why 0x05 is redundant.\
+My problem could the latency when writing to Tx FIFO and to the DR register ?\
+Note: I measured the period of the Chip Select and is about 12µs\
+May be it's not sufficient to the Slave to respond quickly ?\
+If hope that u can have an idea or explanation to this issue,\
+Best Regards";
+#endif
+
 /**
 * Initialize and configure spiffs 
 */
@@ -275,6 +310,28 @@ int spiffs_init()
         spi_transfer(W25_WRITE_ENA_CMD);
         spi_cs_off();
     }
+    
+    
+#ifdef FLASH_TEST
+    uint32_t init_addr = 0xc0;
+    char tmp[sizeof(test_text)] = {};
+    w25_flash_write(init_addr,sizeof(test_text),test_text);
+    w25_flash_read(init_addr,sizeof(test_text),tmp);
+    if(memcmp(tmp,test_text,sizeof(test_text)))
+    {
+        while(1);
+    }
+    w25_flash_erase(init_addr,sizeof(test_text));
+    w25_flash_read(init_addr,sizeof(test_text),tmp);
+
+    for(size_t i = 0; i< sizeof(test_text); i++)
+    {
+      if(tmp[i] != 0xff)
+      {
+          while(1);
+      }
+    }
+#endif
     
     
     int32_t res = SPIFFS_mount(&fs,
@@ -328,8 +385,9 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     uint32_t offset = ptr[0] | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);
     ptr += sizeof(uint32_t);
+
         
-    int res = spiffs_write_file_part(fname, ptr - (char*)buf, offset, ptr, len - (ptr - (char*)buf)); 
+    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - (char*)buf)); 
     
     return res;
 }

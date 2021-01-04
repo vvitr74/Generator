@@ -34,6 +34,7 @@ volatile struct{
 	uint16_t stopWrite				:1;
 }usbFlags;
 
+//---------------------------------------------for main----------------------------------------------------
 void SLC_init(void)
 {
 	uart1Init();
@@ -48,6 +49,18 @@ void SLC(void)
 	
 	procCmdFromUsb();
 }
+
+//---------------------------------------------for power----------------------------------------------------
+void Communication_InSleep()
+{
+	RCC->APBENR2 |= RCC_APBENR2_USART1EN;
+	USART1->CR1 &= ~USART_CR1_UE;
+	RCC->APBENR2 &= ~RCC_APBENR2_USART1EN;
+};
+void Communication_OutSleep()
+{
+  uart1Init();	
+};
 
 void uart1Init(void)
 {

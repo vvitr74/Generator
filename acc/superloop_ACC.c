@@ -48,54 +48,203 @@ static uint16_t I86;
 static uint16_t V86;
 
 
+//-------------------------------- loop -------------------------------------------------
+
+
+
+typedef enum  
+{SLA_FSM_WORK  								//e_PS_Work
+,SLA_FSM_DontMindSleep  			//e_PS_DontMindSleep
+,SLA_FSM_SleepTransition 			//e_PS_DontMindSleep
+,SLA_FSM_Sleep 								//e_PS_ReadySleep
+,SLA_FSM_WakeTransition 			//e_PS_Work
+,SLA_FSM_NumOfEl	
+} e_SLA_FSM;
+
+/**
+\brief Map e_SLA_FSM onto e_PowerState
+
+e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
+*/
+const e_PowerState SLA_Encoder[SLA_FSM_NumOfEl]=
+{e_PS_Work							//SLA_FSM_WORK  								//
+,e_PS_DontMindSleep   	//SLA_FSM_DontMindSleep  			//
+,e_PS_DontMindSleep			//SLA_FSM_SleepTransition 			//
+,e_PS_ReadySleep				//SLA_FSM_Sleep 								//
+,e_PS_Work							//SLA_FSM_WakeTransition 			//
+};
 //---------------------------------for power---------------------------------------------
 static e_PowerState SLAcc_PowerState; 
 static bool SLAcc_GoToSleep;
 
 __inline e_PowerState SLAcc_GetPowerState(void)
 {
-	 return SLAcc_PowerState;
+	 	 return SLA_Encoder[maintaskstate];
 };
 
 __inline e_PowerState SLAcc_SetSleepState(bool state)
 {
 	SLAcc_GoToSleep=state;
-	return SLAcc_PowerState;
+	return SLA_Encoder[maintaskstate];
 };
-//-------------------------------- loop -------------------------------------------------
+//----------------------------------------------------------------------------------------
 
-const e_PowerState encoderPowerState[16]=
-{e_PS_DontMindSleep //0
-,e_PS_ReadySleep   //1
-,e_PS_Work //2
-,e_PS_Work //3
-,e_PS_Work //4
-,e_PS_Work //5
-,e_PS_Work //6
-,e_PS_Work //7
-,e_PS_Work //8
-,e_PS_Work //9
-,e_PS_Work //10
-,e_PS_Work //11
-,e_PS_Work //12
-,e_PS_Work //13
-,e_PS_Work //14
-,e_PS_Work //15	
+static const e_SLA_FSM encoderPowerWork[8]=
+{SLA_FSM_DontMindSleep //0
+,SLA_FSM_DontMindSleep   //1
+,SLA_FSM_WORK //2
+,SLA_FSM_WORK //3
+,SLA_FSM_WORK //4
+,SLA_FSM_WORK //5
+,SLA_FSM_WORK //6
+,SLA_FSM_WORK //7
 };
-e_PowerState GetNewPowerState(e_FunctionReturnState rstatel);
 
+static const e_SLA_FSM encoderDontMindSleep[8]=
+{SLA_FSM_DontMindSleep //0
+,SLA_FSM_SleepTransition   //1
+,SLA_FSM_WORK //2
+,SLA_FSM_WORK //3
+,SLA_FSM_WORK //4
+,SLA_FSM_WORK //5
+,SLA_FSM_WORK //6
+,SLA_FSM_WORK //7
+};
 
+static const e_SLA_FSM encoderSleep[8]=
+{SLA_FSM_WakeTransition //0
+,SLA_FSM_WakeTransition   //1
+,SLA_FSM_WakeTransition //2
+,SLA_FSM_WakeTransition //3
+,SLA_FSM_WakeTransition //4
+,SLA_FSM_WakeTransition //5
+,SLA_FSM_WakeTransition //6
+,SLA_FSM_WakeTransition //7
+};
 
-void SuperLoopACC_init(void)
+e_FunctionReturnState A_FSM_WakeTransition(void);
+e_FunctionReturnState A_FSM_SleepTransition(void);
+
+e_SLA_FSM  GetNewPowerState(const e_SLA_FSM* encoder)
 {
-  SLAcc_GoToSleep=false;	
-	SLAcc_PowerState=e_PS_Work;
-	
-	initI2c1();
-  I2C_API_INIT();
-  BQ25703_DriverReset();
-  //while ((get_sysTick_ms()-time) <500) {;};
+	uint8_t DataFor_SLAcc_PowerState; // into function?
+			    DataFor_SLAcc_PowerState=0;
+		      if (SLAcc_GoToSleep ) 										DataFor_SLAcc_PowerState|=(1<<0);
+					if (TPSIRQ) 															DataFor_SLAcc_PowerState|=(1<<1);
+	        if (!(
+						     (e_FSM_ChargeOff==mainFMSstate)
+					     ||(e_FSM_RestOff  ==mainFMSstate)
+	             )
+					   )	
+			                              DataFor_SLAcc_PowerState|=(1<<2);
+					return encoder[DataFor_SLAcc_PowerState];
 };
+
+void LoopACC(void)
+{ //e_FunctionReturnState returnstate;
+  e_FunctionReturnState rstatel,wrstate;
+  static uint16_t data;
+
+  switch(maintaskstate)
+  {
+	 case SLA_FSM_WORK: 
+		       rstatel=mainFSMfunction(); //work
+		       if (e_FRS_Done==rstatel)
+					 {maintaskstate= GetNewPowerState(encoderPowerWork);
+					 };
+		 break;
+   case SLA_FSM_DontMindSleep: 
+		       rstatel=mainFSMfunction(); //don't mind sleep
+		       if (e_FRS_Done==rstatel)
+					 {maintaskstate= GetNewPowerState(encoderDontMindSleep);
+					 };
+     break;
+   case SLA_FSM_SleepTransition: 
+          if (e_FRS_Done==A_FSM_SleepTransition())
+		        {maintaskstate=SLA_FSM_Sleep;
+						};
+		 break;
+	 case SLA_FSM_Sleep:
+		 				maintaskstate= GetNewPowerState(encoderSleep);	
+	   break;
+	 case SLA_FSM_WakeTransition://
+          if (e_FRS_Done==A_FSM_WakeTransition())
+		        {maintaskstate=SLA_FSM_WORK;
+						};
+		 break;
+	 
+  default: maintaskstate=0;
+  };
+SystemStatus=mainFMSstate; //RDD debug
+};
+
+
+e_FunctionReturnState A_FSM_SleepTransition(void)
+{ static uint8_t state=0;
+	e_FunctionReturnState rstatel,wrstate;
+	static uint16_t data;
+  rstatel=e_FRS_Processing;
+
+  switch(state)
+  {
+	 case 0:
+		      	data=0;
+	        	wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[ADCOption].I2cRecord,
+												data,
+												cPriorityDefault,
+												voidfun8
+	        									);
+		 if (e_FRS_Done==wrstate)
+		 {
+		  state++;
+		 }
+		 break;
+   case 1:
+		 I2c1InSleep();
+		 B_ACC_PinsOnOff(DISABLE); 
+	   state=0;
+	   rstatel=e_FRS_Done;
+	   break;
+		
+   default: state=0;
+	};
+	
+  return rstatel;	
+};
+
+e_FunctionReturnState A_FSM_WakeTransition(void)
+{ static uint8_t state=0;
+	e_FunctionReturnState rstatel,wrstate;
+	static uint16_t data;
+  rstatel=e_FRS_Processing;
+
+  switch(state)
+  {
+   case 0:
+		 B_ACC_PinsOnOff(ENABLE); 
+     I2c1OutSleep();
+	   state++;
+	   //break;
+	 case 1:
+		 data=bq25703InitData[ADCOption].data;
+	        	wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[ADCOption].I2cRecord,
+												data,
+												cPriorityDefault,
+												voidfun8
+	        									);
+		 if (e_FRS_Done==wrstate)
+		 {rstatel=e_FRS_Done;
+		  state=0;}
+		 break;
+   default: state=0;
+	};
+	
+  return rstatel;	
+};
+
+
 
 
 /**
@@ -103,52 +252,97 @@ void SuperLoopACC_init(void)
 
 
 */
-void SuperLoopACC(void)
+e_FunctionReturnState testACC(void)
 { //e_FunctionReturnState returnstate;
-  e_FunctionReturnState rstatel;
-	e_PowerState SLAcc_PowerStateL;
-  //returnstate=e_FRS_Processing;
-
+  e_FunctionReturnState rstatel,wrstate;
+  rstatel=e_FRS_Processing;
+  static uint16_t data;
   switch(maintaskstate)
   {
    case 0:if (e_FRS_Done==BQ25703_Init_Check())
                  {maintaskstate++;};
 	  	  break;
-   case 1:if (e_FRS_Done==BQ25703_IIN_Check(100))
+   case 1://if (e_FRS_Done==BQ25703_IIN_Check(100))
            {maintaskstate++;};
   	  	  break;
-   case 2: if (e_FRS_Done==BQ25703_SetBits_Check(ChargeOption3,0,ChargeOption3_EN_HIZ))
+   case 2: //if (e_FRS_Done==BQ25703_SetBits_Check(ChargeOption3,ChargeOption3_EN_HIZ,0))
                   {maintaskstate++;};
  	  	  break;
-   case 3: if (e_FRS_Done==BQ25703_SetBits_Check(ChargeOption0,0,ChargeOption0_CHRG_INHIBIT))
+   case 3: //if (e_FRS_Done==BQ25703_SetBits_Check(ChargeOption0,0,ChargeOption0_CHRG_INHIBIT))
 		        {maintaskstate++;};
 						break;
-   case 4: if (e_FRS_Done==BQ25703_IIN_Check(400))
-           {maintaskstate++;};
-  	  	  break;
-	 case 5: if (e_FRS_Done==BQ25703_Charge_Check(2500))
-           {maintaskstate++;};
-	       break;
-	 case 6:  if (e_FRS_Done==BQ25703_Read(ChargeOption0,&data_tmp))
+   case 4: 	      	data=0;
+	        	wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[ADCOption].I2cRecord,
+												data,
+												cPriorityDefault,
+												voidfun8
+	        									);
+		 if (e_FRS_Done==wrstate)
+		 {
+		  maintaskstate++;
+		 }
+		 break;
+	 case 5: 		 data=bq25703InitData[ADCOption].data;
+	        	wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[ADCOption].I2cRecord,
+												data,
+												cPriorityDefault,
+												voidfun8
+	        									);
+		 if (e_FRS_Done==wrstate)
+		 {
+		  maintaskstate++;
+		 }
+		 break;
+	case 6: if (e_FRS_Done==BQ25703_Read(ADCOption, &data))
 		        {maintaskstate++;};
-  	  	  	  break;
-	 case 7:  if (e_FRS_Done==BQ25703_Read(ChargerStatus,&data_ChargerStatus))
-		        {maintaskstate++;};
-  	  	  	  break;
-	 case 8:  if (e_FRS_Done==BQ25703_Read(IIN_DPM,&data_IIN_DPM))
-		        {maintaskstate++;};
-  	  	  	  break;
-   case 9: if (e_FRS_Done==BQ25703_SetBits_Check(ChargeOption0,ChargeOption0_CHRG_INHIBIT,0))
+						break;	 
+	 case 7:  data=0;
+	        	wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[ADCOption].I2cRecord,
+												data,
+												cPriorityDefault,
+												voidfun8
+	        									);
+		 if (e_FRS_Done==wrstate)
+		 {
+		  maintaskstate++;
+		 }
+		 break;
+		 case 8:  data=(bq25703InitData[ChargeOption0].data)&(~0x8000);
+	        	wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[ChargeOption0].I2cRecord,
+												data,
+												cPriorityDefault,
+												voidfun8
+	        									);
+		 if (e_FRS_Done==wrstate)
+		 {
+		  maintaskstate++;
+		 }
+		 break;
+	 case 9: 
+     data=bq25703InitData[ChargeOption0].data|(0x8000);
+	        	wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[ChargeOption0].I2cRecord,
+												data,
+												cPriorityDefault,
+												voidfun8
+	        									);
+		 if (e_FRS_Done==wrstate)
+		 {
+		  maintaskstate++;
+		 }
+	   break;
+   case 10: if (e_FRS_Done==BQ25703_Read(ChargeOption0, &data))
 		        {maintaskstate++;};
 						break;
-   case 10:  if (e_FRS_Done==BQ25703_SetBits_Check(ChargeOption3,ChargeOption3_EN_HIZ,0))
-                  {maintaskstate++;};         
-           break;
 				
    case 11: //if (e_FRS_Done==BQ28z610_Read(e_BQ28z610_Temperature,&pv_BQ28z610_Temperature))
 		        {maintaskstate++;};
   	  	  	  break; 		 
-   case 12: //if (e_FRS_Done==ControlBattery())
+   case 12: 
            {maintaskstate++;};
            break;
    case 13: if (e_FRS_Done==ReadTPSState())
@@ -162,56 +356,37 @@ void SuperLoopACC(void)
 //	       if (e_FRS_DoneError==rstatel)
 //                                 {maintaskstate++;};
            break;
-   case 15://do	{
-					 rstatel=mainFSMfunction(); 
-					 SystemStatus=mainFMSstate;	 
-		       if (e_FRS_Done==rstatel)
-             {maintaskstate=16;};
-					if (e_FRS_DoneError==rstatel)
-             {maintaskstate=16;};//	 
-					// } while ((e_FRS_Done!=rstatel)&&(e_FRS_DoneError!=rstatel));
-           break;
-   case 16: //work or don't mind sleep
-          SLAcc_PowerState=GetNewPowerState(rstatel);
-					if (e_PS_ReadySleep!=SLAcc_PowerState) 
-						{maintaskstate=15;}   //work or don't mind sleep
-					else
-            { //off i2c           //sleep don't mind sleep
-						  maintaskstate=17; 
-							//off 25703
-							B_ACC_PinsOnOff(DISABLE);
-						
-						};
-		 break;
-	 case 17://ready
-		    SLAcc_PowerState=GetNewPowerState(rstatel);
-				if (e_PS_ReadySleep!=SLAcc_PowerState)
-				{	// on i2c
-					maintaskstate=15;
-					B_ACC_PinsOnOff(ENABLE);
-				};	
-		 break;
-	 
-  default: maintaskstate=0;
+  default: maintaskstate=0;rstatel=e_FRS_Done;
   };
-
+return rstatel;
 };
 
-e_PowerState GetNewPowerState(e_FunctionReturnState rstatel)
+
+
+void SuperLoopACC(void)
 {
-	uint8_t DataFor_SLAcc_PowerState; // into function?
-			    DataFor_SLAcc_PowerState=0;
-		      if (SLAcc_GoToSleep ) 										DataFor_SLAcc_PowerState|=(1<<0);
-					if (TPSIRQ) 															DataFor_SLAcc_PowerState|=(1<<1);
-	        if (e_FRS_DoneError==rstatel)             DataFor_SLAcc_PowerState|=(1<<2);
-	        if (!(
-						     (e_FSM_ChargeOff==mainFMSstate)
-					     ||(e_FSM_RestOff  ==mainFMSstate)
-	             )
-					   )	
-			                              DataFor_SLAcc_PowerState|=(1<<3);
-					
-					return encoderPowerState[DataFor_SLAcc_PowerState];
-					
+	static uint8_t state=0;
+	switch (state)
+	{ 
+		case 0: if (e_FRS_Done==testACC())
+            {maintaskstate=0;
+							state++;
+					  };
+       break;
+		case 1: LoopACC();
+			 break;
+		default:state=0;	
+	};	
 }
 
+
+void SuperLoopACC_init(void)
+{
+  SLAcc_GoToSleep=false;	
+	SLAcc_PowerState=e_PS_Work;
+	
+	initI2c1();
+  I2C_API_INIT();
+  BQ25703_DriverReset();
+  //while ((get_sysTick_ms()-time) <500) {;};
+};

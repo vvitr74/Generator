@@ -392,6 +392,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\src\BoardSetup.c</FilePath>
             </File>
+            <File>
+              <FileName>template.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\src\template.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

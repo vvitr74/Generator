@@ -34,7 +34,7 @@ if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
 
 
 
-uint8_t maintaskstate=10;
+uint8_t maintaskstate=15;//skip debug
 
 
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
@@ -248,9 +248,9 @@ e_FunctionReturnState A_FSM_WakeTransition(void)
 
 
 /**
-\brief control sleep state
+\brief test acc procedure
 
-
+sleep state and other
 */
 e_FunctionReturnState testACC(void)
 { //e_FunctionReturnState returnstate;
@@ -335,19 +335,20 @@ e_FunctionReturnState testACC(void)
 		  maintaskstate++;
 		 }
 	   break;
-   case 10: if (e_FRS_Done==BQ25703_Read(ChargeOption0, &data))
+   case 10: wrstate=BQ25703_Read(ChargeOption0, &data);
+		        if (e_FRS_Done==wrstate)
 		        {maintaskstate++;};
 						break;
 				
-   case 11: if (e_FRS_Done==BQ28z610_Read(e_BQ28z610_Temperature,&pv_BQ28z610_Temperature))
+   case 11: if (e_FRS_Done==BQ28z610_Read(e_BQ28z610_Temperature,&pv_BQ28z610_Temperature,testACC))
 		        {maintaskstate++;};
   	  	  	  break; 		 
    case 12: data=3300;
-		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2))
+		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
             {maintaskstate++;};
             break;
    case 13: data=4400;
-		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2))
+		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
             {maintaskstate++;};
             break;
    case 14: if (e_FRS_Done==TPS65982_6_RDO_R(TPS87,  &I86, &V86))

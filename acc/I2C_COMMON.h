@@ -29,7 +29,7 @@ typedef struct {
 
                } t_I2c16InitData;
 
-typedef enum  {e_FRS_Idle,e_FRS_Request,e_FRS_Processing,e_FRS_Done,e_FRS_DoneError} e_FunctionReturnState;
+typedef enum  {e_FRS_Idle,e_FRS_Request,e_FRS_Processing,e_FRS_Busy,e_FRS_Done,e_FRS_DoneError} e_FunctionReturnState;
                               //eIdle -> data has been read by high level function.
 
 //typedef enum {eI2CofTPS82,eI2CofTPS86,eI2CofPB,eI2CNumOfBusses} e_I2C_API_Buses;

@@ -5,13 +5,18 @@
 #include "superloopDisplay.h"
 #include "superloop_Player.h"
 
+
+//moduls
+#define PM_Display 2
+#define PM_Player 1
+#define PM_Communication 4
+
+extern void PM_OnOffPWR(uint8_t modul, bool newstate);
+	
 extern void SuperLoop_PowerModes_Init(void);
 extern void SuperLoop_PowerModes(void);
 
-extern e_FunctionReturnState  MainTransition_P_Displ(e_FSMState_SuperLoopDisplay state_Displ_new,e_FSMState_SuperLoopDisplay state_Displ_old);
-
-extern e_FunctionReturnState  MainTransition_P_Pl(e_FSMState_SuperLoopPlayer state_Pl_new,e_FSMState_SuperLoopPlayer state_Pl_old);
-
+extern void PM_OnOffPWR(uint8_t modul, bool newstate);
 
 #endif
 

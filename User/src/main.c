@@ -1,9 +1,6 @@
+#include "GlobalKey.h"
+
 //#define debug1
-#define PowerUSE
-#define LCDUSE
-#define ACCUSE
-#define COMMS
-#define PLAYER
 
 #include <string.h>
 #include "stm32g0xx.h"
@@ -22,6 +19,7 @@
 #endif
 
 #ifdef COMMS
+#include "SuperLoop_Comm.h"
 #include "bluetooth.h"
 //#include "rn4870Model.h"
 #include "uart.h"
@@ -39,15 +37,40 @@
 #include "tim3.h"
 #endif
 
+#ifdef MODBUS
+#include "SL_CommModbus.h"
+#endif
 
+#ifdef RELEASE
+#define APPLICATION_ADDRESS (uint32_t)0x08001800 /**  offset start address */
 
+void _ttywrch(int ch)
+{
+    (void)ch;
+}
 
+void _sys_exit(int return_code)
+{
+    (void) return_code;
+label:  goto label;  /* endless loop */
+}
 
+void _sys_command_string(char *cmd, int len)
+{
+    (void) cmd;
+    (void) len;
+}
 
-
+#endif
 
 int main(void)
 {
+#ifdef RELEASE
+    __asm(".global __use_no_semihosting\n\t");
+    SCB->VTOR = APPLICATION_ADDRESS;
+    __enable_irq();
+#endif    
+    
 #ifdef debug1	
 __disable_irq();	
   RCC->IOPENR |= RCC_IOPENR_GPIOAEN |                     // enable clock for GPIO 
@@ -78,7 +101,7 @@ __disable_irq();
 #endif
 
 #ifdef PowerUSE
-// board_PowerModes_Init();	//must be call brefore other board functions
+ SuperLoop_PowerModes_Init();	//must be call brefore other board functions
 #endif
 
 #ifdef ACCUSE
@@ -89,12 +112,12 @@ SuperLoopACC_init();
 SLD_init();
 #endif
 
-#ifdef 	COMMS && PLAYER
+#if defined COMMS || defined PLAYER
 	tim3Init();
 	initSpi_1();
 	SLC_init();
 	SLP_init();
- __flashInit();
+// __flashInit();
 #endif	
 
 #ifdef 	COMMS 
@@ -105,7 +128,25 @@ SLC_init();
 SLP_init();
 #endif
 
-		
+#ifdef MODBUS
+SL_CommModbusInit();
+#endif
+
+
+//test flash
+//uint8_t temp_pBuffer;
+//W25qxx_EraseSector(0);
+//W25qxx_WriteByte(0x55, 0);
+//W25qxx_ReadByte(&temp_pBuffer, 0);
+//end test flash
+
+//debug FPGA config
+//fpgaConfig();
+//fpgaConfig();
+//end debug FPGA config	
+	PM_OnOffPWR(PM_Display,false );
+  PM_OnOffPWR(PM_Player,false );	
+	PM_OnOffPWR(PM_Communication,false );
   while(1){
 
 #ifdef 	COMMS 
@@ -132,7 +173,10 @@ SuperLoopACC();
 #ifdef PowerUSE
 SuperLoop_PowerModes();			
 #endif			
-		
+
+#ifdef MODBUS
+SL_CommModbus();
+#endif
 		
   }
 }

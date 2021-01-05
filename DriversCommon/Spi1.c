@@ -89,16 +89,18 @@ void spi1TransmitReceive(uint8_t *pTxData, uint8_t *pRxData, uint16_t Size, uint
 	uint16_t TxXferCount=Size;
 	uint16_t RxXferCount=Size;
 	uint16_t Temp;
-	
+	spiByteModeEnable();
 	while ((TxXferCount > 0U) || (RxXferCount > 0U)){
       /* Check TXE flag */
-		if ((SPI1->SR & SPI_SR_TXE) && (TxXferCount > 0U) && (txallowed == 1U)){
-			if (TxXferCount > 1U){
-				SPI1->DR = *((uint16_t *)pTxData);
-				pTxData += sizeof(uint16_t);
-				TxXferCount -= 2U;
-			}
-			else{
+		if ((SPI1->SR & SPI_SR_TXE) && (TxXferCount > 0U) && (txallowed == 1U))
+			{
+//			if (TxXferCount > 1U){
+//				SPI1->DR = *((uint16_t *)pTxData);
+//				pTxData += sizeof(uint16_t);
+//				TxXferCount -= 2U;
+//			}
+//			else
+			{
 				*(__IO uint8_t *)&SPI1->DR = *pTxData;
 				pTxData++;
 				TxXferCount--;
@@ -107,17 +109,19 @@ void spi1TransmitReceive(uint8_t *pTxData, uint8_t *pRxData, uint16_t Size, uint
 			txallowed = 0U;
 		}
 			/* Wait until RXNE flag is reset */
-		if ((SPI1->SR & SPI_SR_RXNE) && (RxXferCount > 0U)){
-			if (RxXferCount > 1U){
-				*((uint16_t *)pRxData) = SPI1->DR;
-				pRxData += sizeof(uint16_t);
-				RxXferCount -= 2U;
-				if (RxXferCount <= 1U){
-					/* Set RX Fifo threshold before to switch on 8 bit data size */
-					spiByteModeEnable();
-				}
-			}
-		else{
+		if ((SPI1->SR & SPI_SR_RXNE) && (RxXferCount > 0U))
+			{
+//			if (RxXferCount > 1U){
+//				*((uint16_t *)pRxData) = SPI1->DR;
+//				pRxData += sizeof(uint16_t);
+//				RxXferCount -= 2U;
+//				if (RxXferCount <= 1U){
+//					/* Set RX Fifo threshold before to switch on 8 bit data size */
+//					spiByteModeEnable();
+//				}
+//			}
+//		else
+		{
 			*((uint16_t *)pRxData) = SPI1->DR;
 			pRxData++;
 			RxXferCount--;

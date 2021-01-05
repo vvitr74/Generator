@@ -4,33 +4,33 @@
 #include <stdbool.h>
 #include <math.h>
 #include "stm32g0xx.h"
+#include "PowerModes_Defs.h"
 #include "SuperLoop_Comm.h"
 #include "superloopDisplay.h"
 
-// for interraction with PWR
-typedef enum  {e_FSMS_SLPl_Off,e_FSMS_SLPl_On,e_FSMS_SLPl_NumOfEl} e_FSMState_SuperLoopPlayer;
-extern __inline e_FSMState_SuperLoopPlayer SLPl_FSMState(void);
 
+//for power
+extern __inline e_PowerState SLPl_GetPowerState(void);
+extern __inline e_PowerState SLPl_SetSleepState(bool state);
+extern __inline bool SLPl_PWRState(void);
 
 // For main
 extern void SLP_init(void);
 extern void SLP(void);
 
-//for power
-extern bool SuperLoop_Player_SleepIn(void);
-extern bool SuperLoop_Player_SleepOut(void);
+//For display
+extern uint8_t curState;
+
+
 
 //for player
-#define nCONFIG_H		GPIOB->BSRR = GPIO_BSRR_BS11
-#define nCONFIG_L 	GPIOB->BSRR = GPIO_BSRR_BR11
-#define FPGA_CS_H		GPIOB->BSRR = GPIO_BSRR_BS12
-#define FPGA_CS_L		GPIOB->BSRR = GPIO_BSRR_BR12
+
+
 #define FREQ_CW 			0x09
 #define MULT_REG1_CW 	0x05
 #define MULT_REG2_CW 	0x0A
 #define CRC_CW				0xA0
-#define FPGA_START_H GPIOA->BSRR = GPIO_BSRR_BS8
-#define FPGA_START_L GPIOA->BSRR = GPIO_BSRR_BR8
+
 #define CONF_BUFF_SIZE 1000
 #define MULT_VAL_1 21000
 #define MULT_VAL_2 21000
@@ -46,6 +46,10 @@ typedef struct {
 	uint16_t clockStart						:1;
 	uint16_t nextFreq							:1;
 	uint16_t endOfFile						:1;
+	uint16_t addListItem					:1;
+	uint16_t addNewListItem				:1;
+	uint16_t clearList						:1;
+	uint16_t timeUpdate						:1;
 } t_fpgaFlags;
 
 extern volatile t_fpgaFlags fpgaFlags;
@@ -54,13 +58,23 @@ void fpgaConfig(void);
 void getFileList(void);
 void timeToString(uint8_t* timeArr);
 void getControlParam(uint16_t fileSect);
+int verifyControlParam(void);
+void getFreq(uint16_t fileSect);
+void getFile(uint8_t fid);
 //void loadDataToFpga(uint16_t fileSect);
-uint32_t calcFreq(uint32_t val);
+//uint32_t calcFreq(uint32_t val);
+void setInitFreq(void);
+void calcFreq(void);
 void getCrc(void);
 void spi2FifoClr(void);
 void loadMultToFpga(void);
-void loadFreqToFpga(uint16_t addr);
+void loadFreqToFpga(void);
 void startFpga(void);
+
+extern void setTotalTimer(void);
+extern void setFileTimer(void);
+void getTimers(void);
+extern void SecToHhMmSs(uint32_t timeInSec);
 
 //for SPI2
 void initSpi_2(void);

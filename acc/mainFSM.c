@@ -260,11 +260,11 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
                       break;    //5
 //		case e_TF_ClrTPSInt:								 rstate=TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);// in TPS65982_6_RDO_R
 		case e_TF_ReadTPSState:              rstate=ReadTPSState();  break;//6
-		case e_TF_BQ28z610_Read_Temperature: rstate=BQ28z610_Read(e_BQ28z610_Temperature,&mFSM_BQ28z610_Temperature);break;//7  
-		case e_TF_BQ28z610_Read_Voltage:     rstate=BQ28z610_Read(e_BQ28z610_Voltage,&pv_BQ28z610_Voltage);   break;//8
+		case e_TF_BQ28z610_Read_Temperature: rstate=BQ28z610_Read(e_BQ28z610_Temperature,&mFSM_BQ28z610_Temperature,mainFSMfunction);break;//7  
+		case e_TF_BQ28z610_Read_Voltage:     rstate=BQ28z610_Read(e_BQ28z610_Voltage,&pv_BQ28z610_Voltage,mainFSMfunction);   break;//8
 		case e_TF_BQ25703_ADCIBAT_Read:      rstate=BQ25703_ADCIBAT_Read(&pvIcharge,&pvIdescharge);   break;//9
 		case e_TF_BQ28z610_RelativeStateOfCharge:
-			                                   rstate=BQ28z610_Read(e_BQ28z610_RelativeStateOfCharge,&mFSM_BQ28z610_RSOC);
+			                                   rstate=BQ28z610_Read(e_BQ28z610_RelativeStateOfCharge,&mFSM_BQ28z610_RSOC,mainFSMfunction);
                                          break;
 		case e_TF_BQ25703_VSYSVBAT_Read:     rstate=BQ25703_ADCVSYSVBAT_Read(&pvVSYS,&pvVBAT);bADCVSYSVBAT=true;   break;//9
 		

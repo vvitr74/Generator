@@ -34,7 +34,7 @@ if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
 
 
 
-uint8_t maintaskstate=15;//skip debug
+uint8_t maintaskstate=15;//15->skip debug
 
 
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
@@ -200,7 +200,11 @@ e_FunctionReturnState A_FSM_SleepTransition(void)
 		  state++;
 		 }
 		 break;
-   case 1:
+	 case 1:	 
+		 if (e_FRS_Done==BQ28z610_AltManufacturerAccessCommand(BQ28z610_Command_Sleep,A_FSM_SleepTransition))
+            {maintaskstate++;};
+		 break;				
+   case 2:
 		 I2c1InSleep();
 		 B_ACC_PinsOnOff(DISABLE); 
 	   state=0;
@@ -344,11 +348,12 @@ e_FunctionReturnState testACC(void)
 		        {maintaskstate++;};
   	  	  	  break; 		 
    case 12: data=3300;
-		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
+						if (e_FRS_Done==BQ28z610_AltManufacturerAccessCommand(BQ28z610_Command_Sleep,testACC))
+		        //if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
             {maintaskstate++;};
             break;
    case 13: data=4400;
-		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
+		        //if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
             {maintaskstate++;};
             break;
    case 14: if (e_FRS_Done==TPS65982_6_RDO_R(TPS87,  &I86, &V86))

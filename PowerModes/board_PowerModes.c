@@ -91,6 +91,7 @@ void SuperLoop_PowerModes(void)
 			case 2:
 				    Communication_InSleep();
 				    BoardSetup_InSleep();
+			      //DBG->CR|= DBG_CR_DBG_STOP;
             enterToStop();
 			      BoardSetup_OutSleep(); 
  			      Communication_OutSleep(); 
@@ -120,7 +121,7 @@ void enterToStop(void)
 	NVIC_DisableIRQ(I2C2_IRQn);
 	NVIC_DisableIRQ(I2C1_IRQn);
 	NVIC_DisableIRQ(USART1_IRQn);
-//	RCC->CSR |= RCC_CSR_LSION;
+	RCC->CSR |= RCC_CSR_LSION;
     
 
     

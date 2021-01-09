@@ -22,7 +22,7 @@ void EXTI4_15_IRQHandler(void)
 {	
 	GPIOB->BSRR = GPIO_BSRR_BR10;
 	EXTI->RPR1 |= EXTI_RPR1_RPIF5;
-	//EXTI->FPR1 |= EXTI_FPR1_FPIF5;
+	EXTI->FPR1 |= EXTI_FPR1_FPIF7;
 }
 //***********************************************************************************************************************
 
@@ -33,18 +33,34 @@ void enterToStop(void);
 void SuperLoop_PowerModes_Init(void)
 	{
     RCC->IOPENR |= RCC_IOPENR_GPIOAEN;
+		
+    EXTI->IMR1 = 0;
+    EXTI->EMR1 = 0;	
+		
 	GPIOA->MODER &= ~(GPIO_MODER_MODE5_Msk); /**< Power Button */
 	EXTI->EXTICR[1] &= ~0xff00;
 	//EXTI->FTSR1 |= EXTI_FTSR1_FT5;
 	EXTI->RTSR1 |= EXTI_RTSR1_RT5;
 	//EXTI->FPR1 |= EXTI_FPR1_FPIF5;
 	EXTI->RPR1 |= EXTI_RPR1_RPIF5;
-    EXTI->IMR1 = 0;
-    EXTI->EMR1 = 0;
 	EXTI->IMR1 |= EXTI_IMR1_IM5; // EXTI5 interrupts unmasked
 	EXTI->EMR1 |= EXTI_EMR1_EM5; // EXTI5 event unmasked
-	NVIC_SetPriority(EXTI4_15_IRQn, 0);
+		
+	GPIOA->MODER &= ~(GPIO_MODER_MODE7_Msk); /**< TPS		*/
+	EXTI->EXTICR[1] &= ~0xff000000;
+	EXTI->FTSR1 |= EXTI_FTSR1_FT7;
+	//EXTI->RTSR1 |= EXTI_RTSR1_RT5;
+	EXTI->FPR1 |= EXTI_FPR1_FPIF7;
+	//EXTI->RPR1 |= EXTI_RPR1_RPIF5;
+	EXTI->IMR1 |= EXTI_IMR1_IM7; // EXTI5 interrupts unmasked
+	EXTI->EMR1 |= EXTI_EMR1_EM7; // EXTI5 event unmasked
+	
+	
+		
+	NVIC_SetPriority(EXTI4_15_IRQn, 5);
 	NVIC_EnableIRQ(EXTI4_15_IRQn);
+		
+		
 		
   bPM_FSMPower_Init();
     
@@ -125,7 +141,7 @@ void enterToStop(void)
     
 
     
-	//GPIOB->BSRR = GPIO_BSRR_BS10;
+	GPIOB->BSRR = GPIO_BSRR_BS10;
 	PWR->CR1 |= PWR_CR1_LPR 		// the regulator is switched from main mode (MR) to low-power mode
 	         | PWR_CR1_FPD_STOP //RDD
 	         | PWR_CR1_LPMS_0; 	// select Stop 1 low-power mode

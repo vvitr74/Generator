@@ -23,6 +23,7 @@ void EXTI4_15_IRQHandler(void)
 	GPIOB->BSRR = GPIO_BSRR_BR10;
 	EXTI->RPR1 |= EXTI_RPR1_RPIF5;
 	EXTI->FPR1 |= EXTI_FPR1_FPIF7;
+	__NVIC_SetPendingIRQ(TIM3_IRQn);
 }
 //***********************************************************************************************************************
 
@@ -138,8 +139,6 @@ void enterToStop(void)
 	NVIC_DisableIRQ(I2C1_IRQn);
 	NVIC_DisableIRQ(USART1_IRQn);
 	
-	NVIC_SetPriority(EXTI4_15_IRQn, 5);
-	NVIC_EnableIRQ(EXTI4_15_IRQn);
 
 	
 	RCC->CSR |= RCC_CSR_LSION;
@@ -167,6 +166,10 @@ void enterToStop(void)
 	__NVIC_ClearPendingIRQ(TIM3_IRQn);
 		__DSB();
 	__ISB();
+	
+	NVIC_SetPriority(EXTI4_15_IRQn, 5);
+	NVIC_EnableIRQ(EXTI4_15_IRQn);
+
     
 	GPIOB->BSRR = GPIO_BSRR_BS10;
 	

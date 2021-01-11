@@ -125,7 +125,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=1397,160,1808,662,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)</Name>
+          <Name>(1010=1397,160,1808,662,0)(1007=1509,274,1716,495,1)(1008=1137,329,1513,565,0)(1012=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -148,7 +148,24 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32G0xx_128 -FS08000000 -FL020000 -FP0($$Device:STM32G070CBTx$CMSIS\Flash\STM32G0xx_128.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint/>
+      <Breakpoint>
+        <Bp>
+          <Number>0</Number>
+          <Type>0</Type>
+          <LineNumber>167</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\PowerModes\board_PowerModes.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+      </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -279,12 +296,20 @@
           <WinId>35901</WinId>
         </Entry>
         <Entry>
+          <Name>System Viewer\NVIC</Name>
+          <WinId>35895</WinId>
+        </Entry>
+        <Entry>
           <Name>System Viewer\RCC</Name>
           <WinId>35896</WinId>
         </Entry>
         <Entry>
           <Name>System Viewer\TAMP</Name>
           <WinId>35897</WinId>
+        </Entry>
+        <Entry>
+          <Name>System Viewer\TIM3</Name>
+          <WinId>35894</WinId>
         </Entry>
       </SystemViewers>
       <DebugDescription>
@@ -343,7 +368,7 @@
 
   <Group>
     <GroupName>ugfx</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -387,7 +412,7 @@
 
   <Group>
     <GroupName>Display</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -407,7 +432,7 @@
 
   <Group>
     <GroupName>DriversCommon</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -459,7 +484,7 @@
 
   <Group>
     <GroupName>W25qxx</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -479,7 +504,7 @@
 
   <Group>
     <GroupName>Player</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -499,7 +524,7 @@
 
   <Group>
     <GroupName>ACC</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -647,7 +672,7 @@
 
   <Group>
     <GroupName>DOC</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -679,7 +704,7 @@
 
   <Group>
     <GroupName>CommModbos</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -687,7 +712,7 @@
       <GroupNumber>11</GroupNumber>
       <FileNumber>26</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\CommModbus\SL_CommModbus.c</PathWithFileName>
@@ -699,7 +724,7 @@
 
   <Group>
     <GroupName>FreeModbus</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

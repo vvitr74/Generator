@@ -16,6 +16,7 @@ void BoardSetup_InSleep(void)
 	
 	RCC->CR  &= ~(RCC_CR_HSION);                                  // OFF HSI
   while((RCC->CR & RCC_CR_HSIRDY)){};
+		
 	__DMB();
 	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 	__DMB();

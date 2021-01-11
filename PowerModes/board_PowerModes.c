@@ -22,7 +22,8 @@ void EXTI4_15_IRQHandler(void)
 {	
 	GPIOB->BSRR = GPIO_BSRR_BR10;
 	EXTI->RPR1 |= EXTI_RPR1_RPIF5;
-	//EXTI->FPR1 |= EXTI_FPR1_FPIF5;
+	EXTI->FPR1 |= EXTI_FPR1_FPIF7;
+	__NVIC_SetPendingIRQ(TIM3_IRQn);
 }
 //***********************************************************************************************************************
 
@@ -33,18 +34,34 @@ void enterToStop(void);
 void SuperLoop_PowerModes_Init(void)
 	{
     RCC->IOPENR |= RCC_IOPENR_GPIOAEN;
+		
+    EXTI->IMR1 = 0;
+    EXTI->EMR1 = 0;	
+		
 	GPIOA->MODER &= ~(GPIO_MODER_MODE5_Msk); /**< Power Button */
 	EXTI->EXTICR[1] &= ~0xff00;
 	//EXTI->FTSR1 |= EXTI_FTSR1_FT5;
 	EXTI->RTSR1 |= EXTI_RTSR1_RT5;
 	//EXTI->FPR1 |= EXTI_FPR1_FPIF5;
 	EXTI->RPR1 |= EXTI_RPR1_RPIF5;
-    EXTI->IMR1 = 0;
-    EXTI->EMR1 = 0;
 	EXTI->IMR1 |= EXTI_IMR1_IM5; // EXTI5 interrupts unmasked
-	EXTI->EMR1 |= EXTI_EMR1_EM5; // EXTI5 event unmasked
-	NVIC_SetPriority(EXTI4_15_IRQn, 0);
-	NVIC_EnableIRQ(EXTI4_15_IRQn);
+	//EXTI->EMR1 |= EXTI_EMR1_EM5; // EXTI5 event unmasked
+		
+	GPIOA->MODER &= ~(GPIO_MODER_MODE7_Msk); /**< TPS		*/
+	EXTI->EXTICR[1] &= ~0xff000000;
+	EXTI->FTSR1 |= EXTI_FTSR1_FT7;
+	//EXTI->RTSR1 |= EXTI_RTSR1_RT5;
+	EXTI->FPR1 |= EXTI_FPR1_FPIF7;
+	//EXTI->RPR1 |= EXTI_RPR1_RPIF5;
+	EXTI->IMR1 |= EXTI_IMR1_IM7; // EXTI7 interrupts unmasked
+	//EXTI->EMR1 |= EXTI_EMR1_EM7; // EXTI7 event unmasked
+	
+	
+		
+	//NVIC_SetPriority(EXTI4_15_IRQn, 5);
+	//NVIC_EnableIRQ(EXTI4_15_IRQn);
+		
+		
 		
   bPM_FSMPower_Init();
     
@@ -91,6 +108,7 @@ void SuperLoop_PowerModes(void)
 			case 2:
 				    Communication_InSleep();
 				    BoardSetup_InSleep();
+			      //DBG->CR|= DBG_CR_DBG_STOP;
             enterToStop();
 			      BoardSetup_OutSleep(); 
  			      Communication_OutSleep(); 
@@ -120,11 +138,43 @@ void enterToStop(void)
 	NVIC_DisableIRQ(I2C2_IRQn);
 	NVIC_DisableIRQ(I2C1_IRQn);
 	NVIC_DisableIRQ(USART1_IRQn);
-//	RCC->CSR |= RCC_CSR_LSION;
-    
+	
+
+	
+	RCC->CSR |= RCC_CSR_LSION;
+  
+//	SysTick->CTRL  &= ~(SysTick_CTRL_CLKSOURCE_Msk |
+//                   SysTick_CTRL_TICKINT_Msk   |
+//                   SysTick_CTRL_ENABLE_Msk);
+	
+	TIM3->CR1 &= ~TIM_CR1_CEN;
+	TIM3->DIER = 0;
+	
+  
+  EXTI->RPR1 |= EXTI_RPR1_RPIF5;
+		__DSB();
+	__ISB();
+	EXTI->FPR1 |= EXTI_FPR1_FPIF7;
+		__DSB();
+	__ISB();
+	TIM3->SR=0x0000;
+		__DSB();
+	__ISB();
+	NVIC->ICPR[0]=0xffffffff;
+		__DSB();
+	__ISB();
+	__NVIC_ClearPendingIRQ(TIM3_IRQn);
+		__DSB();
+	__ISB();
+	
+	NVIC_SetPriority(EXTI4_15_IRQn, 5);
+	NVIC_EnableIRQ(EXTI4_15_IRQn);
 
     
-	//GPIOB->BSRR = GPIO_BSRR_BS10;
+	GPIOB->BSRR = GPIO_BSRR_BS10;
+	
+	//SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+	
 	PWR->CR1 |= PWR_CR1_LPR 		// the regulator is switched from main mode (MR) to low-power mode
 	         | PWR_CR1_FPD_STOP //RDD
 	         | PWR_CR1_LPMS_0; 	// select Stop 1 low-power mode
@@ -137,12 +187,23 @@ void enterToStop(void)
 	__DSB();
 	__ISB();
 
-	__WFI();
+//  __SEV();
+//	__WFE();
+//  __WFE();
+
+   __WFI();
 
 	SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk; // reset SLEEPDEEP bit of Cortex System Control Register
 	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 	PWR->CR1 &= ~(PWR_CR1_LPMS_Msk | PWR_CR1_LPR); // the regulator is switched from low-power mode to main mode (MR)
+	
+	NVIC_DisableIRQ(EXTI4_15_IRQn);
+	
 	setSystemClock();
+	
+	
+	
+	tim3Init();
 
 	GPIOB->BSRR = GPIO_BSRR_BR10;
 	NVIC_EnableIRQ(USART1_IRQn);

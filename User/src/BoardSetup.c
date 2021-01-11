@@ -13,6 +13,10 @@ Setting up shared resources that are used by multiple software modules
 //for power
 void BoardSetup_InSleep(void)
 {
+	
+	RCC->CR  &= ~(RCC_CR_HSION);                                  // OFF HSI
+  while((RCC->CR & RCC_CR_HSIRDY)){};
+		
 	__DMB();
 	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 	__DMB();
@@ -124,7 +128,12 @@ systemticks_t gfxMillisecondsToTicks(delaytime_t ms)
 **************************************************************************************************************************/
 uint32_t setSystemClock(void){
   uint32_t waitCycle = HSE_READY_DELAY;
-
+  
+	
+	RCC->CR |= (RCC_CR_HSION);                                  // ON HSI
+  while(!(RCC->CR & (RCC_CR_HSIRDY))){};
+	RCC->CFGR&=~(RCC_CFGR_SW_Msk);                           // togle on HSI
+	while((RCC->CFGR & RCC_CFGR_SWS_Msk)){};  
   RCC->CR &= ~RCC_CR_PLLON;                                   // Disable the PLL by setting PLLON to 0
   while(RCC->CR & RCC_CR_PLLRDY){}                            // Wait until PLLRDY is cleared. The PLL is now fully stopped
     

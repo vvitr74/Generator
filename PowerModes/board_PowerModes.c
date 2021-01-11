@@ -154,7 +154,10 @@ void enterToStop(void)
 	__DSB();
 	__ISB();
 
-	__WFI();
+//	__WFE();
+
+/// \todo  HSI ON
+/// \todo  togle on HSI
 
 	SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk; // reset SLEEPDEEP bit of Cortex System Control Register
 	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;

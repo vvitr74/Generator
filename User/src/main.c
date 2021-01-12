@@ -121,7 +121,7 @@ SuperLoopACC_init();
 #endif
 
 #ifdef LCDUSE
-    SLD_init();
+//    SLD_init();
 #endif
 
 #if defined COMMS || defined PLAYER
@@ -142,7 +142,7 @@ SLC_init();
 #endif
 
 #ifdef 	PLAYER 
-SLP_init();
+//SLP_init();
 #endif
 
 #ifdef MODBUS
@@ -169,11 +169,11 @@ SLC();
 #endif
 
 #ifdef 	PLAYER 
-SLP();
+//SLP();
 #endif
 		
 #ifdef LCDUSE
-SLD();
+//SLD();
 
 #endif
 			
@@ -181,13 +181,13 @@ SLD();
 //GPIOB->BSRR = GPIO_BSRR_BS10;		
 			
 #ifdef ACCUSE
-SuperLoopACC();
+//SuperLoopACC();
 #endif	
 			
 //GPIOB->BSRR = GPIO_BSRR_BR10;	
 			
 #ifdef PowerUSE
-SuperLoop_PowerModes();			
+//SuperLoop_PowerModes();			
 #endif			
 
 #ifdef MODBUS

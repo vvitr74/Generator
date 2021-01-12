@@ -185,9 +185,7 @@ void boardIoPinInit(void){
                      GPIO_AFRH_AFSEL9_Msk);            	// set PB9 as I2C2_SDA 
   GPIOB->AFR[1] = 6 << GPIO_AFRH_AFSEL8_Pos |           	// set PB8 as I2C2_SCL
                   6 << GPIO_AFRH_AFSEL9_Pos;            	// set PB9 as I2C2_SDA 
-  
-  GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEED5_Msk | 
-                    GPIO_OSPEEDR_OSPEED5_Msk;
+ 
 										
 	/*                   button                  */									
 	GPIOA->MODER &= ~(GPIO_MODER_MODE5_Msk);                  // input 
@@ -231,8 +229,9 @@ void boardIoPinInit(void){
   GPIOB->MODER &= ~(GPIO_MODER_MODE3_1 |                  // TFT_SCL pin as output  
                     GPIO_MODER_MODE5_1);                  // TFT_MOSI pin as output
                     
-  GPIOB->OSPEEDR |=  GPIO_OSPEEDR_OSPEED5_1 |
-										 GPIO_OSPEEDR_OSPEED3_1;		          // switch PB3, PB5 to High speed mode 
+  GPIOB->OSPEEDR |=  GPIO_OSPEEDR_OSPEED5_0 | GPIO_OSPEEDR_OSPEED5_1 | 
+                     GPIO_OSPEEDR_OSPEED4_0 | GPIO_OSPEEDR_OSPEED4_1 | 
+                     GPIO_OSPEEDR_OSPEED3_0 | GPIO_OSPEEDR_OSPEED3_1;		          // switch PB3, PB5 to High speed mode 
 										 
 										 
   switchDisplayInterfacePinsToPwr(DISABLE);										 

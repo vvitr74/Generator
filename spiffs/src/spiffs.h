@@ -39,7 +39,6 @@ extern "C" {
 #define SPIFFS_ERR_NOT_READABLE         -10022
 #define SPIFFS_ERR_CONFLICTING_NAME     -10023
 #define SPIFFS_ERR_NOT_CONFIGURED       -10024
-
 #define SPIFFS_ERR_NOT_A_FS             -10025
 #define SPIFFS_ERR_MOUNTED              -10026
 #define SPIFFS_ERR_ERASE_FAIL           -10027

@@ -2,6 +2,7 @@
 
 //#define debug1
 
+#include <stdio.h>
 #include <string.h>
 #include "stm32g0xx.h"
 #include "BoardSetup.h"
@@ -25,7 +26,6 @@
 #include "uart.h"
 #include "flash.h"
 #include "Spi.h"
-#include "w25qxx.h"
 #include "tim3.h"
 #endif
 
@@ -33,12 +33,20 @@
 #include "fpga.h"
 #include "flash.h"
 #include "Spi.h"
-#include "w25qxx.h"
 #include "tim3.h"
 #endif
 
 #ifdef MODBUS
 #include "SL_CommModbus.h"
+#endif
+
+#ifdef SPIFFS
+#include <spiffs.h>
+  
+extern spiffs fs;
+
+int spiffs_init();
+ 
 #endif
 
 #ifdef RELEASE
@@ -63,6 +71,7 @@ void _sys_command_string(char *cmd, int len)
 
 #endif
 
+extern bool bVSYS;
 int main(void)
 {
 #ifdef RELEASE
@@ -100,16 +109,19 @@ delayms(1000);
 __disable_irq();
 #endif
 
+
 #ifdef PowerUSE
  SuperLoop_PowerModes_Init();	//must be call brefore other board functions
 #endif
 
 #ifdef ACCUSE
 SuperLoopACC_init();
+#else
+ bVSYS = 1;
 #endif
 
 #ifdef LCDUSE
-SLD_init();
+//    SLD_init();
 #endif
 
 #if defined COMMS || defined PLAYER
@@ -117,15 +129,20 @@ SLD_init();
 	initSpi_1();
 	SLC_init();
 	SLP_init();
-// __flashInit();
+
 #endif	
+
+#ifdef SPIFFS
+spiffs_init();
+#endif
+
 
 #ifdef 	COMMS 
 SLC_init();
 #endif
 
 #ifdef 	PLAYER 
-SLP_init();
+//SLP_init();
 #endif
 
 #ifdef MODBUS
@@ -154,24 +171,25 @@ SLC();
 #endif
 
 #ifdef 	PLAYER 
-SLP();
+//SLP();
 #endif
 		
 #ifdef LCDUSE
-SLD();
+//SLD();
+
 #endif
 			
 //GPIOB->ODR ^= GPIO_ODR_OD10; 
 //GPIOB->BSRR = GPIO_BSRR_BS10;		
 			
 #ifdef ACCUSE
-SuperLoopACC();
+//SuperLoopACC();
 #endif	
 			
 //GPIOB->BSRR = GPIO_BSRR_BR10;	
 			
 #ifdef PowerUSE
-SuperLoop_PowerModes();			
+//SuperLoop_PowerModes();			
 #endif			
 
 #ifdef MODBUS

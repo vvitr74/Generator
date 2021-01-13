@@ -20,10 +20,27 @@ void initSpi_1(void){
   SPI1->CR1 |= SPI_CR1_SPE;                               // enable SPI1 perif
 }
 
-void Spi1Stop(void)
-{
-	
-};
+
+/**
+*			The correct disable procedure is (except when receive only mode is used):
+*			1. Wait until FTLVL[1:0] = 00 (no more data to transmit).
+*			2. Wait until BSY=0 (the last data frame is processed).
+*			3. Disable the SPI (SPE=0).
+*			4. Read data until FRLVL[1:0] = 00 (read all the received data).
+*
+**************************************************************************************************************************/
+void disableSpi_1(void){
+
+	while (SPI1->SR & SPI_SR_FTLVL_Msk){}										//  Wait until FTLVL[1:0] = 00 (no more data to transmit)
+	while (SPI1->SR & SPI_SR_BSY){}													//	Wait until BSY=0 (the last data frame is processed)	
+		
+	NVIC_DisableIRQ(SPI1_IRQn);										 
+  SPI1->CR1 &= ~SPI_CR1_SPE;                              // disable SPI1 perif
+		
+	while (SPI1->SR & SPI_SR_FRE_Msk){ SPI1->DR; }					// Read data until FRLVL[1:0] = 00 (read all the received data)				
+	RCC->APBENR2 &= ~RCC_APBENR2_SPI1EN;                    // disable SPI1 clk
+              
+}
 
 /*************************************************************************************************************************
 *

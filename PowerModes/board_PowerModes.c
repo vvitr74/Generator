@@ -6,6 +6,7 @@
 #include "superloop.h"
 #include "superloopDisplay.h"
 #include "superloop_Player.h"
+#include "Spi1.h"
 
 //#define SLP_WakeUpPause 500
 
@@ -112,7 +113,7 @@ void SuperLoop_PowerModes(void)
             enterToStop();
 			      BoardSetup_OutSleep(); 
  			      Communication_OutSleep(); 
-			      SLP_state=1;
+			      SLP_state=3;
               break;			
 			case 3: //weakup
 						SLAcc_SetSleepState(false);	
@@ -150,13 +151,10 @@ void enterToStop(void)
 	TIM3->CR1 &= ~TIM_CR1_CEN;
 	TIM3->DIER = 0;
 	
+  //PM_ClearPendingButton;  
+  //PM_ClearPendingTPSIRQ;
   
-  EXTI->RPR1 |= EXTI_RPR1_RPIF5;
-		__DSB();
-	__ISB();
-	EXTI->FPR1 |= EXTI_FPR1_FPIF7;
-		__DSB();
-	__ISB();
+
 	TIM3->SR=0x0000;
 		__DSB();
 	__ISB();
@@ -167,13 +165,13 @@ void enterToStop(void)
 		__DSB();
 	__ISB();
 	
-	NVIC_SetPriority(EXTI4_15_IRQn, 5);
-	NVIC_EnableIRQ(EXTI4_15_IRQn);
+	//NVIC_SetPriority(EXTI4_15_IRQn, 5);
+	//NVIC_EnableIRQ(EXTI4_15_IRQn);
 
     
 	GPIOB->BSRR = GPIO_BSRR_BS10;
 	
-	//SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+	SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
 	
 	PWR->CR1 |= PWR_CR1_LPR 		// the regulator is switched from main mode (MR) to low-power mode
 	         | PWR_CR1_FPD_STOP //RDD
@@ -183,21 +181,26 @@ void enterToStop(void)
 	__DMB();
 
 	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk; // Set SLEEPDEEP bit of Cortex System Control Register
-
+//while (!(( EXTI->RPR1 & EXTI_RPR1_RPIF5) || (EXTI->FPR1 & EXTI_FPR1_FPIF7)))
+{
 	__DSB();
 	__ISB();
 
-//  __SEV();
-//	__WFE();
-//  __WFE();
+  __SEV();
+	
 
-   __WFI();
+__WFE();
+__WFE();	
+}
+
+
+   //__WFI();
 
 	SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk; // reset SLEEPDEEP bit of Cortex System Control Register
-	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 	PWR->CR1 &= ~(PWR_CR1_LPMS_Msk | PWR_CR1_LPR); // the regulator is switched from low-power mode to main mode (MR)
+	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 	
-	NVIC_DisableIRQ(EXTI4_15_IRQn);
+//	NVIC_DisableIRQ(EXTI4_15_IRQn);
 	
 	setSystemClock();
 	
@@ -334,7 +337,10 @@ e_FunctionReturnState TransitionFunction_P(uint8_t state)
 	  case e_P_PlN: 				switchOUTStageInterfacePinsToPwr(DISABLE);rstate=e_FRS_Done; break;//2
 	  case e_P_PlY: 				switchOUTStageInterfacePinsToPwr(ENABLE);	rstate=e_FRS_Done; break;//2
 		
-	  case e_P_SPI1N: 			switchSPI1InterfacePinsToPwr(DISABLE);		rstate=e_FRS_Done; break;//3
+	  case e_P_SPI1N: 			//disableSpi_1();
+			                    switchSPI1InterfacePinsToPwr(DISABLE);		
+		
+		                                                                 rstate=e_FRS_Done; break;//3
 		
 //		case e_P_GLOBAL_ON:   PWR_GLOBAL_ON;														rstate=e_FRS_Done; break;
 //		case e_P_TFT_ON:			PWR_TFT_ON;																rstate=e_FRS_Done; break;
@@ -343,7 +349,9 @@ e_FunctionReturnState TransitionFunction_P(uint8_t state)
 //		case e_P_TFT_OFF:			PWR_TFT_OFF;															rstate=e_FRS_Done; break;
 //		case e_P_GLOBAL_OFF:	PWR_GLOBAL_OFF;														rstate=e_FRS_Done; break;
 		
-  	case e_P_SPI1Y: 			switchSPI1InterfacePinsToPwr(ENABLE);			rstate=e_FRS_Done; break;//4
+  	case e_P_SPI1Y: 			switchSPI1InterfacePinsToPwr(ENABLE);			
+		                      //initSpi_1();
+		                                                                 rstate=e_FRS_Done; break;//4
 		
 //    case e_P_sleep: SLP_sleep=true ;	SLP_WakeUP=false;									rstate=e_FRS_Done; break;
 //    case e_P_wakeup:SLP_sleep=false ;	SLP_WakeUP=true;									rstate=e_FRS_Done; break;

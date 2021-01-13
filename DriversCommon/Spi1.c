@@ -42,7 +42,7 @@ void disableSpi_1(void){
 *
 *
 **************************************************************************************************************************/
-void spi1Receive(uint8_t *pData, uint16_t Size, uint32_t Timeout)
+static void delay_us(uint32_t i)
 {
     // 255 -> 52.917us ~ 4.81
     volatile uint32_t j = i * 5;

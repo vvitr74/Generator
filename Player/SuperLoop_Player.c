@@ -364,7 +364,7 @@ void getFreq(uint16_t fileSect)
 	}
 	
 	while(strCnt<playParamArr[0]){									//fill an array of frequencies
-		W25qxx_ReadByte(&temp,freqStartByte+byteCnt);
+//		W25qxx_ReadByte(&temp,freqStartByte+byteCnt);
 		byteCnt++;
 		if((temp>='0')&&(temp<='9')){
 			tempArr[chrCnt]=temp;
@@ -805,9 +805,10 @@ void SLP(void)
 		//file list initialization
 		case 0:
 			if(fpgaFlags.fileListUpdate==1){
-				if(!W25qxx_IsEmptySector(fileSect,0)){
-					spi1FifoClr();
-					W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
+//				if(!W25qxx_IsEmptySector(fileSect,0))
+				{
+					//spi1FifoClr();
+//					W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
 					fpgaFlags.addListItem=1;
 				}
 				if(fileSect>=MAX_FILES_NUM){
@@ -829,8 +830,8 @@ void SLP(void)
 				curState=2;
 			}
 			if(fpgaFlags.addNewListItem==1){
-				spi1FifoClr();
-				W25qxx_ReadSector((uint8_t*)fileName,startSectAddr,FILE_NAME_SHIFT,FILE_NAME_BYTES);
+			//	spi1FifoClr();
+//				W25qxx_ReadSector((uint8_t*)fileName,startSectAddr,FILE_NAME_SHIFT,FILE_NAME_BYTES);
 			}
 			break;
 			
@@ -840,7 +841,7 @@ void SLP(void)
 		
 			PM_OnOffPWR(PM_Player,true );//RDD ON POWER
 		  initSpi_2();
-			spi1FifoClr();
+			//spi1FifoClr();
 			spi2FifoClr();
 		
 			fpgaFlags.fpgaConfig=1;
@@ -879,12 +880,13 @@ void SLP(void)
 			if(durTimeS>=playParamArr[3]){
 				startFpga();
 				durTimeS=0;
-				spi1FifoClr();
+				//spi1FifoClr();
 				spi2FifoClr();
 				calcFreq();
 				if(fpgaFlags.endOfFile==1){
 					playFileSector++;
-					if(playFileSector<=LAST_PLAY_SECT && !W25qxx_IsEmptySector(playFileSector,0)){
+//					if(playFileSector<=LAST_PLAY_SECT && !W25qxx_IsEmptySector(playFileSector,0))
+						{
 						playFileInList=playFileSector;
 						if(playFileSector==playFileSectorBegin)
 							setTotalTimer();
@@ -896,7 +898,8 @@ void SLP(void)
 						loadFreqToFpga();
 						loadMultToFpga();
 					}
-					else{
+	//				else
+						{
 						playFileSector=0;
 						playFileInList=playFileSector;
 						if(playFileSector==playFileSectorBegin)

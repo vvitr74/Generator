@@ -99,7 +99,7 @@ void procCmdFromUsb(void)
 			return;
 		case ER_CONF_FILE:
 //			erFlash(FIRST_CONF_SECT,LAST_CONF_SECT);
-		W25qxx_EraseChip();
+//		W25qxx_EraseChip();
 //			confSectorsStatus();
 			usbCmd=0;
 		  rxIrqCnt=0;

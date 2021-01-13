@@ -167,11 +167,11 @@ SL_CommModbusInit();
   while(1){
 
 #ifdef 	COMMS 
-SLC();
+//SLC();
 #endif
 
 #ifdef 	PLAYER 
-SLP();
+//SLP();
 #endif
 		
 #ifdef LCDUSE

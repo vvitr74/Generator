@@ -379,7 +379,7 @@ static void createLabels(void) {
 
 int SLD_DisplInit(void)
 { 
-    initSpi_1();
+   // initSpi_1();
     GFXPreinit();	
     gfxInit();	
 

@@ -209,7 +209,9 @@ void boardIoPinInit(void){
                      GPIO_AFRH_AFSEL9_Msk);            	// set PB9 as I2C2_SDA 
   GPIOB->AFR[1] = 6 << GPIO_AFRH_AFSEL8_Pos |           	// set PB8 as I2C2_SCL
                   6 << GPIO_AFRH_AFSEL9_Pos;            	// set PB9 as I2C2_SDA 
- 
+  
+  GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEED5_Msk | 
+                    GPIO_OSPEEDR_OSPEED5_Msk;
 										
 	/*                   button                  */									
 	GPIOA->MODER &= ~(GPIO_MODER_MODE5_Msk);                  // input 

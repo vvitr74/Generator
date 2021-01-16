@@ -10,7 +10,7 @@ void initSpi_1(void){
   
     SPI1->CR1 = 0x0000;        
     SPI1->CR2 = 0x0000;        
-    SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI ; // SPI_CR1_BR_0 | SPI_CR1_BR_1 | SPI_CR1_BR_2   ;     
+    SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI ;// SPI_CR1_BR_0 | SPI_CR1_BR_1 | SPI_CR1_BR_2   ;     
     SPI1->CR2 |= SPI_CR2_DS_0| SPI_CR2_DS_1|SPI_CR2_DS_2| SPI_CR2_FRXTH;    
     
     SPI1->CR1 |= SPI_CR1_SPE;                               // enable SPI1 perif

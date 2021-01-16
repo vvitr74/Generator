@@ -9,6 +9,7 @@
 #include "Spi1.h"
 #include "SuperLoop_Player.h"
 #include "board_PowerModes.h"
+#include "BoardSetup.h"
 
 uint16_t freqStartByte;
 uint32_t freq;
@@ -81,6 +82,28 @@ void initSpi_2(void)
 	SPI2->CR2 |= SPI_CR2_FRXTH;															// RXNE event is generated if the FIFO level is greater than or equal to 1/4 (8-bit)
 //							 SPI_CR2_RXNEIE;														// enable SPI2 RXNE interrupt
   SPI2->CR1 |= SPI_CR1_SPE;                               // enable SPI2 perif
+}
+
+/**
+*			The correct disable procedure is (except when receive only mode is used):
+*			1. Wait until FTLVL[1:0] = 00 (no more data to transmit).
+*			2. Wait until BSY=0 (the last data frame is processed).
+*			3. Disable the SPI (SPE=0).
+*			4. Read data until FRLVL[1:0] = 00 (read all the received data).
+*
+**************************************************************************************************************************/
+
+void disableSpi_2(void){
+
+	while (SPI2->SR & SPI_SR_FTLVL_Msk){}										//  Wait until FTLVL[1:0] = 00 (no more data to transmit)
+	while (SPI2->SR & SPI_SR_BSY){}													//	Wait until BSY=0 (the last data frame is processed)	
+		
+	NVIC_DisableIRQ(SPI2_IRQn);										 
+  SPI2->CR1 &= ~SPI_CR1_SPE;                              // disable SPI1 perif
+		
+	while (SPI2->SR & SPI_SR_FRE_Msk){ SPI2->DR; }					// Read data until FRLVL[1:0] = 00 (read all the received data)				
+	RCC->APBENR2 &= ~RCC_APBENR2_SPI1EN;                    // disable SPI1 clk
+              
 }
 
 
@@ -216,7 +239,7 @@ void fpgaConfig(void)											//
 	delay_ms(100);// test -> ok
 	switchOUTStageInterfacePinsToPwr(ENABLE);
 	delay_ms(10);
-	spi1FifoClr();
+///rdd debug	spi1FifoClr();
 //	GPIOB->BSRR=GPIO_BSRR_BR0;							//FPGA 1.2 V on
 	nCONFIG_H;
 	while(!(GPIOC->IDR & GPIO_IDR_ID7)){/** \todo timeout */}
@@ -707,7 +730,7 @@ const e_PowerState SLPl_Encoder[4]=
 };
 
 //---------------------------------for power sleep---------------------------------------------
-static e_PowerState SLPl_PowerState; 
+//static e_PowerState SLPl_PowerState; 
 //static bool SLPl_GoToSleep;
 
 __inline e_PowerState SLPl_GetPowerState(void)
@@ -718,7 +741,8 @@ __inline e_PowerState SLPl_GetPowerState(void)
 __inline e_PowerState SLPl_SetSleepState(bool state)
 {
 	//SLPl_GoToSleep=state;
-	return SLPl_PowerState;
+//	return SLPl_PowerState;
+	return SLPl_Encoder[curState];
 };
 
 //---------------------------------- for power on off ------------------------------------------
@@ -737,7 +761,7 @@ void SLP_init(void)
 {
 	initSpi_2();
 	curState=0;
-	SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
+	//SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
 }
 
 void SLP(void)
@@ -750,7 +774,7 @@ void SLP(void)
 		case 0:
 			if(fpgaFlags.fileListUpdate==1){
 				if(!W25qxx_IsEmptySector(fileSect,0)){
-					spi1FifoClr();
+///rdd debug					spi1FifoClr();
 					W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
 					fpgaFlags.addListItem=1;
 				}
@@ -773,18 +797,19 @@ void SLP(void)
 				curState=2;
 			}
 			if(fpgaFlags.addNewListItem==1){
-				spi1FifoClr();
+///rdd debug				spi1FifoClr();
 				W25qxx_ReadSector((uint8_t*)fileName,startSectAddr,FILE_NAME_SHIFT,FILE_NAME_BYTES);
 			}
 			break;
 			
 		//preparation for the generation process
 		case 2:
-			spi1FifoClr();
-			spi2FifoClr();
-			SLPl_PowerState=e_PS_Work;//RDD for pwr
+			//SLPl_PowerState=e_PS_Work;//RDD for pwr
 		
 			PM_OnOffPWR(PM_Player,true );//RDD ON POWER
+		  initSpi_2();
+///rdd debug			spi1FifoClr();
+			spi2FifoClr();
 		
 			fpgaFlags.fpgaConfig=1;
 			fpgaConfig();
@@ -822,7 +847,7 @@ void SLP(void)
 			if(durTimeS>=playParamArr[3]){
 				startFpga();
 				durTimeS=0;
-				spi1FifoClr();
+///rdd debug				spi1FifoClr();
 				spi2FifoClr();
 				calcFreq();
 				if(fpgaFlags.endOfFile==1){
@@ -863,8 +888,9 @@ void SLP(void)
 				fpgaFlags.fpgaConfigComplete=0;
 				fpgaFlags.playBegin=0;
 				fpgaFlags.clockStart=0;
-				SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
+//				SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
 				
+				disableSpi_2();
 				PM_OnOffPWR(PM_Player,false );//RDD OFF POWER
 				
 				curState=1;

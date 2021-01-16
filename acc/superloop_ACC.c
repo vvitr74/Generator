@@ -32,7 +32,7 @@ if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
 #include "BoardSetup.h"
 #include "I2c1.h"
 
-
+#include "board_PowerModes.h"
 
 uint8_t maintaskstate=15;//15->skip debug
 
@@ -54,7 +54,9 @@ static uint16_t V86;
 
 typedef enum  
 {SLA_FSM_WORK  								//e_PS_Work
+,SLA_FSM_WORK2	              //e_PS_Work
 ,SLA_FSM_DontMindSleep  			//e_PS_DontMindSleep
+,SLA_FSM_DontMindSleep2       //e_PS_DontMindSleep
 ,SLA_FSM_SleepTransition 			//e_PS_DontMindSleep
 ,SLA_FSM_Sleep 								//e_PS_ReadySleep
 ,SLA_FSM_WakeTransition 			//e_PS_Work
@@ -68,7 +70,9 @@ e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 */
 const e_PowerState SLA_Encoder[SLA_FSM_NumOfEl]=
 {e_PS_Work							//SLA_FSM_WORK  								//
+,e_PS_Work	            //SLA_FSM_WORK2
 ,e_PS_DontMindSleep   	//SLA_FSM_DontMindSleep  		  	//
+,e_PS_DontMindSleep   	//SLA_FSM_DontMindSleep2  		  	//	
 ,e_PS_DontMindSleep			//SLA_FSM_SleepTransition 			//
 ,e_PS_ReadySleep				//SLA_FSM_Sleep 								//
 ,e_PS_Work							//SLA_FSM_WakeTransition 			  //
@@ -147,13 +151,21 @@ void LoopACC(void)
 
   switch(maintaskstate)
   {
-	 case SLA_FSM_WORK: 
+	  case SLA_FSM_WORK:
+			   PM_ClearPendingTPSIRQ;
+		     maintaskstate= SLA_FSM_WORK2;
+		  //break;
+		case SLA_FSM_WORK2: 
 		       rstatel=mainFSMfunction(); //work
 		       if (e_FRS_Done==rstatel)
 					 {maintaskstate= GetNewPowerState(encoderPowerWork);
 					 };
 		 break;
    case SLA_FSM_DontMindSleep: 
+        PM_ClearPendingTPSIRQ;
+	      maintaskstate=SLA_FSM_DontMindSleep2;
+	   //break;
+	 case  SLA_FSM_DontMindSleep2:
 		       rstatel=mainFSMfunction(); //don't mind sleep
 		       if (e_FRS_Done==rstatel)
 					 {maintaskstate= GetNewPowerState(encoderDontMindSleep);

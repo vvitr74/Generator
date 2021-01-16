@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\User\inc;..\ugfx_2.9\src\gdisp;..\ugfx_2.9\src;..\ugfx_2.9;..\ugfx_2.9\src\gos;..\ugfx_2.9\src\gwin;..\ugfx_2.9\drivers\gdisp\ILI9341;..\ugfx_2.9\src\ginput;..\ugfx_2.9\drivers\ginput\toggle\Pal;..\Display;..\ugfx_2.9\drivers\ginput\touch\FT6x06;..\DriversCommon;..\PowerModes;..\W25QXX;..\Communications;..\Player;..\acc;..\PowerModes;..\FreeModbus;..\CommModbus</IncludePath>
+              <IncludePath>..\User\inc;..\ugfx_2.9\src\gdisp;..\ugfx_2.9\src;..\ugfx_2.9;..\ugfx_2.9\src\gos;..\ugfx_2.9\src\gwin;..\ugfx_2.9\drivers\gdisp\ILI9341;..\ugfx_2.9\src\ginput;..\ugfx_2.9\drivers\ginput\toggle\Pal;..\Display;..\ugfx_2.9\drivers\ginput\touch\FT6x06;..\DriversCommon;..\PowerModes;..\W25QXX;..\Communications;..\Player;..\acc;..\PowerModes;..\FreeModbus;..\CommModbus;..\spiffs\src;..\spiffs\src\default</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -646,6 +646,61 @@
               <FileName>tim1.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FreeModbus\tim1.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>spiffs</GroupName>
+          <Files>
+            <File>
+              <FileName>spiffs_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\default\spiffs_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\spiffs.h</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_cache.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\spiffs_cache.c</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\spiffs_check.c</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_gc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\spiffs_gc.c</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_hydrogen.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\spiffs_hydrogen.c</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_nucleus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\spiffs_nucleus.c</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs_nucleus.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\spiffs\src\spiffs_nucleus.h</FilePath>
+            </File>
+            <File>
+              <FileName>spiffs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\User\src\spiffs.c</FilePath>
+            </File>
+            <File>
+              <FileName>fs.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\STM_GH\Generator\User\inc\fs.h</FilePath>
             </File>
           </Files>
         </Group>

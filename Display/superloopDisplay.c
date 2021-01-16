@@ -18,6 +18,7 @@
 #include "superloopDisplay.h"
 #include "mainFSM.h"
 #include "board_PowerModes.h"
+#include "BoardSetup.h"
 
 //-------------------------for main-----------------------------------------------
 uint16_t playFileSector;
@@ -143,8 +144,7 @@ int SLD(void)
 			break;
 		case SLD_FSM_SleepTransition:// sleep transition
 		  //reset interrupt pending
-		  EXTI->RPR1=EXTI_RPR1_RPIF5;//reset interrupt pending
-		  EXTI->FPR1=EXTI_FPR1_FPIF5;//reset interrupt pending
+		  PM_ClearPendingButton;
 		  state_inner=SLD_FSM_Sleep; 
 		  //break;
 		case SLD_FSM_Sleep:
@@ -383,7 +383,7 @@ gfxInit();
 
 	
 	
-	GEvent* pe;
+	//GEvent* pe;
 
 
 	// Set the widget defaults

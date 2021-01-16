@@ -448,9 +448,9 @@
           <GroupName>Communications</GroupName>
           <Files>
             <File>
-              <FileName>SuperLoop_Comm.c</FileName>
+              <FileName>SuperLoop_Comm2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Communications\SuperLoop_Comm.c</FilePath>
+              <FilePath>..\Communications\SuperLoop_Comm2.c</FilePath>
             </File>
           </Files>
         </Group>

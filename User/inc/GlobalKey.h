@@ -4,9 +4,13 @@
 #define PowerUSE
 #define LCDUSE
 #define ACCUSE
-//#define COMMS
+#define COMM2  //SPIFFS + MODBUS
 #define PLAYER
-#define MODBUS
+
+#if defined COMM1 || defined COMM2
+#define COMMS
+#endif
+
 
 //#define Flashw25qxx
 #define Flashat25sf321

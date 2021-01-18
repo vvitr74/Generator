@@ -32,6 +32,8 @@ const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 };
 
 static e_SLC_FSM state_inner;
+static bool USBcomm;
+static bool OffPlayer;
 
 //---------------------------------for power sleep---------------------------------------------
 //static e_PowerState SLD_PowerState; 
@@ -58,63 +60,48 @@ extern void SLC(void)
 {
 
 	//systemticks_t SLD_LastButtonPress;
+	if ((!bVSYS))
+		state_inner=SLC_FSM_InitialWaitSupply;
 	switch (state_inner)
 	{
 		case SLC_FSM_InitialWaitSupply: // initial on
 			if (bVSYS) {state_inner=SLC_FSM_Init;};
 			break;
 		case SLC_FSM_Init:
-			//spiffs_init();
-		 // SL_CommModbusInit();
+			PM_OnOffPWR(PM_Communication,true );
+			spiffs_init();
+		  SL_CommModbusInit();
+		  state_inner=SLC_FSM_CommAbsent;
 			break;
-/*		case SLD_FSM_OnTransition: //on transition
-				PM_OnOffPWR(PM_Display,true );
-				SLD_DisplInit();
-//		    gwinRedrawDisplay(NULL,true);
-		    state_inner=SLD_FSM_On;
-//   break;
-		case SLD_FSM_On: // on
-#ifdef def_debug_AccDispay
-	    	SLDwACC();
-#else
-		    SLDw();
-#endif		
-  		if ((!bVSYS)|button_sign)
+		case SLC_FSM_CommAbsent: //
+				if (SLC_GoToSleep)
+					  PM_OnOffPWR(PM_Communication,false);
+				if (USBcomm)
+					  state_inner=SLC_FSM_OnTransitionOffPlayer;
+//				if (Bluetooth)
+//					  state_inner=SLC_FSM_OnTransitionOffPlayer;
+      break;
+		case SLC_FSM_OnTransitionOffPlayer: // on
+  		if (OffPlayer)
 			{
-				button_sign=0;
-				state_inner=SLD_FSM_OffTransition;
+				state_inner=SLC_FSM_USBCommunication;
 			};
 			break;
-		case SLD_FSM_OffTransition: 
-      	SLD_DisplDeInit();               //off transition
-        PM_OnOffPWR(PM_Display,false );				
-				state_inner=SLD_FSM_Off;
+		case SLC_FSM_USBCommunication: 
+        if (!USBcomm)				
+				  state_inner=SLC_FSM_CommAbsent;
 		  break;	
-		case SLD_FSM_DontMindSleep:
-			  SLD_LastButtonPress=BS_LastButtonPress;
-		    if (SLD_GoToSleep) 
-						state_inner=SLD_FSM_SleepTransition;
-				if (((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) 
-						state_inner=SLD_FSM_Off;  //has more priority
+		case SLC_FSM_AndroidConnected:
 			break;
-		case SLD_FSM_SleepTransition:// sleep transition
-		  //reset interrupt pending
-		  PM_ClearPendingButton;
-		  state_inner=SLD_FSM_Sleep; 
-		  //break;
-		case SLD_FSM_Sleep:
-			//SLD_PowerState= e_PS_ReadySleep;
-//			SLD_PWR_State=	false;		
-        SLD_LastButtonPress=BS_LastButtonPress;
-				if ((!SLD_GoToSleep) || ((SystemTicks-SLD_LastButtonPress)<SLD_SleepDelay)) 
-				{state_inner=SLD_FSM_WakeTransition;
-				};
-		    
+		case SLC_FSM_Sleep:
+				if ((!SLC_GoToSleep) ) 
+	  			{state_inner=SLC_FSM_WakeTransition;
+				  };
 			break;
-		case SLD_FSM_WakeTransition: //wake transition
-		  state_inner=SLD_FSM_Off;
+		case SLC_FSM_WakeTransition: //wake transition
+		  state_inner=SLC_FSM_CommAbsent;
 		break;
-*/    default: state_inner=SLC_FSM_InitialWaitSupply;		
+    default: state_inner=SLC_FSM_InitialWaitSupply;		
 	};
 	//return 0;
 };

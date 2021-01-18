@@ -97,7 +97,9 @@ int SLD(void)
 	switch (state_inner)
 	{
 		case SLD_FSM_InitialWait: // initial on
-			if (bVSYS) {state_inner=SLD_FSM_OnTransition;};
+			if (bVSYS) 
+         {state_inner=SLD_FSM_OnTransition;
+				 };
 			break;
 		case SLD_FSM_Off:	// off
 			if (button_sign&&bVSYS)

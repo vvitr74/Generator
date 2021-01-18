@@ -303,7 +303,7 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 													 
 		case e_TF_VsysAnaliz:  if ((0==(mFSM_Error&(m_BQ25703_VSYSVBAT_Read)))&&bADCVSYSVBAT)  
 		                          { 
-															 bVSYS=pvVSYS>6000;
+															 bVSYS=(pvVSYS>6000)&&(InCurrent>200);
 															 bADCVSYSVBAT=false;
 															 //if (!((e_FSM_Rest==mainFMSstate)||(e_FSM_Charge==mainFMSstate)))//debug
 															 //	 bVSYS=false;                                                  //debug

@@ -246,7 +246,7 @@ void fpgaConfig(void)											//
 	delay_ms(10);
 	FPGA_CS_L;															//for logger
 	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
-		W25qxx_ReadByte(&byteBuff,FIRST_CONF_BYTE+bytesCnt);
+		//W25qxx_ReadByte(&byteBuff,FIRST_CONF_BYTE+bytesCnt);
 		spi2Transmit(&byteBuff, 1);
 		if(GPIOC->IDR & GPIO_IDR_ID6)
 			{byteBuff=0;
@@ -296,14 +296,14 @@ void getControlParam(uint16_t fileSect)
 	uint32_t startAddr=fileSect*SECTOR_SIZE;
 	
 	do{																							//skip first line	
-		W25qxx_ReadByte(&temp,startAddr+byteCnt);
+		//W25qxx_ReadByte(&temp,startAddr+byteCnt);
 		byteCnt++;
 	}while(temp!='\n');
 	
 	for(int i=0;i<playParamArr_size;i++) {playParamArr[i]=0;}
 	
 	while(strCnt<playParamArr_size){																//fill an array of parameters
-		W25qxx_ReadByte(&temp,startAddr+byteCnt);
+		//W25qxx_ReadByte(&temp,startAddr+byteCnt);
 		byteCnt++;
 		if((temp>='0')&&(temp<='9')){
 			tempArr[chrCnt]=temp; /** \todo check array overflow */
@@ -346,7 +346,7 @@ void getFreq(uint16_t fileSect)
 	}
 	
 	while(strCnt<playParamArr[0]){									//fill an array of frequencies
-		W25qxx_ReadByte(&temp,freqStartByte+byteCnt);
+		//W25qxx_ReadByte(&temp,freqStartByte+byteCnt);
 		byteCnt++;
 		if((temp>='0')&&(temp<='9')){
 			tempArr[chrCnt]=temp;
@@ -624,7 +624,8 @@ void setTotalTimer(void)
 	playParamArr[2]=0;
 	playParamArr[3]=0;
 	for(int i=0;i<50;i++){
-		if(!W25qxx_IsEmptySector(i,0)){
+		//if(!W25qxx_IsEmptySector(i,0))
+			{
 			getControlParam(i);
 			time+=(playParamArr[1]-playParamArr[2]+1)*playParamArr[3];
 			playParamArr[1]=0;
@@ -773,9 +774,10 @@ void SLP(void)
 		//file list initialization
 		case 0:
 			if(fpgaFlags.fileListUpdate==1){
-				if(!W25qxx_IsEmptySector(fileSect,0)){
+				//if(!W25qxx_IsEmptySector(fileSect,0))
+					{
 ///rdd debug					spi1FifoClr();
-					W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
+					//W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
 					fpgaFlags.addListItem=1;
 				}
 				if(fileSect>=MAX_FILES_NUM){
@@ -798,7 +800,7 @@ void SLP(void)
 			}
 			if(fpgaFlags.addNewListItem==1){
 ///rdd debug				spi1FifoClr();
-				W25qxx_ReadSector((uint8_t*)fileName,startSectAddr,FILE_NAME_SHIFT,FILE_NAME_BYTES);
+				//W25qxx_ReadSector((uint8_t*)fileName,startSectAddr,FILE_NAME_SHIFT,FILE_NAME_BYTES);
 			}
 			break;
 			
@@ -852,7 +854,8 @@ void SLP(void)
 				calcFreq();
 				if(fpgaFlags.endOfFile==1){
 					playFileSector++;
-					if(playFileSector<=LAST_PLAY_SECT && !W25qxx_IsEmptySector(playFileSector,0)){
+					//if(playFileSector<=LAST_PLAY_SECT && !W25qxx_IsEmptySector(playFileSector,0))
+						{
 						playFileInList=playFileSector;
 						if(playFileSector==playFileSectorBegin)
 							setTotalTimer();
@@ -864,20 +867,20 @@ void SLP(void)
 						loadFreqToFpga();
 						loadMultToFpga();
 					}
-					else{
-						playFileSector=0;
-						playFileInList=playFileSector;
-						if(playFileSector==playFileSectorBegin)
-							setTotalTimer();
-//						setTotalTimer();
-						getControlParam(playFileSector);
-						verifyControlParam();
-						getFreq(playFileSector);
-						setFileTimer();
-						setInitFreq();
-						loadFreqToFpga();
-						loadMultToFpga();
-					}
+//					else{
+//						playFileSector=0;
+//						playFileInList=playFileSector;
+//						if(playFileSector==playFileSectorBegin)
+//							setTotalTimer();
+////						setTotalTimer();
+//						getControlParam(playFileSector);
+//						verifyControlParam();
+//						getFreq(playFileSector);
+//						setFileTimer();
+//						setInitFreq();
+//						loadFreqToFpga();
+//						loadMultToFpga();
+//					}
 					
 				}
 				loadFreqToFpga();

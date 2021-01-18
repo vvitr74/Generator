@@ -1,4 +1,3 @@
-#include <string.h>
 #include "SL_CommModbus.h"
 
 #include "mb.h"
@@ -17,15 +16,8 @@
 #define REG_HOLDING_START   1000
 #define REG_HOLDING_NREGS   5
 
-
-systemticks_t USBcommLastTimel,USBcommLastTime;
-//bool USBcommLastTimeSet;
-
-
 static USHORT   usRegHoldingStart = REG_HOLDING_START;
 static USHORT   usRegHoldingBuf[REG_HOLDING_NREGS];
-
-
 
 eMBErrorCode eStatus;	
 	
@@ -48,26 +40,16 @@ int SL_CommModbusInit(void)
 eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
                             USHORT usNCoils, eMBRegisterMode eMode )
 {
-	 USBcommLastTime=SystemTicks;
-//   USBcommLastTimeSet=true;
-
     return MB_ENOREG;
 }
 
 eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 {
-	  USBcommLastTime=SystemTicks;
- //   USBcommLastTimeSet=true;
-	
     return MB_ENOREG;
 }
 
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
-	
-	 USBcommLastTime=SystemTicks;
-//   USBcommLastTimeSet=true;
-	
     uint8_t reg = pucRegBuffer[0];
     
     if(reg >= VERSION_MAJOR_REG && reg <= VERSION_BUILD_REG)
@@ -101,8 +83,7 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
         
     if(reg >= SERIAL_REG && reg < (SERIAL_REG + (sizeof(SERIAL)>>1)))
     {     
-
-        memcpy((void*)pucRegBuffer,(const void*)SERIAL, sizeof(SERIAL));
+        memcpy(pucRegBuffer,SERIAL, sizeof(SERIAL));
         return MB_ENOERR;
     }
     
@@ -113,10 +94,7 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
 eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
                               USHORT usNRegs, eMBRegisterMode eMode )
 {
-    USBcommLastTime=SystemTicks;
- //   USBcommLastTimeSet=true;
-	
-	  eMBErrorCode    eStatus = MB_ENOERR;
+    eMBErrorCode    eStatus = MB_ENOERR;
     int             iRegIndex;
 
     if( ( usAddress >= REG_HOLDING_START ) &&

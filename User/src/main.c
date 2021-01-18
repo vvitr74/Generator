@@ -134,6 +134,10 @@ SLP_init();
 	PM_OnOffPWR(PM_Communication,false );
   while(1){
 
+#ifdef LCDUSE
+SLD();
+#endif
+		
 #ifdef 	COMMS 
 SLC();
 #endif
@@ -142,9 +146,7 @@ SLC();
 SLP();
 #endif
 		
-#ifdef LCDUSE
-SLD();
-#endif
+
 			
 //GPIOB->ODR ^= GPIO_ODR_OD10; 
 //GPIOB->BSRR = GPIO_BSRR_BS10;		

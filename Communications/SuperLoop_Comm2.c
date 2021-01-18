@@ -73,7 +73,7 @@ extern void SLC(void)
 	switch (state_inner)
 	{
 		case SLC_FSM_InitialWaitSupply: // initial on
-	//		if (bVSYS) {state_inner=SLC_FSM_Init;};
+			if (bVSYS) {state_inner=SLC_FSM_Init;};
 			break;
 		case SLC_FSM_Init:
 			PM_OnOffPWR(PM_Communication,true );

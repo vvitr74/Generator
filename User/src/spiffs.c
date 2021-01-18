@@ -21,9 +21,9 @@
 #define W25_ERASE_TIMEOUT 3000
 
 
-#define spi_transfer ///rdd debug
-#define spi_cs_off()   ///rdd debug
-#define  spi_cs_on() ///rdd debug
+//#define spi_transfer ///rdd debug
+//#define spi_cs_off()   ///rdd debug
+//#define  spi_cs_on() ///rdd debug
 
 
 spiffs fs;

@@ -152,18 +152,50 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>80</LineNumber>
+          <LineNumber>360</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134229970</Address>
+          <Address>134281348</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Communications\SuperLoop_Comm2.c</Filename>
+          <Filename>..\..\..\STM_GH\Generator\User\src\spiffs.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../Communications/SuperLoop_Comm2.c\80</Expression>
+          <Expression>\\gen_g070\../../../STM_GH/Generator/User/src/spiffs.c\360</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>370</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134281388</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\..\..\STM_GH\Generator\User\src\spiffs.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gen_g070\../../../STM_GH/Generator/User/src/spiffs.c\370</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>80</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134275492</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\DriversCommon\Spi1.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gen_g070\../DriversCommon/Spi1.c\80</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

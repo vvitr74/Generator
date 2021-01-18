@@ -1,7 +1,15 @@
+#include "BoardSetup.h"
 #include "SuperLoop_Comm2.h"
-
 #include "SL_CommModbus.h"
+
+//------------------------------------for iteraction with MOFBUS
+#define USBcommPause 1000
+
+static systemticks_t USBcommLastTimel;
+//---------------------------------------------------------------------------------------------
 extern int spiffs_init();
+
+// ----------------------------------------for power-------------------------------------------
 
 typedef enum  
 {SLC_FSM_InitialWaitSupply  		//work
@@ -16,7 +24,7 @@ typedef enum
 } e_SLC_FSM;
 
 /**
-\brief Map e_SLD_FSM onto e_PowerState
+\brief Map e_SLC_FSM onto e_PowerState
 
 e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 */
@@ -32,8 +40,8 @@ const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 };
 
 static e_SLC_FSM state_inner;
-static bool USBcomm;
-static bool OffPlayer;
+//static bool USBcomm;
+static bool OffPlayer=true; //rdd debug
 
 //---------------------------------for power sleep---------------------------------------------
 //static e_PowerState SLD_PowerState; 
@@ -76,7 +84,12 @@ extern void SLC(void)
 		case SLC_FSM_CommAbsent: //
 				if (SLC_GoToSleep)
 					  PM_OnOffPWR(PM_Communication,false);
-				if (USBcomm)
+				USBcommLastTimel=USBcommLastTime; //not volatile
+				if ((SystemTicks-USBcommLastTimel)>(2*USBcommPause))
+				   {   USBcommLastTime=SystemTicks-(2*USBcommPause);
+					 }	 
+
+				if ((SystemTicks-USBcommLastTimel)<USBcommPause)
 					  state_inner=SLC_FSM_OnTransitionOffPlayer;
 //				if (Bluetooth)
 //					  state_inner=SLC_FSM_OnTransitionOffPlayer;
@@ -88,7 +101,7 @@ extern void SLC(void)
 			};
 			break;
 		case SLC_FSM_USBCommunication: 
-        if (!USBcomm)				
+      if ((SystemTicks-USBcommLastTimel)>(USBcommPause))				
 				  state_inner=SLC_FSM_CommAbsent;
 		  break;	
 		case SLC_FSM_AndroidConnected:

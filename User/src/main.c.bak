@@ -20,13 +20,6 @@
 
 #ifdef COMMS
 #include "SuperLoop_Comm.h"
-#include "bluetooth.h"
-//#include "rn4870Model.h"
-#include "uart.h"
-#include "flash.h"
-#include "Spi.h"
-#include "w25qxx.h"
-#include "tim3.h"
 #endif
 
 #ifdef PLAYER
@@ -37,9 +30,6 @@
 #include "tim3.h"
 #endif
 
-#ifdef MODBUS
-#include "SL_CommModbus.h"
-#endif
 
 #ifdef RELEASE
 #define APPLICATION_ADDRESS (uint32_t)0x08001800 /**  offset start address */
@@ -128,11 +118,6 @@ SLC_init();
 SLP_init();
 #endif
 
-#ifdef MODBUS
-SL_CommModbusInit();
-#endif
-
-
 //test flash
 //uint8_t temp_pBuffer;
 //W25qxx_EraseSector(0);
@@ -174,9 +159,6 @@ SuperLoopACC();
 SuperLoop_PowerModes();			
 #endif			
 
-#ifdef MODBUS
-SL_CommModbus();
-#endif
 		
   }
 }

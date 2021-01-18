@@ -82,6 +82,7 @@ extern void SLC(void)
 		  state_inner=SLC_FSM_CommAbsent;
 			break;
 		case SLC_FSM_CommAbsent: //
+			  SL_CommModbus();
 				if (SLC_GoToSleep)
 					  PM_OnOffPWR(PM_Communication,false);
 				USBcommLastTimel=USBcommLastTime; //not volatile
@@ -95,6 +96,7 @@ extern void SLC(void)
 //					  state_inner=SLC_FSM_OnTransitionOffPlayer;
       break;
 		case SLC_FSM_OnTransitionOffPlayer: // on
+			SL_CommModbus();
   		if (OffPlayer)
 			{
 				state_inner=SLC_FSM_USBCommunication;

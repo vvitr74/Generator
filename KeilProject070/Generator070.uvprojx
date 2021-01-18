@@ -455,9 +455,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>W25qxx</GroupName>
-        </Group>
-        <Group>
           <GroupName>Player</GroupName>
           <Files>
             <File>

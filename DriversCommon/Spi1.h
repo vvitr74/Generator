@@ -20,7 +20,7 @@ extern void disableSpi_1(void);
 /**
 * Enable SPI-Flash CS (Set low level at PB3)
 */
-void spi_cs_on();
+void spi_cs_on(); 
 
 /**
 * Disable SPI-Flash CS (Set high level at PB3)

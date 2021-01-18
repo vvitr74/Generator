@@ -456,13 +456,6 @@
         </Group>
         <Group>
           <GroupName>W25qxx</GroupName>
-          <Files>
-            <File>
-              <FileName>MainSpiFlash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\W25QXX\MainSpiFlash.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>Player</GroupName>

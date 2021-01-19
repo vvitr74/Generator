@@ -428,7 +428,7 @@ s32_t spiffs_obj_lu_scan(
       0,
       0,
       0,
-      spiffs_obj_lu_scan_v,
+      spiffs_obj_lu_scan_v, 
       0,
       0,
       &bix,

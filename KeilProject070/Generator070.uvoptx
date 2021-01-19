@@ -152,9 +152,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>301</LineNumber>
+          <LineNumber>322</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134238384</Address>
+          <Address>134238508</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -163,7 +163,23 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\acc\mainFSM.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../acc/mainFSM.c\301</Expression>
+          <Expression>\\gen_g070\../acc/mainFSM.c\322</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>213</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134228816</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\acc\mainFSM.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gen_g070\../acc/mainFSM.c\213</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -191,6 +207,21 @@
           <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state]</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>mainFMSstate</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pv_BQ28z610_Voltage,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>m_ReadTPSState</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -642,7 +673,7 @@
 
   <Group>
     <GroupName>PowerModes</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

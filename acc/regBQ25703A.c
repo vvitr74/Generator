@@ -39,7 +39,7 @@ const t_I2c16InitData bq25703InitData[eBQ25703_NumOfReg]=
 		// 0b00011111
 
 		{{I2C_OP_WRITE,0x02,	1,2},0x0000}, // ChargeCurrent()										1
-		{{I2C_OP_WRITE,0x04,	1,2},0x20d0/*0x20d0*/}, // MaxChargeVoltage()										2
+		{{I2C_OP_WRITE,0x04,	1,2},0x2198/*0x20d0*/}, // MaxChargeVoltage()//mV										2
 		{{I2C_OP_WRITE,0x30,	1,2},0x0200/*0x0210*/}, // ChargeOption1()										3
 //0b Turn off IBAT buffer to minimize Iq <default at POR>
 //00b: Disable low power PROCHOT <default at POR>

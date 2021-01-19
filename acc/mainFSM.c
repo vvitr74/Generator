@@ -21,7 +21,7 @@ typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inh
 ,e_TF_ReadTPSState,e_TF_BQ28z610_Reads //+3 =9
 ,e_TF_BQ25703_ADCIBAT_Read	//+2=11 //input
 ,e_TF_SignChargeOff,e_TF_SignCharge,e_TF_SignRestOff,e_TF_SignRest //+4=15  // to do desision
-,e_TF_BQ25703_InputCurrent,e_TF_BatteryFSM,e_TF_BQ25703_Charge_Check  //+3=18   //write calculated form input data value
+,e_TF_BQ25703_InputCurrentSet,e_TF_BQ25703_InputCurrentWrite,e_TF_BatteryFSM,e_TF_BQ25703_Charge_Check  //+3=18   //write calculated form input data value
 ,e_TF_BQ25703_VSYSVBAT_Read,e_TF_VsysAnaliz //+2=20
 ,e_TF_NumOfel} e_TransitionFunctionType;
 
@@ -44,7 +44,8 @@ typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inh
 #define m_SignRest (1<<e_TF_SignRest)
 #define m_VsysAnaliz (1<<e_TF_VsysAnaliz)
 
-#define m_BQ25703_InputCurrent (1<<e_TF_BQ25703_InputCurrent)
+#define m_BQ25703_InputCurrentSet (1<<e_TF_BQ25703_InputCurrentSet)
+#define m_BQ25703_InputCurrentWrite (1<<e_TF_BQ25703_InputCurrentWrite)
 #define m_BatteryFSM (1<<e_TF_BatteryFSM)
 #define m_BQ25703_Charge_Check (1<<e_TF_BQ25703_Charge_Check)	
 
@@ -55,7 +56,7 @@ typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inh
 (m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read\
 |m_BQ25703_VSYSVBAT_Read  \
 |m_SignCharge|m_VsysAnaliz   \
- |m_BQ25703_InputCurrent|m_BatteryFSM|m_BQ25703_Charge_Check|m_hizOff|m_inhOff)       //steady
+ |m_BQ25703_InputCurrentSet|m_BQ25703_InputCurrentWrite|m_BatteryFSM|m_BQ25703_Charge_Check|m_hizOff|m_inhOff)       //steady
 #define key_Charge_Rest   (m_hizOff|m_inhOff)
 #define key_Charge_OffCharge (m_IIN200|m_hizOff|m_inhOff)  
 #define key_Charge_OffRest 0
@@ -66,7 +67,7 @@ typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inh
 (m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read \
 |m_BQ25703_VSYSVBAT_Read  \
 |m_SignRest|m_VsysAnaliz \
-|m_BQ25703_InputCurrent) //steady
+|m_BQ25703_InputCurrentSet|m_BQ25703_InputCurrentWrite) //steady
 #define key_Rest_OffCharge 0
 #define key_Rest_OffRest (m_hizOff|m_inh)
 #define key_Rest_Init (0)
@@ -312,7 +313,8 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 		                       rstate=e_FRS_Done;
 		                       break;
 		
-		case e_TF_BQ25703_InputCurrent: if (0!=(mFSM_Error&(m_ReadTPSState)))
+		case e_TF_BQ25703_InputCurrentSet: 
+			                            if (0!=(mFSM_Error&(m_ReadTPSState)))
 																			{rstate=e_FRS_Done;}
 																		else 
 																		{	
@@ -324,9 +326,17 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 																			  InCurrent=0;
 																		if  (InCurrent>2900)
 																			  InCurrent=2900;
-			                              rstate=BQ25703_IIN_Check(InCurrent);
+																		 rstate=e_FRS_Done;
 																	  };
 																		break;
+    case e_TF_BQ25703_InputCurrentWrite:	
+                              			if (0!=(mFSM_Error&(m_ReadTPSState)))
+																			{rstate=e_FRS_Done;}
+																		else 	
+																		  {
+                                      rstate=BQ25703_IIN_Check(InCurrent);
+																   	  };																			
+			                              break;
 		case e_TF_BatteryFSM:           ChargeCurr=fChargeCurrent(mFSM_BQ28z610_Temperature,pv_BQ28z610_Voltage/2);
 													          rstate=e_FRS_Done;
 													          break;

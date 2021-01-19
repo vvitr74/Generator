@@ -12,12 +12,15 @@
 
 #define BQ28z610_Command_Sleep 0x0011
 
+#define BQ28z610_BatteryStatus_FullyDischarged (1<<4)
+
 typedef enum {
 				 e_BQ28z610_Temperature
 				,e_BQ28z610_Voltage
 	      ,e_BQ28z610_RelativeStateOfCharge
 	      ,e_BQ28z610_AltManufacturerAccess
 	      ,e_BQ28z610_MACDataSum
+	      ,e_BQ28z610_BatteryStatus //BatteryStatus()
 				,e_BQ28z610_NumOfReg
 } e_BQ28z610_Registers;
 

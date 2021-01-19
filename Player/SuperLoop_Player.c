@@ -10,6 +10,8 @@
 #include "SuperLoop_Player.h"
 #include "board_PowerModes.h"
 #include "BoardSetup.h"
+#include "spiffs.h"
+#include "SuperLoop_Comm2.h"
 
 uint16_t freqStartByte;
 uint32_t freq;
@@ -226,6 +228,9 @@ Executes your design
 */
 void fpgaConfig(void)											//
 {
+	s32_t fpga_file;
+	fpga_file=SPIFFS_open(&fs, "fpga.nbw", SPIFFS_O_RDONLY, 0);
+	
 	uint32_t bytesCnt=0;
 	uint8_t byteBuff;
 //	byteBuff=0;
@@ -246,7 +251,7 @@ void fpgaConfig(void)											//
 	delay_ms(10);
 	FPGA_CS_L;															//for logger
 	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
-		//W25qxx_ReadByte(&byteBuff,FIRST_CONF_BYTE+bytesCnt);
+		SPIFFS_read(&fs, fpga_file, &byteBuff, 1);
 		spi2Transmit(&byteBuff, 1);
 		if(GPIOC->IDR & GPIO_IDR_ID6)
 			{byteBuff=0;

@@ -302,8 +302,10 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 		case e_TF_VsysAnaliz:  if ((0==(mFSM_Error&(m_BQ25703_VSYSVBAT_Read|m_BQ28z610_Reads)))&&bADCVSYSVBAT)  
 		                          { //It works strangely, but let
 															 bVSYS=(pvVSYS>6000)
-																   &&((InCurrent>200)||
-																      (!(mFSM_BQ28z610_BatteryStatus&BQ28z610_BatteryStatus_FullyDischarged))
+																   &&((InCurrent>300)||
+																      ((!(mFSM_BQ28z610_BatteryStatus&BQ28z610_BatteryStatus_FullyDischarged))
+	                                   &&(pv_BQ28z610_Voltage>5000)															
+																      )
 																     )
 																     ;
 															 bADCVSYSVBAT=false;

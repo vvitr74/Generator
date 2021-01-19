@@ -152,34 +152,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>322</LineNumber>
+          <LineNumber>312</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134238508</Address>
+          <Address>0</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
+          <BreakIfRCount>0</BreakIfRCount>
           <Filename>..\acc\mainFSM.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../acc/mainFSM.c\322</Expression>
+          <Expression></Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>213</LineNumber>
+          <LineNumber>132</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134228816</Address>
+          <Address>134230724</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\acc\mainFSM.c</Filename>
+          <Filename>..\Display\superloopDisplay.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../acc/mainFSM.c\213</Expression>
+          <Expression>\\gen_g070\../Display/superloopDisplay.c\132</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -453,7 +453,7 @@
 
   <Group>
     <GroupName>Display</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -461,7 +461,7 @@
       <GroupNumber>3</GroupNumber>
       <FileNumber>7</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Display\superloopDisplay.c</PathWithFileName>

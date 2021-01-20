@@ -11,6 +11,10 @@
 #define COMMS
 #endif
 
+#ifdef COMM2
+#define MODBUS
+#endif
+
 
 //#define Flashw25qxx
 #define Flashat25sf321

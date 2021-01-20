@@ -600,11 +600,7 @@ void getCrc(void)
 	FPGA_CS_H;
 }
 
-void fileListInit(void)
-{
-	fpgaFlags.fileListUpdate=1;
-	fileSect=0;
-}
+
 
 void SecToHhMmSs(uint32_t timeInSec)
 {	

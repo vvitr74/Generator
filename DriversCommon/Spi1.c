@@ -74,7 +74,9 @@ uint8_t spi_transfer(uint8_t data)
 }
 
 void spi_cs_on()
-{
+{  
+		while (SPI1->SR & SPI_SR_FTLVL_Msk){}										//  Wait until FTLVL[1:0] = 00 (no more data to transmit)
+	  while (SPI1->SR & SPI_SR_BSY){}
     while(spiDispCapture)
     {
         gfxYield();

@@ -144,13 +144,13 @@ int SLD(void)
 			};
 			break;
 		case SLD_FSM_PopulateList:	
-			  gfxSleepMilliseconds(10);
-  			  //gwinListAddItem(ghList1, "_1.txt", gTrue);
-	       // gfxSleepMilliseconds(10);  		 
-   		rstatel=fileListRead();
-		    if (e_FRS_Done==rstatel)
-					gwinListAddItem(ghList1, (char*)filename, gTrue);	
-		    if (e_FRS_DoneError==rstatel)
+//			  gfxSleepMilliseconds(10);
+//  			  //gwinListAddItem(ghList1, "_1.txt", gTrue);
+//	       // gfxSleepMilliseconds(10);  		 
+//   		rstatel=fileListRead();
+//		    if (e_FRS_Done==rstatel)
+//					gwinListAddItem(ghList1, (char*)filename, gTrue);	
+//		    if (e_FRS_DoneError==rstatel)
 					 state_inner=SLD_FSM_On;	
 				  gfxSleepMilliseconds(10); 
         break;	

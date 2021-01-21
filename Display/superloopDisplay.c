@@ -22,10 +22,10 @@
 #include "SuperLoop_Comm2.h"//#include "spiffs.h"
 
 //-------------------------for main-----------------------------------------------
-uint16_t playFileSector;
 
 
-uint8_t fileSect=0;
+
+
 
 
 typedef enum  
@@ -92,8 +92,9 @@ int SLD_DisplInit(void);
 int SLD_DisplReInit(void);
 int SLD_DisplDeInit(void);
 e_FunctionReturnState fileListRead(void);
+void fileListInitStart(void);
 
-static bool bfileListInit;
+static bool bListUpdate;
 static uint8_t FSM_fileListUpdate_state;
 static s32_t File_List;
 static uint8_t filename[20];
@@ -129,7 +130,9 @@ int SLD(void)
 		case SLD_FSM_OnTransition: //on transition
 				PM_OnOffPWR(PM_Display,true );
 				SLD_DisplInit();
-		          state_inner=SLD_FSM_PopulateList;
+		    bListUpdate=true;
+		    gfxSleepMilliseconds(10); 
+		    state_inner=SLD_FSM_On;
       break;
 		case SLD_FSM_On: // on
 #ifdef def_debug_AccDispay
@@ -137,6 +140,12 @@ int SLD(void)
 #else
 		    SLDw();
 #endif		
+		  
+		  if (bListUpdate&&SLC_SPIFFS_State())
+			{	fileListInitStart();
+				state_inner=SLD_FSM_PopulateList;
+			};
+		
   		if ((!bVSYS)|button_sign)
 			{
 				button_sign=0;
@@ -144,9 +153,8 @@ int SLD(void)
 			};
 			break;
 		case SLD_FSM_PopulateList:	
-			  gfxSleepMilliseconds(10);
-  			  //gwinListAddItem(ghList1, "_1.txt", gTrue);
-	       // gfxSleepMilliseconds(10);  		 
+			  bListUpdate=false;
+ 
    		rstatel=fileListRead();
 		    if (e_FRS_Done==rstatel)
 					gwinListAddItem(ghList1, (char*)filename, gTrue);	
@@ -287,7 +295,7 @@ int SLDwACC(void)
 }
 
 
-//-------------------END  OF BEBUG ACC Display-------------
+//-------------------END  OF DEBUG ACC Display-------------
 
 
 
@@ -303,8 +311,8 @@ extern uint8_t fileSec;
 extern uint8_t fileMin;
 extern uint8_t fileHour;
 //volatile uint32_t playClk;
-volatile int playFileInList;
-uint8_t fileName[50];
+uint16_t playFileInList;
+//uint8_t fileName[50];
 
 //--------------------create uGFX Objects------------------------
 
@@ -414,7 +422,7 @@ static void createLists(void) {
 
 void fileListInitStart(void)
 {
-	bfileListInit=true;
+	//bfileListInit=true;
 	fileCount=0;
 	FSM_fileListUpdate_state=0;
 };
@@ -427,15 +435,18 @@ e_FunctionReturnState fileListRead(void)
   uint32_t i;	
 	static uint32_t offset;
 	 
-//          gfxSleepMilliseconds(10);	
-//			    gwinListDeleteAll(ghList1);
-//  			  gwinListAddItem(ghList1, "test_1.txt", gTrue);
-//	        gfxSleepMilliseconds(10);
 
 	rstate=e_FRS_Processing;
 
   switch (FSM_fileListUpdate_state)
 	{	case 0: 
+		
+			  gfxSleepMilliseconds(10);
+		    gwinListDeleteAll(ghList1);
+		    gfxSleepMilliseconds(10);
+  			gwinListAddItem(ghList1, "_1.txt", gTrue);
+	      gfxSleepMilliseconds(10);
+		
 			File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);
 		  fileCount=0;
 		  offset=0;
@@ -506,25 +517,34 @@ gfxInit();
 	gwinAttachListener(&gl);
 	gdispSetBacklight(50);
 	
-	fileListInitStart;
+	fileListInitStart();
 	
 return 0;	
 };
 
+extern uint16_t SLPl_ui16_NumOffiles;
+
 int SLDw(void)
-{ 
+{ uint16_t tt;
 	//event handling
 	pe = geventEventWait(&gl,10 ); //gDelayForever
-	switch(pe->type){
+	switch(pe->type)
+	{
 		case GEVENT_GWIN_BUTTON:
-			if (((GEventGWinButton*)pe)->gwin == ghButton1){
+			if (((GEventGWinButton*)pe)->gwin == ghButton1)
+			{
 				playFileInList=gwinListGetSelected(ghList1);
-				fpgaFlags.playStart=1;
-				fpgaFlags.fpgaConfig=1;
-//				fpgaFlags.labelsUpdate=1;
-			}
-			if (((GEventGWinButton*)pe)->gwin == ghButton2){
-				if(curState==3){
+				SLPl_ui16_NumOffiles=gwinListItemCount(ghList1);	
+				if (SLPl_ui16_NumOffiles>0)
+				{	
+					fpgaFlags.playStart=1;
+					fpgaFlags.fpgaConfig=1;
+				};
+			};	
+			if (((GEventGWinButton*)pe)->gwin == ghButton2)
+			{
+				if(curState==3)
+				{
 					fpgaFlags.playStop=1;
 				}
 			}
@@ -534,23 +554,6 @@ int SLDw(void)
 	}
 	
 	//information output to the display
-	if(fpgaFlags.fileListUpdate==1){
-//		fpgaFlags.fileListUpdate=0;
-		if(fpgaFlags.addListItem==1){
-			fpgaFlags.addListItem=0;
-			gwinListAddItem(ghList1, (char*)fileName, gTrue);
-		}
-	}
-	
-	if(fpgaFlags.addNewListItem==1){
-		fpgaFlags.addNewListItem=0;
-		gwinListAddItem(ghList1, (char*)fileName, gTrue);
-	}
-	
-	if(fpgaFlags.clearList==1){
-		fpgaFlags.clearList=0;
-		gwinListDeleteAll(ghList1);
-	}
 	
 	if(fpgaFlags.endOfFile==1){
 		fpgaFlags.endOfFile=0;

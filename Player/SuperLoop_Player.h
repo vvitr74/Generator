@@ -20,7 +20,7 @@ extern void SLP(void);
 
 //For display
 extern uint8_t curState;
-
+extern uint16_t playFileSector;
 
 
 //for player

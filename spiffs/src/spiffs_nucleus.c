@@ -176,7 +176,9 @@ s32_t spiffs_obj_lu_find_entry_visitor(
           if (v) {
             res = v(
                 fs,
-                (flags & SPIFFS_VIS_CHECK_PH) ? obj_id : obj_lu_buf[cur_entry-entry_offset],
+                (flags & SPIFFS_VIS_CHECK_PH) ?  
+						            obj_id : 
+						            obj_lu_buf[cur_entry-entry_offset],
                 cur_block,
                 cur_entry,
                 user_const_p,

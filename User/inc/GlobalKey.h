@@ -21,4 +21,6 @@
 #define SPIFFS
 
 
+#define D_FileNameLength 22
+
 #endif

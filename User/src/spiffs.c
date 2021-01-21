@@ -1,8 +1,6 @@
 
 #include "stm32g0xx.h"
 #include "spiffs.h"
-#include "tim3.h"
-#include "Spi1.h"
 
 //#define FLASH_TEST
 #define W25_CHIP_ERASE 0xC7
@@ -22,6 +20,12 @@
 
 #define W25_ERASE_TIMEOUT 3000
 
+
+//#define spi_transfer ///rdd debug
+//#define spi_cs_off()   ///rdd debug
+//#define  spi_cs_on() ///rdd debug
+
+
 spiffs fs;
 
 extern uint8_t spiDispCapture;
@@ -29,6 +33,8 @@ extern uint8_t spiDispCapture;
 static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
 static u8_t spiffs_fds[32 * 4];
 static u8_t spiffs_cache_buf[(SPIFFS_CFG_LOG_PAGE_SZ() + 32) * 4];
+
+
 
 
 /**
@@ -231,14 +237,14 @@ int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offs
     }
     */
     
-    static spiffs_file fd;
+    spiffs_file fd;
     if(offset == 0)
     {
         fd = SPIFFS_open(&fs, filename, SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
     }
     else
     {
-  //      fd = SPIFFS_open(&fs, filename, SPIFFS_RDWR | SPIFFS_APPEND, 0);
+        fd = SPIFFS_open(&fs, filename, SPIFFS_RDWR | SPIFFS_APPEND, 0);
         
         spiffs_stat s;
         res = SPIFFS_fstat(&fs, fd, &s);
@@ -248,7 +254,7 @@ int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offs
             res = SPIFFS_ERR_END_OF_OBJECT;
         }
         
-        if((res == 0) && (offset != s.size))
+        if(res == 0)
         {
             if (SPIFFS_lseek(&fs, fd, offset, SPIFFS_SEEK_SET) < 0)
             {
@@ -267,7 +273,7 @@ int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offs
     
     SPIFFS_fflush(&fs,fd);
     
-    //SPIFFS_close(&fs, fd);
+    SPIFFS_close(&fs, fd);
     return res;
 }
 

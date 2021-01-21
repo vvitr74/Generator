@@ -22,7 +22,7 @@
 
 #define W25_ERASE_TIMEOUT 3000
 
-static spiffs fs;
+spiffs fs;
 
 extern uint8_t spiDispCapture;
 

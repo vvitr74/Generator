@@ -131,6 +131,7 @@ int SLD(void)
 				PM_OnOffPWR(PM_Display,true );
 				SLD_DisplInit();
 		    bListUpdate=true;
+		    gfxSleepMilliseconds(10); 
 		    state_inner=SLD_FSM_On;
       break;
 		case SLD_FSM_On: // on

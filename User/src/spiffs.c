@@ -30,9 +30,10 @@ spiffs fs;
 
 extern uint8_t spiDispCapture;
 
-static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
-static u8_t spiffs_fds[32 * 4];
-static u8_t spiffs_cache_buf[(SPIFFS_CFG_LOG_PAGE_SZ() + 32) * 4];
+
+__attribute__((aligned(4))) static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
+__attribute__((aligned(4))) static u8_t spiffs_fds[32 * 4];
+__attribute__((aligned(4))) static u8_t spiffs_cache_buf[(SPIFFS_CFG_LOG_PAGE_SZ() + 32) * 4];
 
 
 

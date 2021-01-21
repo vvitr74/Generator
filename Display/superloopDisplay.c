@@ -92,8 +92,9 @@ int SLD_DisplInit(void);
 int SLD_DisplReInit(void);
 int SLD_DisplDeInit(void);
 e_FunctionReturnState fileListRead(void);
+void fileListInitStart(void);
 
-static bool bfileListInit;
+static bool bListUpdate;
 static uint8_t FSM_fileListUpdate_state;
 static s32_t File_List;
 static uint8_t filename[20];
@@ -129,7 +130,8 @@ int SLD(void)
 		case SLD_FSM_OnTransition: //on transition
 				PM_OnOffPWR(PM_Display,true );
 				SLD_DisplInit();
-		          state_inner=SLD_FSM_PopulateList;
+		    bListUpdate=true;
+		    state_inner=SLD_FSM_On;
       break;
 		case SLD_FSM_On: // on
 #ifdef def_debug_AccDispay
@@ -137,6 +139,12 @@ int SLD(void)
 #else
 		    SLDw();
 #endif		
+		  
+		  if (bListUpdate&&SLC_SPIFFS_State())
+			{	fileListInitStart();
+				state_inner=SLD_FSM_PopulateList;
+			};
+		
   		if ((!bVSYS)|button_sign)
 			{
 				button_sign=0;
@@ -144,9 +152,8 @@ int SLD(void)
 			};
 			break;
 		case SLD_FSM_PopulateList:	
-			  gfxSleepMilliseconds(10);
-  			  //gwinListAddItem(ghList1, "_1.txt", gTrue);
-	       // gfxSleepMilliseconds(10);  		 
+			  bListUpdate=false;
+ 
    		rstatel=fileListRead();
 		    if (e_FRS_Done==rstatel)
 					gwinListAddItem(ghList1, (char*)filename, gTrue);	
@@ -414,7 +421,7 @@ static void createLists(void) {
 
 void fileListInitStart(void)
 {
-	bfileListInit=true;
+	//bfileListInit=true;
 	fileCount=0;
 	FSM_fileListUpdate_state=0;
 };
@@ -427,15 +434,18 @@ e_FunctionReturnState fileListRead(void)
   uint32_t i;	
 	static uint32_t offset;
 	 
-//          gfxSleepMilliseconds(10);	
-//			    gwinListDeleteAll(ghList1);
-//  			  gwinListAddItem(ghList1, "test_1.txt", gTrue);
-//	        gfxSleepMilliseconds(10);
 
 	rstate=e_FRS_Processing;
 
   switch (FSM_fileListUpdate_state)
 	{	case 0: 
+		
+			  gfxSleepMilliseconds(10);
+		    gwinListDeleteAll(ghList1);
+		    gfxSleepMilliseconds(10);
+  			gwinListAddItem(ghList1, "_1.txt", gTrue);
+	      gfxSleepMilliseconds(10);
+		
 			File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);
 		  fileCount=0;
 		  offset=0;
@@ -506,7 +516,7 @@ gfxInit();
 	gwinAttachListener(&gl);
 	gdispSetBacklight(50);
 	
-	fileListInitStart;
+	fileListInitStart();
 	
 return 0;	
 };

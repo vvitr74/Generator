@@ -31,17 +31,37 @@ e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 {e_PS_Work						//SLC_FSM_InitialWaitSupply
 ,e_PS_Work						//SLC_FSM_Init
-,e_PS_Work						//SLC_FSM_CommAbsent
+,e_PS_DontMindSleep		//SLC_FSM_CommAbsent
 ,e_PS_Work						//SLC_FSM_OnTransitionOffPlayer
 ,e_PS_Work						//SLC_FSM_USBCommunication 
-,e_PS_DontMindSleep		//SLC_FSM_AndroidConnected	
-,e_PS_DontMindSleep		//SLC_FSM_WakeTransition
-,e_PS_ReadySleep			//SLC_FSM_WakeTransition
+,e_PS_Work	        	//SLC_FSM_AndroidConnected	
+,e_PS_ReadySleep			//SLC_FSM_Sleep
+,e_PS_Work						//SLC_FSM_WakeTransition
 };
+
+const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
+{false						//SLC_FSM_InitialWaitSupply
+,false						//SLC_FSM_Init
+,true		          //SLC_FSM_CommAbsent
+,true						  //SLC_FSM_OnTransitionOffPlayer
+,true					  	//SLC_FSM_USBCommunication 
+,true	          	//SLC_FSM_AndroidConnected	
+,false		      	//SLC_FSM_Sleep
+,false						//SLC_FSM_WakeTransition
+};
+
+
+
 
 static e_SLC_FSM state_inner;
 //static bool USBcomm;
 static bool OffPlayer=true; //rdd debug
+
+__inline bool SLC_SPIFFS_State(void)
+{
+	 return SPIFFS_ReadyEncoder[state_inner];
+};
+
 
 //---------------------------------for power sleep---------------------------------------------
 //static e_PowerState SLD_PowerState; 

@@ -229,7 +229,8 @@ Executes your design
 void fpgaConfig(void)											//
 {
 	s32_t fpga_file;
-	fpga_file=SPIFFS_open(&fs, "fpga.nbw", SPIFFS_O_RDONLY, 0);
+	int32_t read_res;
+	fpga_file=SPIFFS_open(&fs, "FPGA.rbf", SPIFFS_O_RDONLY, 0);
 	
 	uint32_t bytesCnt=0;
 	uint8_t byteBuff;
@@ -251,7 +252,10 @@ void fpgaConfig(void)											//
 	delay_ms(10);
 	FPGA_CS_L;															//for logger
 	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
-		SPIFFS_read(&fs, fpga_file, &byteBuff, 1);
+		read_res=SPIFFS_read(&fs, fpga_file, &byteBuff, 1);
+		if (read_res<1)
+		{	break;
+		};
 		spi2Transmit(&byteBuff, 1);
 		if(GPIOC->IDR & GPIO_IDR_ID6)
 			{byteBuff=0;
@@ -262,6 +266,8 @@ void fpgaConfig(void)											//
 			SPI2->CR1 &= ~SPI_CR1_SPE;
 			SPI2->CR1 &= ~SPI_CR1_LSBFIRST;
 			SPI2->CR1 |= SPI_CR1_SPE;
+			
+      SPIFFS_close(&fs, fpga_file);				
 			return;
 		}
 	}
@@ -270,6 +276,7 @@ void fpgaConfig(void)											//
 	FPGA_CS_H;
 //	confFailed();
 	fpgaFlags.fpgaConfigComplete=0;
+	SPIFFS_close(&fs, fpga_file);
 }
 
 extern uint8_t fileName[50];
@@ -774,23 +781,25 @@ void SLP(void)
 	switch(curState){
 		//file list initialization
 		case 0:
-			if(fpgaFlags.fileListUpdate==1){
-				//if(!W25qxx_IsEmptySector(fileSect,0))
-					{
-///rdd debug					spi1FifoClr();
-					//W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
-					fpgaFlags.addListItem=1;
-				}
-				if(fileSect>=MAX_FILES_NUM){
-					fileSect=0;
-					fpgaFlags.fileListUpdate=0;
-					fpgaFlags.addListItem=0;
-					curState=1;
-				}
-				else{
-					fileSect++;
-				}
-			}
+//			if(fpgaFlags.fileListUpdate==1){
+//				//if(!W25qxx_IsEmptySector(fileSect,0))
+//					{
+/////rdd debug					spi1FifoClr();
+//					//W25qxx_ReadSector((uint8_t*)fileName,fileSect,FILE_NAME_SHIFT,FILE_NAME_BYTES);
+//					fpgaFlags.addListItem=1;
+//				}
+//				if(fileSect>=MAX_FILES_NUM){
+//					fileSect=0;
+//					fpgaFlags.fileListUpdate=0;
+//					fpgaFlags.addListItem=0;
+//					curState=1;
+//				}
+//				else{
+//					fileSect++;
+//				}
+//			}
+//			
+			curState++;
 			break;
 		
 		//waiting for start 

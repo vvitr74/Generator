@@ -22,10 +22,10 @@
 #include "SuperLoop_Comm2.h"//#include "spiffs.h"
 
 //-------------------------for main-----------------------------------------------
-uint16_t playFileSector;
 
 
-uint8_t fileSect=0;
+
+
 
 
 typedef enum  
@@ -294,7 +294,7 @@ int SLDwACC(void)
 }
 
 
-//-------------------END  OF BEBUG ACC Display-------------
+//-------------------END  OF DEBUG ACC Display-------------
 
 
 
@@ -310,8 +310,8 @@ extern uint8_t fileSec;
 extern uint8_t fileMin;
 extern uint8_t fileHour;
 //volatile uint32_t playClk;
-volatile int playFileInList;
-uint8_t fileName[50];
+uint16_t playFileInList;
+//uint8_t fileName[50];
 
 //--------------------create uGFX Objects------------------------
 
@@ -521,20 +521,29 @@ gfxInit();
 return 0;	
 };
 
+extern uint16_t SLPl_ui16_NumOffiles;
+
 int SLDw(void)
-{ 
+{ uint16_t tt;
 	//event handling
 	pe = geventEventWait(&gl,10 ); //gDelayForever
-	switch(pe->type){
+	switch(pe->type)
+	{
 		case GEVENT_GWIN_BUTTON:
-			if (((GEventGWinButton*)pe)->gwin == ghButton1){
+			if (((GEventGWinButton*)pe)->gwin == ghButton1)
+			{
 				playFileInList=gwinListGetSelected(ghList1);
-				fpgaFlags.playStart=1;
-				fpgaFlags.fpgaConfig=1;
-//				fpgaFlags.labelsUpdate=1;
-			}
-			if (((GEventGWinButton*)pe)->gwin == ghButton2){
-				if(curState==3){
+				SLPl_ui16_NumOffiles=gwinListItemCount(ghList1);	
+				if (SLPl_ui16_NumOffiles>0)
+				{	
+					fpgaFlags.playStart=1;
+					fpgaFlags.fpgaConfig=1;
+				};
+			};	
+			if (((GEventGWinButton*)pe)->gwin == ghButton2)
+			{
+				if(curState==3)
+				{
 					fpgaFlags.playStop=1;
 				}
 			}
@@ -544,23 +553,6 @@ int SLDw(void)
 	}
 	
 	//information output to the display
-	if(fpgaFlags.fileListUpdate==1){
-//		fpgaFlags.fileListUpdate=0;
-		if(fpgaFlags.addListItem==1){
-			fpgaFlags.addListItem=0;
-			gwinListAddItem(ghList1, (char*)fileName, gTrue);
-		}
-	}
-	
-	if(fpgaFlags.addNewListItem==1){
-		fpgaFlags.addNewListItem=0;
-		gwinListAddItem(ghList1, (char*)fileName, gTrue);
-	}
-	
-	if(fpgaFlags.clearList==1){
-		fpgaFlags.clearList=0;
-		gwinListDeleteAll(ghList1);
-	}
 	
 	if(fpgaFlags.endOfFile==1){
 		fpgaFlags.endOfFile=0;

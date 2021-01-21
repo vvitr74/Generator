@@ -17,6 +17,7 @@ const t_I2c16InitData BQ28z610InitData[e_BQ28z610_NumOfReg]=
 	 ,{{I2C_OP_READ,0x2c,		1,2},0}  //e_BQ28z610_RelativeStateOfCharge
 	 ,{{I2C_OP_WRITE,0x3e,		1,2},0}  //e_BQ28z610_AltManufacturerAccess
 	 ,{{I2C_OP_WRITE,0x60,		1,2},0}  //MACDataSum
+	 ,{{I2C_OP_READ,0x0A,		1,2},0}   //e_BQ28z610_BatteryStatus
 };
 
 void* DriverBQ28z610_KEY; // for multi task

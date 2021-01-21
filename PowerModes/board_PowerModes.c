@@ -320,6 +320,9 @@ void bPM_FSMPower_Init(void)
 	PM_OnOffPWR(PM_Display,true );
 	PM_OnOffPWR(PM_Player,true );
 	PM_OnOffPWR(PM_Communication,true );
+	PM_OnOffPWR(PM_Display,false );
+	PM_OnOffPWR(PM_Player,false );
+	PM_OnOffPWR(PM_Communication,false );
 };
 
 

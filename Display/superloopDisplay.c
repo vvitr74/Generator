@@ -10,7 +10,7 @@
 \brief info on display for debug ACC 
 
 */
-//#define def_debug_AccDispay
+//  #define def_debug_AccDispay
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,6 +19,7 @@
 #include "mainFSM.h"
 #include "board_PowerModes.h"
 #include "BoardSetup.h"
+#include "SuperLoop_Comm2.h"//#include "spiffs.h"
 
 //-------------------------for main-----------------------------------------------
 uint16_t playFileSector;
@@ -32,6 +33,7 @@ typedef enum
 ,SLD_FSM_Off  						//work
 ,SLD_FSM_OnTransition 		//work
 ,SLD_FSM_On 							//work
+,SLD_FSM_PopulateList	    //work
 ,SLD_FSM_OffTransition 		//work
 ,SLD_FSM_DontMindSleep		//e_PS_DontMindSleep
 ,SLD_FSM_SleepTransition 	//work
@@ -50,6 +52,7 @@ const e_PowerState SLD_Encoder[SLD_FSM_NumOfEl]=
 ,e_PS_Work						//SLD_FSM_Off
 ,e_PS_Work						//SLD_FSM_OnTransition
 ,e_PS_Work						//SLD_FSM_On
+,e_PS_Work						//SLD_FSM_PopulateList
 ,e_PS_Work						//SLD_FSM_OffTransition 
 ,e_PS_DontMindSleep		//SLD_FSM_DontMindSleep	
 ,e_PS_DontMindSleep		//SLD_FSM_SleepTransition
@@ -88,11 +91,20 @@ int SLDwACC(void);
 int SLD_DisplInit(void);
 int SLD_DisplReInit(void);
 int SLD_DisplDeInit(void);
+e_FunctionReturnState fileListRead(void);
+
+static bool bfileListInit;
+static uint8_t FSM_fileListUpdate_state;
+static s32_t File_List;
+static uint8_t filename[20];
+static uint8_t fileCount;
+static uint32_t offset;
 
 #define SLD_SleepDelay 1000
 
 int SLD(void)
 {
+	e_FunctionReturnState rstatel;
 	systemticks_t SLD_LastButtonPress;
 	switch (state_inner)
 	{
@@ -117,9 +129,8 @@ int SLD(void)
 		case SLD_FSM_OnTransition: //on transition
 				PM_OnOffPWR(PM_Display,true );
 				SLD_DisplInit();
-//		    gwinRedrawDisplay(NULL,true);
-		    state_inner=SLD_FSM_On;
-//   break;
+		          state_inner=SLD_FSM_PopulateList;
+      break;
 		case SLD_FSM_On: // on
 #ifdef def_debug_AccDispay
 	    	SLDwACC();
@@ -132,6 +143,17 @@ int SLD(void)
 				state_inner=SLD_FSM_OffTransition;
 			};
 			break;
+		case SLD_FSM_PopulateList:	
+			  gfxSleepMilliseconds(10);
+  			  //gwinListAddItem(ghList1, "_1.txt", gTrue);
+	       // gfxSleepMilliseconds(10);  		 
+   		rstatel=fileListRead();
+		    if (e_FRS_Done==rstatel)
+					gwinListAddItem(ghList1, (char*)filename, gTrue);	
+		    if (e_FRS_DoneError==rstatel)
+					 state_inner=SLD_FSM_On;	
+				  gfxSleepMilliseconds(10); 
+        break;	
 		case SLD_FSM_OffTransition: 
       	SLD_DisplDeInit();               //off transition
         PM_OnOffPWR(PM_Display,false );				
@@ -171,20 +193,7 @@ int SLD_init(void)
 	return 0;
 };
 
-
-////------------------------Display control--------------------------------------------
-GListener	gl;
-GHandle	ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
-GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12;
-GHandle	ghList1;
-
-static	GEvent* pe;
-//static const gOrientation	orients[] = { gOrientation0, gOrientation90, gOrientation180, gOrientation270 };
-//static	unsigned which;
-
-static void createDebugLabels(void);
-
-//--------------------------------for uGFX--------------------------------------
+//--------------------------------for uGFX INIT/DEINIT--------------------------------
 extern char	heap[GFX_OS_HEAP_SIZE];
 extern gThread	hThread;
 
@@ -217,20 +226,22 @@ int SLD_DisplReInit(void)
 }
 
 
-volatile t_fpgaFlags fpgaFlags;
+////------------------------Display control objects--------------------------------------------
+GListener	gl;
+GHandle	ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
+GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12;
+GHandle	ghList1;
 
-uint8_t spiDispCapture;	//0 - free, 1 - busy
-uint8_t totalTimeArr[]={'0','0',':','0','0',':','0','0',0};
-uint8_t fileTimeArr[]={'0','0',':','0','0',':','0','0',0};
-extern uint8_t totalSec;
-extern uint8_t totalMin;
-extern uint8_t totalHour;
-extern uint8_t fileSec;
-extern uint8_t fileMin;
-extern uint8_t fileHour;
-//volatile uint32_t playClk;
-volatile int playFileInList;
-uint8_t fileName[50];
+static GHandle  ghButton1, ghButton2;
+
+static	GEvent* pe;
+//static const gOrientation	orients[] = { gOrientation0, gOrientation90, gOrientation180, gOrientation270 };
+//static	unsigned which;
+
+
+//-------------------BEGIN  OF BEBUG ACC Display-------------
+
+
 void displayACC(void)
 { char str[30];	
 	if ( (SystemTicks-LastUpdateTime)<DisplayUpdatePeriod ) 
@@ -266,6 +277,7 @@ void displayACC(void)
 	
 }
 
+
 int SLDwACC(void)
 { 
 	//event handling
@@ -274,29 +286,27 @@ int SLDwACC(void)
 	return 0;
 }
 
-static void createLists(void) {
-	GWidgetInit	wi;
 
-	// Apply some default values for GWIN
-	gwinWidgetClearInit(&wi);
-	wi.g.show = gTrue;
+//-------------------END  OF BEBUG ACC Display-------------
 
-	// Create the label for the first list
-	wi.g.width = 150; wi.g.height = 20; wi.g.x = 10, wi.g.y = 0;
-	wi.text = "Files:";
-	ghLabel1 = gwinLabelCreate(0, &wi);
 
-	// The first list widget
-	wi.g.width = 220;
-	wi.g.height = 140;
-	wi.g.y = 20;
-	wi.g.x = 10;
-	wi.text = "Name of list 1";
-	ghList1 = gwinListCreate(0, &wi, gFalse);
-//	gwinListSetScroll(ghList1, scrollSmooth);
-}
-//static GListener gl;
-static GHandle  ghButton1, ghButton2;
+
+volatile t_fpgaFlags fpgaFlags;
+
+uint8_t spiDispCapture;	//0 - free, 1 - busy
+uint8_t totalTimeArr[]={'0','0',':','0','0',':','0','0',0};
+uint8_t fileTimeArr[]={'0','0',':','0','0',':','0','0',0};
+extern uint8_t totalSec;
+extern uint8_t totalMin;
+extern uint8_t totalHour;
+extern uint8_t fileSec;
+extern uint8_t fileMin;
+extern uint8_t fileHour;
+//volatile uint32_t playClk;
+volatile int playFileInList;
+uint8_t fileName[50];
+
+//--------------------create uGFX Objects------------------------
 
 static void createButtons(void) {
 	GWidgetInit	wi;
@@ -377,15 +387,108 @@ static void createLabels(void) {
 }
 
 
+static void createLists(void) {
+	GWidgetInit	wi;
+
+	// Apply some default values for GWIN
+	gwinWidgetClearInit(&wi);
+	wi.g.show = gTrue;
+
+	// Create the label for the first list
+	wi.g.width = 150; wi.g.height = 20; wi.g.x = 10, wi.g.y = 0;
+	wi.text = "Files:";
+	ghLabel1 = gwinLabelCreate(0, &wi);
+
+	// The first list widget
+	wi.g.width = 220;
+	wi.g.height = 140;
+	wi.g.y = 20;
+	wi.g.x = 10;
+	wi.text = "Name of list 1";
+	ghList1 = gwinListCreate(0, &wi, gFalse);
+//	gwinListSetScroll(ghList1, scrollSmooth);
+}
+
+//--------------------END Create uGFX Objects------------------------
+
+
+void fileListInitStart(void)
+{
+	bfileListInit=true;
+	fileCount=0;
+	FSM_fileListUpdate_state=0;
+};
+
+
+e_FunctionReturnState fileListRead(void)
+{	e_FunctionReturnState rstate;
+	char byteBuff[20];
+	int8_t bytesCount;
+  uint32_t i;	
+	static uint32_t offset;
+	 
+//          gfxSleepMilliseconds(10);	
+//			    gwinListDeleteAll(ghList1);
+//  			  gwinListAddItem(ghList1, "test_1.txt", gTrue);
+//	        gfxSleepMilliseconds(10);
+
+	rstate=e_FRS_Processing;
+
+  switch (FSM_fileListUpdate_state)
+	{	case 0: 
+			File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);
+		  fileCount=0;
+		  offset=0;
+		  //gwinListDeleteAll(ghList1);
+		  FSM_fileListUpdate_state++;
+		  break;
+		case 1: 
+      while(1)
+      {	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, 19);
+				if (bytesCount<1)
+				{	FSM_fileListUpdate_state=101;
+					break;
+				}
+				else					
+				{ for(i=0;i<bytesCount;i++)
+					  if (13==byteBuff[i]) break;
+					  offset+=i+1;
+					SPIFFS_lseek(&fs, File_List,offset,SPIFFS_SEEK_SET);
+					_sscanf( byteBuff,"%18s",filename);
+					if (0<strlen(byteBuff))
+					{		fileCount++;
+							FSM_fileListUpdate_state=100;
+						  //gwinListAddItem(ghList1, (char*)fileName, gTrue);
+						  break;
+					};
+				};
+			}		
+      break;			
+		case 100: //Done
+			//SPIFFS_close(&fs, File_List);
+			rstate=e_FRS_Done;
+		  FSM_fileListUpdate_state=1;
+			break;
+		case 101: //DoneError
+			SPIFFS_close(&fs, File_List);
+			rstate=e_FRS_DoneError;
+		  FSM_fileListUpdate_state=0;
+		  offset=0;
+			break;
+		default:FSM_fileListUpdate_state =0;
+	}
+	
+	return rstate;
+}
+
+
+
 
 int SLD_DisplInit(void)
 { 
+	
 GFXPreinit();	
 gfxInit();	
-
-	
-	
-	//GEvent* pe;
 
 
 	// Set the widget defaults
@@ -403,7 +506,7 @@ gfxInit();
 	gwinAttachListener(&gl);
 	gdispSetBacklight(50);
 	
-	fileListInit();
+	fileListInitStart;
 	
 return 0;	
 };

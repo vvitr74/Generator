@@ -2,6 +2,9 @@
 #define __SPI1_H
 
 #include "stm32g0xx.h"
+#include "stdint.h"
+
+
 void initSpi_1(void);
 
 /**

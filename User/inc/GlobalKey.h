@@ -23,4 +23,6 @@
 
 #define D_FileNameLength 22
 
+void Error(char* s);
+
 #endif

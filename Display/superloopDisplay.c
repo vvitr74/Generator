@@ -444,7 +444,7 @@ e_FunctionReturnState fileListRead(void)
 			  gfxSleepMilliseconds(10);
 		    gwinListDeleteAll(ghList1);
 		    gfxSleepMilliseconds(10);
-  			gwinListAddItem(ghList1, "_1.txt", gTrue);
+  			//gwinListAddItem(ghList1, "_1.txt", gTrue);///RDD debug
 	      gfxSleepMilliseconds(10);
 		
 			File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);
@@ -635,7 +635,7 @@ int SLDw(void)
 		fileTimeArr[6]=fileSec/10;
 		fileTimeArr[7]=fileSec%10;
 		timeToString(fileTimeArr);
-		gwinSetText(ghLabel6,fileTimeArr,gFalse);
+		gwinSetText(ghLabel6,(const char*)fileTimeArr,gFalse);
 	
 		//Total timer
 		if(totalSec==0){
@@ -663,7 +663,7 @@ int SLDw(void)
 		totalTimeArr[6]=totalSec/10;
 		totalTimeArr[7]=totalSec%10;
 		timeToString(totalTimeArr);
-		gwinSetText(ghLabel7,totalTimeArr,gFalse);
+		gwinSetText(ghLabel7,(const char*)totalTimeArr,gFalse);
 	}
 
 return 0;	

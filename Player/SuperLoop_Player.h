@@ -10,13 +10,13 @@
 
 
 //for power
-extern __inline e_PowerState SLPl_GetPowerState(void);
-extern __inline e_PowerState SLPl_SetSleepState(bool state);
-extern __inline bool SLPl_PWRState(void);
+e_PowerState SLPl_GetPowerState(void);
+e_PowerState SLPl_SetSleepState(bool state);
+bool SLPl_PWRState(void);
 
 // For main
-extern void SLP_init(void);
-extern void SLP(void);
+void SLP_init(void);
+void SLP(void);
 
 //For display
 extern uint8_t curState;

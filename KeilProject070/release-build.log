@@ -1,5 +1,6 @@
-*** Using Compiler 'V6.12', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
+*** Using Compiler 'V6.14.1', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Target 1'
+compiling template.c...
 ../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06.c(8): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
                         ^
@@ -21,35 +22,13 @@ Build target 'Target 1'
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06.c(8): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06.c(8): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
 ../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06.c(15): warning: In file included from...../ugfx_2.9/drivers/ginput/touch/FT6x06/../../../../src/ginput/ginput_driver_mouse.h(23): warning: In file included from...../ugfx_2.9/src/ginput/../gdriver/gdriver.h(90): warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
 typedef const struct GDriverVMT const   GDriverVMTList[1];
                                 ^
-../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06.c(18): warning: In file included from...../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06_board.h(11): warning: In file included from...../DriversCommon\I2C2.h(4): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06.c(18): warning: In file included from...../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06_board.h(65): warning: while loop has empty body [-Wempty-body]
-          while (getI2c2Status()!=I2C_IDLE);
-                                           ^
-../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06_board.h(65): note: put the semicolon on a separate line to silence this warning
 ../ugfx_2.9/drivers/ginput/touch/FT6x06/gmouse_lld_FT6x06.c(104): warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{
                 ^
-13 warnings generated.
+9 warnings generated.
 compiling gmouse_lld_FT6x06.c...
 ../User/src/main.c(7): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
@@ -72,67 +51,8 @@ compiling gmouse_lld_FT6x06.c...
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../User/src/main.c(7): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../User/src/main.c(7): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../User/src/main.c(7): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
+7 warnings generated.
 compiling main.c...
-../User/src/BoardSetup.c(10): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../User/src/BoardSetup.c(10): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../User/src/BoardSetup.c(10): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../User/src/BoardSetup.c(10): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
-compiling BoardSetup.c...
 ../ugfx_2.9/drivers/gdisp/ILI9341/gdisp_lld_ILI9341.c(8): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
                         ^
@@ -154,33 +74,15 @@ compiling BoardSetup.c...
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../ugfx_2.9/drivers/gdisp/ILI9341/gdisp_lld_ILI9341.c(8): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../ugfx_2.9/drivers/gdisp/ILI9341/gdisp_lld_ILI9341.c(8): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
 ../ugfx_2.9/drivers/gdisp/ILI9341/gdisp_lld_ILI9341.c(24): warning: In file included from...../ugfx_2.9/drivers/gdisp/ILI9341/../../../src/gdisp/gdisp_driver.h(22): warning: In file included from...../ugfx_2.9/src/gdisp/../gdriver/gdriver.h(90): warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
 typedef const struct GDriverVMT const   GDriverVMTList[1];
                                 ^
 ../ugfx_2.9/drivers/gdisp/ILI9341/gdisp_lld_ILI9341.c(24): warning: In file included from...../ugfx_2.9/drivers/gdisp/ILI9341/../../../src/gdisp/gdisp_driver.h(735): warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
         const GDISPVMT const GDISP_DRIVER_VMT[1] = {{
                        ^
-../ugfx_2.9/drivers/gdisp/ILI9341/gdisp_lld_ILI9341.c(26): warning: In file included from...../ugfx_2.9/drivers/gdisp/ILI9341/board_ILI9341.h(11): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-12 warnings generated.
+9 warnings generated.
 compiling gdisp_lld_ILI9341.c...
-../Display/superloopDisplay.c(18): warning: In file included from...../Display/superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+../User/src/BoardSetup.c(10): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
                         ^
 ../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
@@ -201,41 +103,8 @@ compiling gdisp_lld_ILI9341.c...
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../Display/superloopDisplay.c(18): warning: In file included from...../Display/superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../Display/superloopDisplay.c(18): warning: In file included from...../Display/superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../Display/superloopDisplay.c(20): warning: In file included from...../PowerModes\board_PowerModes.h(6): warning: In file included from...../Player\superloop_Player.h(8): warning: In file included from...../Communications\SuperLoop_Comm.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-../Display/superloopDisplay.c(404): warning: implicit declaration of function 'fileListInit' is invalid in C99 [-Wimplicit-function-declaration]
-        fileListInit();
-        ^
-../Display/superloopDisplay.c(530): warning: passing 'uint8_t [9]' to parameter of type 'const char *' converts between pointers to integer types with different sign [-Wpointer-sign]
-                gwinSetText(ghLabel6,fileTimeArr,gFalse);
-                                     ^~~~~~~~~~~
-../ugfx_2.9/src/gwin/gwin_widget.h(218): note: passing argument to parameter 'text' here
-void gwinSetText(GHandle gh, const char *text, gBool useAlloc);
-                                         ^
-../Display/superloopDisplay.c(558): warning: passing 'uint8_t [9]' to parameter of type 'const char *' converts between pointers to integer types with different sign [-Wpointer-sign]
-                gwinSetText(ghLabel7,totalTimeArr,gFalse);
-                                     ^~~~~~~~~~~~
-../ugfx_2.9/src/gwin/gwin_widget.h(218): note: passing argument to parameter 'text' here
-void gwinSetText(GHandle gh, const char *text, gBool useAlloc);
-                                         ^
-13 warnings generated.
-compiling superloopDisplay.c...
+7 warnings generated.
+compiling BoardSetup.c...
 ../DriversCommon/i2c2.c(1): warning: In file included from...../DriversCommon/I2C2.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
                         ^
@@ -257,27 +126,9 @@ compiling superloopDisplay.c...
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../DriversCommon/i2c2.c(1): warning: In file included from...../DriversCommon/I2C2.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../DriversCommon/i2c2.c(1): warning: In file included from...../DriversCommon/I2C2.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../DriversCommon/i2c2.c(1): warning: In file included from...../DriversCommon/I2C2.h(4): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
+7 warnings generated.
 compiling i2c2.c...
-../DriversCommon/Spi1.c(1): warning: In file included from...../DriversCommon/Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+../Display/superloopDisplay.c(18): warning: In file included from...../Display/superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
                         ^
 ../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
@@ -298,26 +149,289 @@ compiling i2c2.c...
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../DriversCommon/Spi1.c(1): warning: In file included from...../DriversCommon/Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../DriversCommon/Spi1.c(1): warning: In file included from...../DriversCommon/Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../DriversCommon/Spi1.c(1): warning: In file included from...../DriversCommon/Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
+../Display/superloopDisplay.c(638): warning: passing 'uint8_t [9]' to parameter of type 'const char *' converts between pointers to integer types with different sign [-Wpointer-sign]
+                gwinSetText(ghLabel6,fileTimeArr,gFalse);
+                                     ^~~~~~~~~~~
+../ugfx_2.9/src/gwin/gwin_widget.h(218): note: passing argument to parameter 'text' here
+void gwinSetText(GHandle gh, const char *text, gBool useAlloc);
+                                         ^
+../Display/superloopDisplay.c(666): warning: passing 'uint8_t [9]' to parameter of type 'const char *' converts between pointers to integer types with different sign [-Wpointer-sign]
+                gwinSetText(ghLabel7,totalTimeArr,gFalse);
+                                     ^~~~~~~~~~~~
+../ugfx_2.9/src/gwin/gwin_widget.h(218): note: passing argument to parameter 'text' here
+void gwinSetText(GHandle gh, const char *text, gBool useAlloc);
+                                         ^
+../Display/superloopDisplay.c(22): warning: In file included from...../Communications\SuperLoop_Comm2.h(13): warning: inline function 'SLC_SPIFFS_State' is not defined [-Wundefined-inline]
+extern __inline bool SLC_SPIFFS_State(void);
+                     ^
+../Display/superloopDisplay.c(144): note: used here
+                  if (bListUpdate&&SLC_SPIFFS_State())
+                                   ^
 10 warnings generated.
+compiling superloopDisplay.c...
+../DriversCommon/Spi1.c(82): warning: implicit declaration of function 'gfxYield' is invalid in C99 [-Wimplicit-function-declaration]
+        gfxYield();
+        ^
+1 warning generated.
 compiling Spi1.c...
+../Communications/SuperLoop_Comm2.c(1): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+                #pragma anon_unions                                                     // Allow anonymous unions
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
+                        ^
+7 warnings generated.
+compiling SuperLoop_Comm2.c...
+compiling battery.c...
+compiling DriverBQ28z610.c...
+../Player/SuperLoop_Player.c(11): warning: In file included from...../Player\SuperLoop_Player.h(9): warning: In file included from...../Display\superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+                #pragma anon_unions                                                     // Allow anonymous unions
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
+                        ^
+../Player/SuperLoop_Player.c(444): warning: array index 6 is past the end of the array (which contains 6 elements) [-Warray-bounds]
+        tempArr[6]=freq/1000000U;
+        ^       ~
+../Player/SuperLoop_Player.c(441): note: array 'tempArr' declared here
+        uint8_t tempArr[6];
+        ^
+8 warnings generated.
+compiling SuperLoop_Player.c...
+../acc/DRIVERBQ25703.c(175): warning: enumeration value 'e_DR703_NoS' not handled in switch [-Wswitch]
+        switch (mode)
+                ^
+../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(45): warning: inline function 'BQ25703_ChargeCurrent_Eval' is not defined [-Wundefined-inline]
+extern inline uint16_t BQ25703_ChargeCurrent_Eval(uint16_t I);//arg in mA
+                       ^
+../acc/DRIVERBQ25703.c(127): note: used here
+uint16_t data16=BQ25703_ChargeCurrent_Eval(I);
+                ^
+../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(48): warning: inline function 'BQ25703_IIN_HOST_Eval' is not defined [-Wundefined-inline]
+extern inline uint16_t BQ25703_IIN_HOST_Eval(uint16_t I);//arg in mA
+                       ^
+../acc/DRIVERBQ25703.c(141): note: used here
+        uint16_t data16=BQ25703_IIN_HOST_Eval(I);
+                        ^
+../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(50): warning: inline function 'BQ25703_IBAT_CH' is not defined [-Wundefined-inline]
+extern inline uint16_t BQ25703_IBAT_CH(uint16_t data16);//in mA
+                       ^
+../acc/DRIVERBQ25703.c(208): note: used here
+                *Ich=BQ25703_IBAT_CH(data16);
+                     ^
+../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(51): warning: inline function 'BQ25703_IBAT_DCH' is not defined [-Wundefined-inline]
+extern inline uint16_t BQ25703_IBAT_DCH(uint16_t data16);//in mA
+                       ^
+../acc/DRIVERBQ25703.c(209): note: used here
+                *Idch=BQ25703_IBAT_DCH(data16);
+                      ^
+../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(52): warning: inline function 'BQ25703_VSYS' is not defined [-Wundefined-inline]
+extern inline uint16_t BQ25703_VSYS(uint16_t data16);//V, mV
+                       ^
+../acc/DRIVERBQ25703.c(221): note: used here
+                *Vsys=BQ25703_VSYS(data16);
+                      ^
+../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(53): warning: inline function 'BQ25703_VBAT' is not defined [-Wundefined-inline]
+extern inline uint16_t BQ25703_VBAT(uint16_t data16);//V, mV 
+                       ^
+../acc/DRIVERBQ25703.c(222): note: used here
+                *Vbat=BQ25703_VBAT(data16);
+                      ^
+7 warnings generated.
+compiling DRIVERBQ25703.c...
+compiling DriverTPS65982_6.c...
+compiling mainFSM.c...
+../acc/i2c_API.c(2): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+                #pragma anon_unions                                                     // Allow anonymous unions
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
+                        ^
+7 warnings generated.
+compiling i2c_API.c...
+../acc/i2c1.c(1): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+                #pragma anon_unions                                                     // Allow anonymous unions
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
+                        ^
+7 warnings generated.
+compiling i2c1.c...
+compiling regBQ25703A.c...
+../acc/I2C_COMMON.c(15): warning: expression result unused [-Wunused-value]
+        a;
+        ^
+1 warning generated.
+compiling I2C_COMMON.c...
+../acc/superloop_ACC.c(32): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+                #pragma anon_unions                                                     // Allow anonymous unions
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
+                        ^
+7 warnings generated.
+compiling superloop_ACC.c...
+../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+                #pragma anon_unions                                                     // Allow anonymous unions
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
+                        ^
+../PowerModes/board_PowerModes.c(309): warning: while loop has empty body [-Wempty-body]
+                                while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state_new]));
+                                                                                                                                                    ^
+../PowerModes/board_PowerModes.c(309): note: put the semicolon on a separate line to silence this warning
+../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(6): warning: In file included from...../Player\SuperLoop_Player.h(13): warning: inline function 'SLPl_GetPowerState' is not defined [-Wundefined-inline]
+extern __inline e_PowerState SLPl_GetPowerState(void);
+                             ^
+../PowerModes/board_PowerModes.c(85): note: used here
+                rplayer=        SLPl_GetPowerState();
+                                ^
+../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(16): warning: inline function 'SLD_GetPowerState' is not defined [-Wundefined-inline]
+extern __inline e_PowerState SLD_GetPowerState(void);
+                             ^
+../PowerModes/board_PowerModes.c(86): note: used here
+                rdispl=         SLD_GetPowerState();
+                                ^
+../PowerModes/board_PowerModes.c(6): warning: In file included from...../acc\superloop.h(21): warning: inline function 'SLAcc_GetPowerState' is not defined [-Wundefined-inline]
+extern __inline e_PowerState SLAcc_GetPowerState(void);
+                             ^
+../PowerModes/board_PowerModes.c(87): note: used here
+                racc=                   SLAcc_GetPowerState();
+                                        ^
+../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(6): warning: In file included from...../Player\SuperLoop_Player.h(14): warning: inline function 'SLPl_SetSleepState' is not defined [-Wundefined-inline]
+extern __inline e_PowerState SLPl_SetSleepState(bool state);
+                             ^
+../PowerModes/board_PowerModes.c(95): note: used here
+                                                SLPl_SetSleepState(true);
+                                                ^
+../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(17): warning: inline function 'SLD_SetSleepState' is not defined [-Wundefined-inline]
+extern __inline e_PowerState SLD_SetSleepState(bool state);
+                             ^
+../PowerModes/board_PowerModes.c(96): note: used here
+                                                SLD_SetSleepState(true);
+                                                ^
+../PowerModes/board_PowerModes.c(6): warning: In file included from...../acc\superloop.h(22): warning: inline function 'SLAcc_SetSleepState' is not defined [-Wundefined-inline]
+extern __inline e_PowerState SLAcc_SetSleepState(bool state);
+                             ^
+../PowerModes/board_PowerModes.c(97): note: used here
+                                                SLAcc_SetSleepState(true);
+                                                ^
+14 warnings generated.
+compiling board_PowerModes.c...
+../CommModbus/SL_CommModbus.c(2): warning: In file included from...../CommModbus/SL_CommModbus.h(5): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
+                #pragma anon_unions                                                     // Allow anonymous unions
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
+                        ^
+../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
+                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
+                        ^
+7 warnings generated.
+compiling SL_CommModbus.c...
 ../ugfx_2.9/src/gfx_mk.c(14): warning: In file included from...../ugfx_2.9/src/gfx.c(16): warning: In file included from...../ugfx_2.9/src/../gfx.h(7): warning: In file included from...../ugfx_2.9/src/gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
                         ^
@@ -339,18 +453,6 @@ compiling Spi1.c...
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../ugfx_2.9/src/gfx_mk.c(14): warning: In file included from...../ugfx_2.9/src/gfx.c(16): warning: In file included from...../ugfx_2.9/src/gdisp/../../gfx.h(7): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../ugfx_2.9/src/gfx_mk.c(14): warning: In file included from...../ugfx_2.9/src/gfx.c(16): warning: In file included from...../ugfx_2.9/src/gwin/../../gfx.h(7): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
 ../ugfx_2.9/src/gfx_mk.c(15): warning: In file included from...../ugfx_2.9/src/gos/gos_mk.c(14): warning: In file included from...../ugfx_2.9/src/gos/gos_raw32.c(30): warning: "GOS: Raw32 - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!" [-W#warnings]
                         #warning "GOS: Raw32 - Make sure you initialize your hardware and the C runtime before calling gfxInit() in your application!"
                          ^
@@ -480,436 +582,23 @@ typedef const struct GDriverVMT const   GDriverVMTList[1];
 ../ugfx_2.9/src/ginput/ginput_driver_mouse.h(95): note: expanded from macro 'gmvmt'
 #define gmvmt(m)                ((const GMouseVMT const *)((m)->d.vmt))
                                                   ^
-33 warnings generated.
+31 warnings generated.
 compiling gfx_mk.c...
-../Communications/SuperLoop_Comm.c(2): warning: In file included from...../Communications/SuperLoop_Comm.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../Communications/SuperLoop_Comm.c(2): warning: In file included from...../Communications/SuperLoop_Comm.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../Communications/SuperLoop_Comm.c(2): warning: In file included from...../Communications/SuperLoop_Comm.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../Communications/SuperLoop_Comm.c(2): warning: In file included from...../Communications/SuperLoop_Comm.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-../Communications/SuperLoop_Comm.c(164): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                        spi1FifoClr();
-                        ^
-../Communications/SuperLoop_Comm.c(168): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                        spi1FifoClr();
-                        ^
-../Communications/SuperLoop_Comm.c(174): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                spi1FifoClr();
-                ^
-../Communications/SuperLoop_Comm.c(180): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                spi1FifoClr();
-                ^
-../Communications/SuperLoop_Comm.c(220): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                        spi1FifoClr();
-                        ^
-../Communications/SuperLoop_Comm.c(225): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                spi1FifoClr();
-                ^
-../Communications/SuperLoop_Comm.c(237): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                spi1FifoClr();
-                ^
-../Communications/SuperLoop_Comm.c(343): warning: implicit declaration of function 'spi1FifoClr' is invalid in C99 [-Wimplicit-function-declaration]
-                                spi1FifoClr();
-                                ^
-18 warnings generated.
-compiling SuperLoop_Comm.c...
-../W25QXX/MainSpiFlash.c(8): warning: In file included from...../W25QXX/at25sf321.c(1): warning: In file included from...../W25QXX/w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../W25QXX/MainSpiFlash.c(8): warning: In file included from...../W25QXX/at25sf321.c(1): warning: In file included from...../W25QXX/w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../W25QXX/MainSpiFlash.c(8): warning: In file included from...../W25QXX/at25sf321.c(1): warning: In file included from...../W25QXX/w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../W25QXX/MainSpiFlash.c(8): warning: In file included from...../W25QXX/at25sf321.c(1): warning: In file included from...../W25QXX/w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
-compiling MainSpiFlash.c...
-compiling battery.c...
-../Player/SuperLoop_Player.c(9): warning: In file included from...../DriversCommon\Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../Player/SuperLoop_Player.c(9): warning: In file included from...../DriversCommon\Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../Player/SuperLoop_Player.c(9): warning: In file included from...../DriversCommon\Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../Player/SuperLoop_Player.c(9): warning: In file included from...../DriversCommon\Spi1.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-../Player/SuperLoop_Player.c(306): warning: control reaches end of non-void function [-Wreturn-type]
-}
-^
-../Player/SuperLoop_Player.c(366): warning: array index 6 is past the end of the array (which contains 6 elements) [-Warray-bounds]
-        tempArr[6]=freq/1000000U;
-        ^       ~
-../Player/SuperLoop_Player.c(363): note: array 'tempArr' declared here
-        uint8_t tempArr[6];
-        ^
-12 warnings generated.
-compiling SuperLoop_Player.c...
-compiling DriverBQ28z610.c...
-../acc/DRIVERBQ25703.c(175): warning: enumeration value 'e_DR703_NoS' not handled in switch [-Wswitch]
-        switch (mode)
-                ^
-../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(45): warning: inline function 'BQ25703_ChargeCurrent_Eval' is not defined [-Wundefined-inline]
-extern inline uint16_t BQ25703_ChargeCurrent_Eval(uint16_t I);//arg in mA
-                       ^
-../acc/DRIVERBQ25703.c(127): note: used here
-uint16_t data16=BQ25703_ChargeCurrent_Eval(I);
-                ^
-../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(48): warning: inline function 'BQ25703_IIN_HOST_Eval' is not defined [-Wundefined-inline]
-extern inline uint16_t BQ25703_IIN_HOST_Eval(uint16_t I);//arg in mA
-                       ^
-../acc/DRIVERBQ25703.c(141): note: used here
-        uint16_t data16=BQ25703_IIN_HOST_Eval(I);
-                        ^
-../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(50): warning: inline function 'BQ25703_IBAT_CH' is not defined [-Wundefined-inline]
-extern inline uint16_t BQ25703_IBAT_CH(uint16_t data16);//in mA
-                       ^
-../acc/DRIVERBQ25703.c(208): note: used here
-                *Ich=BQ25703_IBAT_CH(data16);
-                     ^
-../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(51): warning: inline function 'BQ25703_IBAT_DCH' is not defined [-Wundefined-inline]
-extern inline uint16_t BQ25703_IBAT_DCH(uint16_t data16);//in mA
-                       ^
-../acc/DRIVERBQ25703.c(209): note: used here
-                *Idch=BQ25703_IBAT_DCH(data16);
-                      ^
-../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(52): warning: inline function 'BQ25703_VSYS' is not defined [-Wundefined-inline]
-extern inline uint16_t BQ25703_VSYS(uint16_t data16);//V, mV
-                       ^
-../acc/DRIVERBQ25703.c(221): note: used here
-                *Vsys=BQ25703_VSYS(data16);
-                      ^
-../acc/DRIVERBQ25703.c(7): warning: In file included from...../acc/DriverBQ25703.h(12): warning: In file included from...../acc/regBQ25703A.h(53): warning: inline function 'BQ25703_VBAT' is not defined [-Wundefined-inline]
-extern inline uint16_t BQ25703_VBAT(uint16_t data16);//V, mV 
-                       ^
-../acc/DRIVERBQ25703.c(222): note: used here
-                *Vbat=BQ25703_VBAT(data16);
-                      ^
-7 warnings generated.
-compiling DRIVERBQ25703.c...
-compiling DriverTPS65982_6.c...
-../acc/i2c_API.c(2): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../acc/i2c_API.c(2): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../acc/i2c_API.c(2): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../acc/i2c_API.c(2): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
-compiling i2c_API.c...
-compiling mainFSM.c...
-../acc/i2c1.c(1): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../acc/i2c1.c(1): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../acc/i2c1.c(1): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../acc/i2c1.c(1): warning: In file included from...../acc/I2C1.h(4): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
-compiling i2c1.c...
-compiling regBQ25703A.c...
-../acc/superloop_ACC.c(32): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../acc/superloop_ACC.c(32): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../acc/superloop_ACC.c(32): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../acc/superloop_ACC.c(32): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
-compiling superloop_ACC.c...
-../acc/I2C_COMMON.c(15): warning: expression result unused [-Wunused-value]
-        a;
-        ^
-1 warning generated.
-compiling I2C_COMMON.c...
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
-                #pragma anon_unions                                                     // Allow anonymous unions
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(625): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 1293                                        // Turn off warning: assignment in condition
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(626): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 83                                          // Turn off warning: type qualifier specified more than once
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(627): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 767                                         // Turn off warning: conversion from pointer to smaller integer
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(628): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 188                                         // Turn off warning: enumerated type mixed with another type
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(629): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 68                                          // Turn off warning: integer conversion resulted in a change of sign
-                        ^
-../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
-                #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
-                        ^
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(6): warning: In file included from...../Player\superloop_Player.h(8): warning: In file included from...../Communications\SuperLoop_Comm.h(5): warning: In file included from...../W25QXX\w25qxx.h(2): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-../PowerModes/board_PowerModes.c(237): warning: while loop has empty body [-Wempty-body]
-                                while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state_new]));
-                                                                                                                                                    ^
-../PowerModes/board_PowerModes.c(237): note: put the semicolon on a separate line to silence this warning
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(6): warning: In file included from...../Player\SuperLoop_Player.h(13): warning: inline function 'SLPl_GetPowerState' is not defined [-Wundefined-inline]
-extern __inline e_PowerState SLPl_GetPowerState(void);
-                             ^
-../PowerModes/board_PowerModes.c(67): note: used here
-                rplayer=        SLPl_GetPowerState();
-                                ^
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(16): warning: inline function 'SLD_GetPowerState' is not defined [-Wundefined-inline]
-extern __inline e_PowerState SLD_GetPowerState(void);
-                             ^
-../PowerModes/board_PowerModes.c(68): note: used here
-                rdispl=         SLD_GetPowerState();
-                                ^
-../PowerModes/board_PowerModes.c(6): warning: In file included from...../acc\superloop.h(21): warning: inline function 'SLAcc_GetPowerState' is not defined [-Wundefined-inline]
-extern __inline e_PowerState SLAcc_GetPowerState(void);
-                             ^
-../PowerModes/board_PowerModes.c(69): note: used here
-                racc=                   SLAcc_GetPowerState();
-                                        ^
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(6): warning: In file included from...../Player\SuperLoop_Player.h(14): warning: inline function 'SLPl_SetSleepState' is not defined [-Wundefined-inline]
-extern __inline e_PowerState SLPl_SetSleepState(bool state);
-                             ^
-../PowerModes/board_PowerModes.c(77): note: used here
-                                                SLPl_SetSleepState(true);
-                                                ^
-../PowerModes/board_PowerModes.c(4): warning: In file included from...../PowerModes/board_PowerModes.h(5): warning: In file included from...../Display\superloopDisplay.h(17): warning: inline function 'SLD_SetSleepState' is not defined [-Wundefined-inline]
-extern __inline e_PowerState SLD_SetSleepState(bool state);
-                             ^
-../PowerModes/board_PowerModes.c(78): note: used here
-                                                SLD_SetSleepState(true);
-                                                ^
-../PowerModes/board_PowerModes.c(6): warning: In file included from...../acc\superloop.h(22): warning: inline function 'SLAcc_SetSleepState' is not defined [-Wundefined-inline]
-extern __inline e_PowerState SLAcc_SetSleepState(bool state);
-                             ^
-../PowerModes/board_PowerModes.c(79): note: used here
-                                                SLAcc_SetSleepState(true);
-                                                ^
-17 warnings generated.
-compiling board_PowerModes.c...
-compiling SL_CommModbus.c...
-compiling mb.c...
 compiling mbcrc.c...
 compiling mbascii.c...
-compiling mbfuncdiag.c...
+compiling mb.c...
 compiling mbfunccoils.c...
+compiling mbfuncdiag.c...
 compiling mbfuncdisc.c...
-compiling mbfuncinput.c...
 compiling mbfuncholding.c...
-compiling mbfuncother.c...
-compiling mbtcp.c...
-compiling mbrtu.c...
-compiling mbutils.c...
 compiling portevent.c...
-assembling startup_stm32g070xx.s...
+compiling mbtcp.c...
+compiling mbfuncinput.c...
+compiling mbutils.c...
+compiling mbrtu.c...
+compiling mbfuncother.c...
 compiling portserial.c...
-compiling system_stm32g0xx.c...
+compiling porttimer.c...
 ../FreeModbus/tim1.c(3): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src\gfx.h(93): warning: In file included from...../ugfx_2.9/src/gfx_compilers.h(624): warning: '#pragma anon_unions' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-anon-unions]
                 #pragma anon_unions                                                     // Allow anonymous unions
                         ^
@@ -931,29 +620,20 @@ compiling system_stm32g0xx.c...
 ../ugfx_2.9/src/gfx_compilers.h(630): warning: '#pragma diag_remark' is an ARM Compiler 5 extension, and is not supported by ARM Compiler 6 [-Warmcc-pragma-diag]
                 #pragma diag_remark 111                                         // Turn off warning: statement is unreachable
                         ^
-../FreeModbus/tim1.c(3): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(177): warning: In file included from...../ugfx_2.9/src/gdisp/gdisp.h(54): warning: redefinition of typedef 'gPoint' is a C11 feature [-Wtypedef-redefinition]
-} gPoint;
-  ^
-../ugfx_2.9/src/gmisc/gmisc.h(29): note: previous definition is here
-typedef struct gPoint gPoint;
-                      ^
-../FreeModbus/tim1.c(3): warning: In file included from...../User/inc\BoardSetup.h(6): warning: In file included from...../ugfx_2.9/src/gfx.h(178): warning: In file included from...../ugfx_2.9/src/gwin/gwin.h(60): warning: redefinition of typedef 'GHandle' is a C11 feature [-Wtypedef-redefinition]
-} GWindowObject, * GHandle;
-                   ^
-../ugfx_2.9/src/gwin/gwin.h(33): note: previous definition is here
-typedef struct GWindowObject *GHandle;
-                              ^
-../FreeModbus/tim1.c(3): warning: In file included from...../User/inc\BoardSetup.h(80): warning: redefinition of typedef 'systemticks_t' is a C11 feature [-Wtypedef-redefinition]
-typedef uint32_t systemticks_t;
-                 ^
-../ugfx_2.9/src/gos/gos.h(504): note: previous definition is here
-        typedef gTicks                  systemticks_t;
-                                        ^
-10 warnings generated.
+7 warnings generated.
 compiling tim1.c...
-compiling porttimer.c...
+compiling spiffs_cache.c...
+assembling startup_stm32g070xx.s...
+compiling spiffs_gc.c...
+compiling spiffs_hydrogen.c...
+compiling spiffs_check.c...
+compiling spiffs.c...
+compiling system_stm32g0xx.c...
+compiling spiffs_nucleus.c...
 linking...
-Program Size: Code=58316 RO-data=6064 RW-data=52 ZI-data=7516  
+.\Objects\gen-g070-release.axf: Warning: L3912W: Option 'legacyalign' is deprecated.
+Program Size: Code=58400 RO-data=6920 RW-data=176 ZI-data=14872  
+Finished: 0 information, 1 warning and 0 error messages.
 FromELF: creating hex file...
-".\Objects\gen-g070-release.axf" - 0 Error(s), 216 Warning(s).
-Build Time Elapsed:  00:00:03
+".\Objects\gen-g070-release.axf" - 0 Error(s), 154 Warning(s).
+Build Time Elapsed:  00:00:06

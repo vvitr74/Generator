@@ -1,4 +1,5 @@
 #include "Spi1.h"
+#include "gfx.h"
 
 uint32_t txallowed = 1U;
 extern uint8_t spiDispCapture;

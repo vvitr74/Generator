@@ -1,5 +1,6 @@
 #include "Spi1.h"
 #include "gfx.h"
+#include "GlobalKey.h"
 
 uint32_t txallowed = 1U;
 extern uint8_t spiDispCapture;
@@ -80,6 +81,7 @@ void spi_cs_on()
 	  while (SPI1->SR & SPI_SR_BSY){}
     while(spiDispCapture)
     {
+			  Error("spi_cs_on spiDispCapture");
         gfxYield();
     }
     

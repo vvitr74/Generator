@@ -154,13 +154,16 @@ int SLD(void)
 			break;
 		case SLD_FSM_PopulateList:	
 			  bListUpdate=false;
- 
-   		rstatel=fileListRead();
+//      do
+			{
+				rstatel=fileListRead();
 		    if (e_FRS_Done==rstatel)
 					gwinListAddItem(ghList1, (char*)filename, gTrue);	
 		    if (e_FRS_DoneError==rstatel)
 					 state_inner=SLD_FSM_On;	
 				  gfxSleepMilliseconds(10); 
+			}
+//				while (e_FRS_DoneError!=rstatel);
         break;	
 		case SLD_FSM_OffTransition: 
       	SLD_DisplDeInit();               //off transition
@@ -445,7 +448,7 @@ e_FunctionReturnState fileListRead(void)
 		    gwinListDeleteAll(ghList1);
 		    gfxSleepMilliseconds(10);
   			//gwinListAddItem(ghList1, "_1.txt", gTrue);///RDD debug
-	      gfxSleepMilliseconds(10);
+	     // gfxSleepMilliseconds(1);
 		
 			File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);
 		  fileCount=0;
@@ -455,16 +458,17 @@ e_FunctionReturnState fileListRead(void)
 		  break;
 		case 1: 
       while(1)
-      {	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, 19);
+      {	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, 22);
 				if (bytesCount<1)
 				{	FSM_fileListUpdate_state=101;
 					break;
 				}
 				else					
-				{ for(i=0;i<bytesCount;i++)
-					  if (13==byteBuff[i]) break;
-					  offset+=i+1;
-					SPIFFS_lseek(&fs, File_List,offset,SPIFFS_SEEK_SET);
+				{ 
+//				    for(i=0;i<bytesCount;i++)
+//					  if (13==byteBuff[i]) break;
+//					  offset+=i+1;
+//					SPIFFS_lseek(&fs, File_List,offset,SPIFFS_SEEK_SET);
 					_sscanf( byteBuff,"%18s",filename);
 					if (0<strlen(byteBuff))
 					{		fileCount++;

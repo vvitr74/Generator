@@ -444,7 +444,7 @@ e_FunctionReturnState fileListRead(void)
 			  gfxSleepMilliseconds(10);
 		    gwinListDeleteAll(ghList1);
 		    gfxSleepMilliseconds(10);
-  			gwinListAddItem(ghList1, "_1.txt", gTrue);
+  			//gwinListAddItem(ghList1, "_1.txt", gTrue);///RDD debug
 	      gfxSleepMilliseconds(10);
 		
 			File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);

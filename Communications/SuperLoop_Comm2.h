@@ -4,16 +4,16 @@
 #include "board_PowerModes.h"
 #include "spiffs.h"
 
-extern void SLC_init(void);
-extern void SLC(void);
+void SLC_init(void);
+void SLC(void);
 
 
-extern __inline e_PowerState SLC_GetPowerState(void);
-extern __inline e_PowerState SLC_SetSleepState(bool state);
-extern __inline bool SLC_SPIFFS_State(void);
+e_PowerState SLC_GetPowerState(void);
+e_PowerState SLC_SetSleepState(bool state);
+bool SLC_SPIFFS_State(void);
 
-extern void Communication_InSleep();
-extern void Communication_OutSleep();
+void Communication_InSleep();
+void Communication_OutSleep();
 
 extern spiffs fs;
 

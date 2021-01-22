@@ -150,7 +150,7 @@ e_FunctionReturnState BQ25703_IIN_Check(uint16_t I)
 }
 
 
-extern e_FunctionReturnState BQ25703_SetBits_Check(bq25703Registers reg, uint16_t set, uint16_t reset)
+e_FunctionReturnState BQ25703_SetBits_Check(bq25703Registers reg, uint16_t set, uint16_t reset)
 {
 	e_FunctionReturnState wrstate;
 	static uint16_t data16;
@@ -168,7 +168,7 @@ extern e_FunctionReturnState BQ25703_SetBits_Check(bq25703Registers reg, uint16_
 }
 
 
-extern e_FunctionReturnState BQ25703_SetMode_Check(t_eDR703_mode mode)
+e_FunctionReturnState BQ25703_SetMode_Check(t_eDR703_mode mode)
 {
 	e_FunctionReturnState wrstate;
 	static uint16_t data16;
@@ -186,6 +186,8 @@ extern e_FunctionReturnState BQ25703_SetMode_Check(t_eDR703_mode mode)
 	case e_DR703_Work:
 		 data16=(bq25703InitData[ChargeOption0].data)&(~(0x8001));
 		 break;
+    case e_DR703_NoS:
+        return e_FRS_Idle;
 	}
 	wrstate=BQ25703_Wr_Check(       bq25703,
 								bq25703InitData[ChargeOption0].I2cRecord,

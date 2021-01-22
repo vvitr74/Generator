@@ -305,8 +305,10 @@ e_FunctionReturnState  MainTransition_Po(uint8_t NEW)
 {
 	      uint8_t inner_PWR_state_new	= inner_PWR_state_encoder[NEW];
 	      uint8_t inner_PWR_state			= inner_PWR_state_encoder[PWR_STATE];
-				while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state]));
-				while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state_new]));
+				while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state]))
+                {}
+				while (e_FRS_Done!=FSM_MainTransition_P(&FDMD_Power, PWR2_TransitionKeys[inner_PWR_state_new][inner_PWR_state_new]))
+                {}
 	      return e_FRS_Done;
 };
 

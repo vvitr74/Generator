@@ -13,9 +13,9 @@ extern uint8_t spiDispCapture;
 extern GHandle	ghList1, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
 
 // for PowerControl
-extern __inline e_PowerState SLD_GetPowerState(void);
-extern __inline e_PowerState SLD_SetSleepState(bool state);
-extern __inline bool SLD_PWRState(void);
+e_PowerState SLD_GetPowerState(void);
+e_PowerState SLD_SetSleepState(bool state);
+bool SLD_PWRState(void);
 
 
 //For main

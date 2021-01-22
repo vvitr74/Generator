@@ -438,7 +438,7 @@ void getFreq(uint16_t fileSect)
 
 uint32_t freqInverse(uint32_t freq)
 {
-	uint8_t tempArr[6];
+	uint8_t tempArr[7] = {0};
 	uint32_t remain;
 	
 	tempArr[6]=freq/1000000U;

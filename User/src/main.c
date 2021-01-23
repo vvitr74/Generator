@@ -29,6 +29,7 @@
 #include "tim3.h"
 #endif
 
+#include "fs.h"
 
 #ifdef RELEASE
 #define APPLICATION_ADDRESS (uint32_t)0x08001800 /**  offset start address */
@@ -52,6 +53,18 @@ void _sys_command_string(char *cmd, int len)
 
 #endif
 
+/**
+* Calls when freq.pls writing is done
+*/
+void on_playlist_write_done()
+{
+	GPIOB->BSRR = GPIO_BSRR_BS10;
+    delay_ms(100);
+    GPIOB->BSRR = GPIO_BSRR_BR10;
+    delay_ms(100);
+    GPIOB->BSRR = GPIO_BSRR_BS10;
+}
+
 int main(void)
 {
 #ifdef RELEASE
@@ -59,6 +72,8 @@ int main(void)
     SCB->VTOR = APPLICATION_ADDRESS;
     __enable_irq();
 #endif    
+    
+    spiffs_on_write_playlist_done(on_playlist_write_done);
     
 #ifdef debug1	
 __disable_irq();	

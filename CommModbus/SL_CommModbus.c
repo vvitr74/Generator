@@ -52,15 +52,18 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
     
     if (eMode == MB_REG_WRITE)
     {
-        if (usAddress == ERASE_ALL_START_COIL)
+        if (usAddress == (ERASE_ALL_START_COIL+1))
         {
             return spiffs_erase_all();
         }
         
-        if (usAddress == ERASE_FN_EXT_START_COIL &&
+        if (usAddress == (ERASE_FN_EXT_START_COIL+1) &&
             erase_fn_ext_reg[0] != 0)
         {
-            return spiffs_erase_by_ext((const char*)erase_fn_ext_reg);
+            int res = spiffs_erase_by_ext((const char*)erase_fn_ext_reg);
+            memset(erase_fn_ext_reg,0,sizeof(erase_fn_ext_reg));
+            
+            return res;
         }
     }        
     return MB_ENOREG;
@@ -128,18 +131,21 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
     USBcommLastTime=SystemTicks;
     
     if (eMode == MB_REG_WRITE && 
-        (usAddress == ERASE_FN_EXT_REG0 || usAddress == ERASE_FN_EXT_REG1))
+        (usAddress == (ERASE_FN_EXT_REG0+1) || usAddress == (ERASE_FN_EXT_REG1+1)))
     {
-        uint8_t offset = (usAddress - ERASE_FN_EXT_REG0)<<1;
-        if ((offset + (usNRegs << 1)) > sizeof(erase_fn_ext_reg))
+        uint8_t offset = (usAddress - (ERASE_FN_EXT_REG0+1))<<1;
+        if ((offset + (usNRegs<<1)) > sizeof(erase_fn_ext_reg))
         {
             return MB_EINVAL;
         }
         
-        for(uint8_t iter = 0; iter < (usNRegs << 1); iter++)
+        for(uint8_t iter = 0; iter < usNRegs; iter++)
         {
-            erase_fn_ext_reg[offset+iter] = pucRegBuffer[iter];
+            erase_fn_ext_reg[offset+ (iter<<1) ] = pucRegBuffer[1 + (iter << 1)];
+            erase_fn_ext_reg[offset + (iter<<1) + 1 ] = pucRegBuffer[iter << 1];
         }
+        
+        return MB_ENOERR;
     }   
     
     return MB_ENOREG;

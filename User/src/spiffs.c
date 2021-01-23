@@ -77,7 +77,8 @@ static s32_t wait_done(uint16_t time)
 
 static void set_write_ena()
 {
-     while(1)
+    uint32_t timeout = 0;
+    while(1)
     {
         uint8_t status = get_status();
         
@@ -91,8 +92,13 @@ static void set_write_ena()
         {
             return;
         }
-        
-        
+              
+        timeout += 1;
+        if(timeout > W25_ERASE_TIMEOUT)
+        {
+            return;
+        }
+    
         spi_cs_on();
         spi_transfer(W25_WRITE_ENA_CMD);
         spi_cs_off();
@@ -305,18 +311,18 @@ int spiffs_erase_by_ext(const char* ext)
     spiffs_DIR d;
     struct spiffs_dirent e;
     struct spiffs_dirent *pe = &e;
-    int res;
+    int res = 0;
 
     SPIFFS_opendir(&fs, "/", &d);
     while ((pe = SPIFFS_readdir(&d, pe)))
     {
-        char* ext = strchr((const char*)pe->name,'.');
-        if(ext == NULL)
+        char* fext = strchr((const char*)pe->name,'.');
+        if(fext == NULL)
         {
             continue;
         }
             
-        if (strncmp(ext, (char *)pe->name+1, strlen(ext)) == 0) 
+        if (strncmp(fext+1, ext, strlen(fext)-1) == 0) 
         {
             if (SPIFFS_remove(&fs, (char *)pe->name) < 0)
             {
@@ -445,11 +451,13 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf)); 
     
-    if (res == 0 && last_item &&
-        playlist_write_done_cb != NULL &&
-        strncpy(fname,"freq.pls",fname_len) == 0)
+    if (res == 0 && last_item)
     {
-        playlist_write_done_cb();
+        if(playlist_write_done_cb != NULL &&
+            strncmp(fname,"freq.pls",fname_len) == 0)
+        {
+            playlist_write_done_cb();
+        }
     }
     
     return res;

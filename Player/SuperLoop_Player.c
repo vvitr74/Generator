@@ -5,7 +5,7 @@
 \todo on/off PWR
 
 */
-
+#include "I2C_COMMON.h"
 #include "GlobalKey.h"
 #include "Spi1.h"
 #include "SuperLoop_Player.h"
@@ -13,6 +13,7 @@
 #include "BoardSetup.h"
 #include "spiffs.h"
 #include "SuperLoop_Comm2.h"
+
 
 
 uint16_t SLPl_ui16_NumOffiles;///\todo global variable one time initialiseted
@@ -309,69 +310,130 @@ void timeToString(uint8_t* timeArr)
     timeArr[9] = 0;
 }
 
+
+#define D_ParamStringLength 40
 s32_t freq_file,File_List;
+static	uint8_t n_for_CR;
+static	char tempArrOld[D_ParamStringLength+1];
+static  char filename[D_FileNameLength+1];
+static int8_t bytesCount;
 
-void getControlParam(uint16_t fileSect)
+e_FunctionReturnState getFileName(uint16_t fileSectl)
 {
-	uint8_t temp;
-	uint8_t tempArr[6];
-	uint16_t byteCnt=0;
-	uint8_t strCnt=0;
-	uint8_t chrCnt=0;
-	uint32_t startAddr=fileSect*D_FileNameLength;
-
-	int32_t read_res;
-
-	char filename[D_FileNameLength+1];
-	
+	uint32_t startAddr;
+	e_FunctionReturnState rstate=e_FRS_Done;
+  //int8_t bytesCount;
 	char byteBuff[D_FileNameLength+1];
-	int8_t bytesCount;
-  uint32_t i;	
-	static uint32_t offset;
-
+	
+	startAddr=fileSectl*D_FileNameLength;
 	
 	File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);/// \todo one time open
   SPIFFS_lseek(&fs, File_List,startAddr,SPIFFS_SEEK_SET);
 	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, D_FileNameLength);
-//	if (bytesCount<1)
-//	{	FSM_fileListUpdate_state=101;
-//	}
+	if (bytesCount<1)
+	{	rstate=e_FRS_DoneError;
+	}
+	byteBuff[bytesCount]=0;
 	_sscanf( byteBuff,"%18s",filename);
 	SPIFFS_close(&fs, File_List); /// \todo one time close
+	return rstate;
+}
+
+e_FunctionReturnState getControlParam(void)
+{
+	e_FunctionReturnState rstate=e_FRS_Done;
+	uint8_t strCnt=0;
+	int32_t TempParam;
+
+	char *pch; 
+
+	char byteBuff[D_ParamStringLength+1];
+	
+	
+
+	n_for_CR=0;
+	tempArrOld[0]=0;
   
-	freq_file=SPIFFS_open(&fs, filename, SPIFFS_O_RDONLY, 0);
-	
-	do{																							//skip first line	
-		//W25qxx_ReadByte(&temp,startAddr+byteCnt);
-		if (1>SPIFFS_read(&fs, freq_file, &temp, 1))
-			break;
-		byteCnt++;
-	}while(temp!='\n');
-	
-	for(int i=0;i<playParamArr_size;i++) {playParamArr[i]=0;}
-	
-	while(strCnt<playParamArr_size)
-	{																//fill an array of parameters
-		//W25qxx_ReadByte(&temp,startAddr+byteCnt);
-			if (1>SPIFFS_read(&fs, freq_file, &temp, 1))
-  	break;
-		byteCnt++;
-		if((temp>='0')&&(temp<='9')){
-			tempArr[chrCnt]=temp; /** \todo check array overflow */
-			chrCnt++;
-			continue;
-		}
-		if(temp=='\n'){
-			for(int i=0;i<chrCnt;i++){
-				playParamArr[strCnt]+=(uint32_t)(tempArr[i]&0x0F)*(uint32_t)powf(10,chrCnt-1-i);
-				tempArr[i]=0;
-			}
-			chrCnt=0;
-			strCnt++;
-			continue;
-		}
+		
+	do
+	{    
+    		bytesCount=SPIFFS_read(&fs, freq_file, &byteBuff, D_ParamStringLength-n_for_CR);
+				if (bytesCount<0)
+				{	rstate=e_FRS_DoneError;
+					break;
+				}
+				byteBuff[bytesCount]=0;
+				strcat(tempArrOld,byteBuff);
+				if (strCnt>0)
+				{
+					pch = strchr(tempArrOld,',');	
+					if (NULL==pch)
+	  			{	rstate=e_FRS_DoneError;
+		  			break;
+			  	}
+					_sscanf( pch+1,"%i",&TempParam);
+					playParamArr[strCnt-1]=TempParam;
+				};	
+        pch = strchr(tempArrOld,13);
+				if (NULL==pch)
+				{	rstate=e_FRS_DoneError;
+					break;
+				}	
+				strcpy(tempArrOld,pch+1);	
+				n_for_CR= strlen(tempArrOld);
+				strCnt++;
+	}				
+	while (strCnt<=playParamArr_size);	
+return rstate;
+}
+
+e_FunctionReturnState getFreq()
+{
+	int32_t TempParam;
+	e_FunctionReturnState rstate=e_FRS_DoneError;
+	char *pch; 
+	int8_t bytesCount;
+	char byteBuff[D_ParamStringLength+1];
+	uint8_t index=0;
+	for(int i=0;i<100;i++){
+		playFreqArr_1[i]=0;
+		playFreqArr_2[i]=0;
 	}
-	freqStartByte=byteCnt;
+	
+	
+		do
+	{    
+    		bytesCount=SPIFFS_read(&fs, freq_file, &byteBuff, D_ParamStringLength-n_for_CR);
+				if (bytesCount<0)
+				{	rstate=e_FRS_DoneError;
+					break;
+				}
+				byteBuff[bytesCount]=0;
+				strcat(tempArrOld,byteBuff);
+				bytesCount=_sscanf( tempArrOld,"%i",&TempParam);
+				if (bytesCount<1)
+				{	break;
+				}
+				
+				
+				rstate=e_FRS_Done;
+				
+				if (0==(index&1))
+					playFreqArr_1[index>>1]=TempParam;
+				else
+					playFreqArr_2[index>>1]=TempParam;
+				
+        pch = strchr(tempArrOld,13);
+					if (NULL==pch)
+					{rstate=e_FRS_DoneError;
+						 break;
+					}	
+				strcpy(tempArrOld,pch+1);		
+				n_for_CR= strlen(tempArrOld);
+				index++;
+	}				
+	while (index<=200);			
+return rstate;
 }
 
 int verifyControlParam(void)
@@ -380,65 +442,31 @@ int verifyControlParam(void)
 	return 0;
 }
 
-void getFreq(uint16_t fileSect)
-{
-	uint8_t temp;
-	uint8_t tempArr[7];
-	uint16_t byteCnt=0;
-	uint8_t strCnt=0;
-	uint8_t chrCnt=0;
-//	uint32_t startAddr=fileSect*SECTOR_SIZE;
-	uint8_t even=0;
-	uint8_t index_1=0;
-	uint8_t	index_2=0;
-	
-	for(int i=0;i<100;i++){
-		playFreqArr_1[i]=0;
-		playFreqArr_2[i]=0;
-	}
-	
-	while(strCnt<playParamArr[0])
-	{									//fill an array of frequencies
-		//W25qxx_ReadByte(&temp,freqStartByte+byteCnt);
-		if (1>SPIFFS_read(&fs, freq_file, &temp, 1))
-			break;
-
-		byteCnt++;
-		if((temp>='0')&&(temp<='9'))
-		{
-			tempArr[chrCnt]=temp;
-			chrCnt++;
-		}
-		if(temp=='\n')
-		{
-				switch(even){
-					case 0:									//odd position
-						for(int i=0;i<chrCnt;i++){
-							playFreqArr_1[index_1]+=(uint32_t)(tempArr[i]&0x0F)*(uint32_t)powf(10,chrCnt-1-i);
-							tempArr[i]=0;
-						}
-						index_1++;
-						even=1;
-						break;
-					case 1:									//even position
-						for(int i=0;i<chrCnt;i++){
-							playFreqArr_2[index_2]+=(uint32_t)(tempArr[i]&0x0F)*(uint32_t)powf(10,chrCnt-1-i);
-							tempArr[i]=0;
-						}
-						index_2++;
-						even=0;
-						break;
-					default:
-						break;
-					}
-			chrCnt=0;
-			strCnt++;
-		}
-	}
-	frstChMult=((float)playParamArr[7]/10)*(FPGA_GAIN/index_1);
-	scndChMult=((float)playParamArr[7]/10)*(FPGA_GAIN/index_2);
+e_FunctionReturnState LoadParam(uint16_t fileSectl)
+{  
+	e_FunctionReturnState rstate;
+	getFileName(fileSectl);
+	freq_file=SPIFFS_open(&fs, filename, SPIFFS_O_RDONLY, 0);
+	rstate=getControlParam();
 	SPIFFS_close(&fs, freq_file);
-}
+	return rstate;
+};
+
+e_FunctionReturnState LoadParmFreq(uint16_t fileSectl)
+{ 
+	e_FunctionReturnState rstate;
+	getFileName(fileSectl);
+	freq_file=SPIFFS_open(&fs, filename, SPIFFS_O_RDONLY, 0);
+	rstate=getControlParam();
+	if (!rstate)
+	   rstate=getFreq();
+	SPIFFS_close(&fs, freq_file);
+	return rstate;
+};
+
+
+
+
 
 uint32_t freqInverse(uint32_t freq)
 {
@@ -681,11 +709,11 @@ void setTotalTimer(void)
 	
 	for(int i=0;i<SLPl_ui16_NumOffiles;i++){
 			{
-			getControlParam(i);
+			LoadParam(i);
 			time+=(playParamArr[1]-playParamArr[2]+1)*playParamArr[3];
-			playParamArr[1]=0;
+			playParamArr[1]=0;playParamArr[2]=0;
 			playParamArr[3]=0;
-		}
+		  }
 	}
 	SecToHhMmSs(time);
 	totalHour=timeArr[0];
@@ -873,9 +901,7 @@ void SLP(void)
 				playFileSector=playFileInList;
 				playFileSectorBegin=playFileSector;
 				setTotalTimer();
-				getControlParam(playFileSector);
-				verifyControlParam();
-				getFreq(playFileSector);
+				LoadParmFreq(playFileSector);
 				setFileTimer();
 				setInitFreq();
 				loadFreqToFpga();
@@ -911,9 +937,7 @@ void SLP(void)
 						playFileInList=playFileSector;
 						if(playFileSector==playFileSectorBegin)
 							setTotalTimer();
-						getControlParam(playFileSector);
-						verifyControlParam();
-						getFreq(playFileSector);
+						LoadParmFreq(playFileSector);
 						setFileTimer();
 						setInitFreq();
 						loadFreqToFpga();
@@ -926,9 +950,7 @@ void SLP(void)
 						if(playFileSector==playFileSectorBegin)
 							setTotalTimer();
 //						setTotalTimer();
-						getControlParam(playFileSector);
-						verifyControlParam();
-						getFreq(playFileSector);
+						LoadParmFreq(playFileSector);
 						setFileTimer();
 						setInitFreq();
 						loadFreqToFpga();

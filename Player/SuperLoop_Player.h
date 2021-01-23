@@ -7,6 +7,7 @@
 #include "PowerModes_Defs.h"
 #include "SuperLoop_Comm.h"
 #include "superloopDisplay.h"
+#include "I2C_COMMON1.h"
 
 
 //for power
@@ -54,37 +55,38 @@ typedef struct {
 
 extern volatile t_fpgaFlags fpgaFlags;
 
-void fpgaConfig(void);
-void getFileList(void);
+//void fpgaConfig(void);
+//void getFileList(void);
 void timeToString(uint8_t* timeArr);
-void getControlParam(uint16_t fileSect);
-int verifyControlParam(void);
-void getFreq(uint16_t fileSect);
-void getFile(uint8_t fid);
+//e_FunctionReturnState getControlParam(uint16_t fileSect);
+//e_FunctionReturnState getFreq();
+//int verifyControlParam(void);
+//void getFreq(uint16_t fileSect);
+//void getFile(uint8_t fid);
 //void loadDataToFpga(uint16_t fileSect);
 //uint32_t calcFreq(uint32_t val);
-void setInitFreq(void);
-void calcFreq(void);
-void getCrc(void);
-void spi2FifoClr(void);
-void loadMultToFpga(void);
-void loadFreqToFpga(void);
-void startFpga(void);
+//void setInitFreq(void);
+//void calcFreq(void);
+//void getCrc(void);
+//void spi2FifoClr(void);
+//void loadMultToFpga(void);
+//void loadFreqToFpga(void);
+//void startFpga(void);
 
-extern void setTotalTimer(void);
-extern void setFileTimer(void);
+//extern void setTotalTimer(void);
+//extern void setFileTimer(void);
 void getTimers(void);
 extern void SecToHhMmSs(uint32_t timeInSec);
 
 //for SPI2
-void initSpi_2(void);
-void spi2Transmit(uint8_t *pData, uint16_t Size);
-void loadDataToFpga(uint16_t addr);
+//void initSpi_2(void);
+//void spi2Transmit(uint8_t *pData, uint16_t Size);
+//void loadDataToFpga(uint16_t addr);
 
 //for TIM3
 //extern volatile uint32_t playClk;
 void tim3Init(void);
-void delay_ms(uint32_t delayTime);
+//void delay_ms(uint32_t delayTime);
 //uint32_t getTick(void);
 extern volatile uint32_t playClk;
 

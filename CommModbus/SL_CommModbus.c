@@ -5,26 +5,26 @@
 #include "mbport.h"
 #include "tim1.h"
 #include "version.h"
+#include "fs.h"
 
 #define VERSION_MAJOR_REG 0x10
 #define VERSION_MINOR_REG 0x11
 #define VERSION_BUILD_REG 0x12
 
 #define SERIAL_REG 0x30
-#define ERASE_FILENAME_REG 0x38
+#define ERASE_FN_EXT_REG0 0x38
+#define ERASE_FN_EXT_REG1 0x39
+
+#define ERASE_ALL_START_COIL 0x80
+#define ERASE_FN_EXT_START_COIL 0x81
 
 
 #define REG_HOLDING_START   1000
 #define REG_HOLDING_NREGS   5
 
-
 systemticks_t USBcommLastTimel,USBcommLastTime;
-//bool USBcommLastTimeSet;
 
-
-static USHORT   usRegHoldingStart = REG_HOLDING_START;
-static USHORT   usRegHoldingBuf[REG_HOLDING_NREGS];
-
+static uint8_t erase_fn_ext_reg[4]; /**< Erase filename extension */
 
 
 eMBErrorCode eStatus;	
@@ -32,31 +32,43 @@ eMBErrorCode eStatus;
 	
 int SL_CommModbus(void)
 {
-		eMBPoll();
-		task_modbus();		
-		usRegHoldingBuf[0] = mbTick_1sec;
-	  return 0;
-};
+    eMBPoll();
+    task_modbus();		
+	return 0;
+}
+
 int SL_CommModbusInit(void)
 {
-	eStatus = eMBInit( MB_RTU, 0x0A, 0, 15200UL, MB_PAR_NONE );
-  eStatus = eMBEnable();	
-  return 0;
-};
+    eStatus = eMBInit( MB_RTU, 0x0A, 0, 15200UL, MB_PAR_NONE );
+    eStatus = eMBEnable();	
+    return 0;
+}
 
 
 eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
                             USHORT usNCoils, eMBRegisterMode eMode )
 {
-	 USBcommLastTime=SystemTicks;
-//   USBcommLastTimeSet=true;
-
+	USBcommLastTime=SystemTicks;
+    
+    if (eMode == MB_REG_WRITE)
+    {
+        if (usAddress == ERASE_ALL_START_COIL)
+        {
+            return spiffs_erase_all();
+        }
+        
+        if (usAddress == ERASE_FN_EXT_START_COIL &&
+            erase_fn_ext_reg[0] != 0)
+        {
+            return spiffs_erase_by_ext((const char*)erase_fn_ext_reg);
+        }
+    }        
     return MB_ENOREG;
 }
 
 eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 {
-	  USBcommLastTime=SystemTicks;
+	USBcommLastTime=SystemTicks;
  //   USBcommLastTimeSet=true;
 	
     return MB_ENOREG;
@@ -114,40 +126,21 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
                               USHORT usNRegs, eMBRegisterMode eMode )
 {
     USBcommLastTime=SystemTicks;
- //   USBcommLastTimeSet=true;
-	
-	  eMBErrorCode    eStatus = MB_ENOERR;
-    int             iRegIndex;
-
-    if( ( usAddress >= REG_HOLDING_START ) &&
-        ( usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS ) )
+    
+    if (eMode == MB_REG_WRITE && 
+        (usAddress == ERASE_FN_EXT_REG0 || usAddress == ERASE_FN_EXT_REG1))
     {
-        iRegIndex = ( int )( usAddress - usRegHoldingStart );
-        switch ( eMode )
+        uint8_t offset = (usAddress - ERASE_FN_EXT_REG0)<<1;
+        if ((offset + (usNRegs << 1)) > sizeof(erase_fn_ext_reg))
         {
-        case MB_REG_READ:
-            while( usNRegs > 0 )
-            {
-                *pucRegBuffer++ = ( UCHAR ) ( usRegHoldingBuf[iRegIndex] >> 8 );
-                *pucRegBuffer++ = ( UCHAR ) ( usRegHoldingBuf[iRegIndex] & 0xFF );
-                iRegIndex++;
-                usNRegs--;
-            }
-            break;
-        case MB_REG_WRITE:
-            while( usNRegs > 0 )
-            {
-                usRegHoldingBuf[iRegIndex] = *pucRegBuffer++ << 8;
-                usRegHoldingBuf[iRegIndex] |= *pucRegBuffer++;
-                iRegIndex++;
-                usNRegs--;
-            }
-            break;
+            return MB_EINVAL;
         }
-    }
-    else
-    {
-        eStatus = MB_ENOREG;
-    }
-    return eStatus;
+        
+        for(uint8_t iter = 0; iter < (usNRegs << 1); iter++)
+        {
+            erase_fn_ext_reg[offset+iter] = pucRegBuffer[iter];
+        }
+    }   
+    
+    return MB_ENOREG;
 }

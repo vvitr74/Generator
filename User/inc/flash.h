@@ -2,7 +2,6 @@
 #define fileInfo_H
 
 #include "stm32g0xx.h"
-#include "w25qxx.h"
 
 //#define __flashInit() W25qxx_Init()
 #define PAGE_SIZE 			256

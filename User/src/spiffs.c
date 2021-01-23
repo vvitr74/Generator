@@ -1,8 +1,10 @@
 
+#include "fs.h"
 #include "stm32g0xx.h"
 #include "spiffs.h"
 #include "tim3.h"
 #include "Spi1.h"
+#include "fs.h"
 
 //#define FLASH_TEST
 #define W25_CHIP_ERASE 0xC7
@@ -24,8 +26,9 @@
 
 spiffs fs;
 
-extern uint8_t spiDispCapture;
+static playlist_cb_t playlist_write_done_cb = NULL;
 
+extern uint8_t spiDispCapture;
 __attribute__((aligned(4))) static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
 __attribute__((aligned(4))) static u8_t spiffs_fds[32 * 4];
 __attribute__((aligned(4))) static u8_t spiffs_cache_buf[(SPIFFS_CFG_LOG_PAGE_SZ() + 32) * 4];
@@ -95,6 +98,7 @@ static void set_write_ena()
         spi_cs_off();
     }
 }
+
 
 /**
 * Erase entire chip
@@ -218,17 +222,9 @@ static s32_t w25_flash_erase(uint32_t addr, uint32_t size)
 * @param data_len Length of data
 * @return 0 - if there no error
 */
-int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offset, uint8_t *data, size_t data_len)
+static int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offset, uint8_t *data, size_t data_len)
 {
     int32_t res = 0;
-    /*
-    if(! (GPIOB->ODR & (1<<2)))
-    {        
-        GPIOB->BSRR = GPIO_BSRR_BS2;
-        delay_ms(10);
-    }
-    */
-    
     static spiffs_file fd;
     if(offset == 0)
     {
@@ -237,8 +233,6 @@ int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offs
     }
     else
     {
-  //      fd = SPIFFS_open(&fs, filename, SPIFFS_RDWR | SPIFFS_APPEND, 0);
-        
         spiffs_stat s;
         res = SPIFFS_fstat(&fs, fd, &s);
         
@@ -270,6 +264,12 @@ int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offs
     return res;
 }
 
+
+void spiffs_on_write_playlist_done(playlist_cb_t cb)
+{
+    playlist_write_done_cb = cb;
+}
+
 /**
 * @brief Erase freq files from FS
 * @return Error, if happend, otherwise 0
@@ -279,20 +279,57 @@ int spiffs_erase_all()
     spiffs_DIR d;
     struct spiffs_dirent e;
     struct spiffs_dirent *pe = &e;
-    int res;
+    int res = 0;
 
     SPIFFS_opendir(&fs, "/", &d);
     while ((pe = SPIFFS_readdir(&d, pe)))
     {
         if (SPIFFS_remove(&fs, (char *)pe->name) < 0)
         {
-            return SPIFFS_errno(&fs);
+            res = SPIFFS_errno(&fs);
+            break;
         }
     }
 
     SPIFFS_closedir(&d);
-    return 0;
+    return res;
 }
+
+
+/**
+* @brief Erase file by extension
+* @return Error, if happend, otherwise 0
+*/
+int spiffs_erase_by_ext(const char* ext)
+{
+    spiffs_DIR d;
+    struct spiffs_dirent e;
+    struct spiffs_dirent *pe = &e;
+    int res;
+
+    SPIFFS_opendir(&fs, "/", &d);
+    while ((pe = SPIFFS_readdir(&d, pe)))
+    {
+        char* ext = strchr((const char*)pe->name,'.');
+        if(ext == NULL)
+        {
+            continue;
+        }
+            
+        if (strncmp(ext, (char *)pe->name+1, strlen(ext)) == 0) 
+        {
+            if (SPIFFS_remove(&fs, (char *)pe->name) < 0)
+            {
+                break;
+                res = SPIFFS_errno(&fs);
+            }
+        }
+    }
+
+    SPIFFS_closedir(&d);
+    return res;
+}
+
 
 #ifdef FLASH_TEST
 const char test_text[] = "Thank you Jack,\
@@ -378,7 +415,6 @@ int spiffs_init()
     return res;
 }
 
-
 /**
 * Callback from write file method in freemodbus
 * @param buf Input data
@@ -389,6 +425,7 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
 {
     uint8_t fname_len = buf[0];
     char fname[18] = {};
+    uint8_t last_item = 0;
   
     if(buf[0] >= sizeof(fname) - 1)
     {
@@ -400,10 +437,20 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     ptr += fname_len;
     
     uint32_t offset = ptr[0] | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);
+    last_item = (offset & (1 << 31)) == (1 << 31);
+    
+    offset &= ~(1<<31);
+    
     ptr += sizeof(uint32_t);
-
-        
+    
     int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf)); 
+    
+    if (res == 0 && last_item &&
+        playlist_write_done_cb != NULL &&
+        strncpy(fname,"freq.pls",fname_len) == 0)
+    {
+        playlist_write_done_cb();
+    }
     
     return res;
 }

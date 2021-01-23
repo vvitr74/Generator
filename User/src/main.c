@@ -26,7 +26,6 @@
 #include "fpga.h"
 #include "flash.h"
 #include "Spi.h"
-#include "w25qxx.h"
 #include "tim3.h"
 #endif
 

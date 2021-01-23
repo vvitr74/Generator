@@ -66,6 +66,10 @@ static GFXINLINE void acquire_bus(GDisplay *g) {
 
 static GFXINLINE void release_bus(GDisplay *g) {
 	(void) g;
+	
+	while (SPI1->SR & SPI_SR_FTLVL_Msk){}										//  Wait until FTLVL[1:0] = 00 (no more data to transmit)
+	while (SPI1->SR & SPI_SR_BSY){}
+
 	TFT_CS_HI;
 	spiDispCapture=0;
 }

@@ -281,6 +281,10 @@ void fpgaConfig(void)											//
 //	spi2Transmit(&byteBuff, 1);
 	FPGA_CS_H;
 //	confFailed();
+	SPI2->CR1 &= ~SPI_CR1_SPE;
+	SPI2->CR1 &= ~SPI_CR1_LSBFIRST;
+	SPI2->CR1 |= SPI_CR1_SPE;
+
 	fpgaFlags.fpgaConfigComplete=0;
 	SPIFFS_close(&fs, fpga_file);
 }
@@ -318,9 +322,9 @@ void getControlParam(uint16_t fileSect)
 
 	int32_t read_res;
 
-	char filename[20];
+	char filename[D_FileNameLength+1];
 	
-	char byteBuff[20];
+	char byteBuff[D_FileNameLength+1];
 	int8_t bytesCount;
   uint32_t i;	
 	static uint32_t offset;
@@ -328,7 +332,7 @@ void getControlParam(uint16_t fileSect)
 	
 	File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);/// \todo one time open
   SPIFFS_lseek(&fs, File_List,startAddr,SPIFFS_SEEK_SET);
-	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, 19);
+	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, D_FileNameLength);
 //	if (bytesCount<1)
 //	{	FSM_fileListUpdate_state=101;
 //	}
@@ -936,11 +940,11 @@ void SLP(void)
 			}
 			if(fpgaFlags.playStop==1){
 				fpgaFlags.playStop=0;
-				GPIOB->BSRR=GPIO_BSRR_BS0;	//FPGA 1.2 V off
+				//GPIOB->BSRR=GPIO_BSRR_BS0;	//FPGA 1.2 V off
 				fpgaFlags.fpgaConfigComplete=0;
 				fpgaFlags.playBegin=0;
 				fpgaFlags.clockStart=0;
-				disableSpi_2();
+				//// none!!!!!!!!  disableSpi_2();
 				PM_OnOffPWR(PM_Player,false );//RDD OFF POWER
 				
 				curState=1;

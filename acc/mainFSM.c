@@ -72,7 +72,7 @@ typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inh
 #define key_Rest_OffRest (m_hizOff|m_inh)
 #define key_Rest_Init (0)
 
-#define key_OffCharge_Charge  (m_hiz|m_inh)
+#define key_OffCharge_Charge  (m_inh)
 #define key_OffCharge_Rest 0
 #define key_OffCharge_OffCharge ( \
 m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read\
@@ -82,7 +82,7 @@ m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read\
 #define key_OffCharge_Init 0
 
 #define key_OffRest_Charge  0
-#define key_OffRest_Rest (m_hiz|m_inh)
+#define key_OffRest_Rest (m_inh)
 #define key_OffRest_OffCharge 0
 #define key_OffRest_OffRest ( \
 m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read\
@@ -245,6 +245,7 @@ e_FunctionReturnState  MainTransition(key_type key)
 
 static unsigned char u8_11_ff[11]={0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};//ToDo do const
 static bool bADCVSYSVBAT;
+static bool bAccAvailability;
 e_FunctionReturnState TransitionFunction(uint8_t state)
 {   e_FunctionReturnState rstate;
 	switch (state)
@@ -299,21 +300,38 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 													 rstate=e_FRS_Done;
 			                     break; 
 													 
+                           			
 		case e_TF_VsysAnaliz:  if ((0==(mFSM_Error&(m_BQ25703_VSYSVBAT_Read|m_BQ28z610_Reads)))&&bADCVSYSVBAT)  
-		                          { //It works strangely, but let
-															 bVSYS=(pvVSYS>6000)
+		                          { 
+                               if ((e_FSM_RestOff==mainFMSstate)||(e_FSM_ChargeOff==mainFMSstate))
+															 {
+																  bVSYS=(pvVSYS>6000)&&(pv_BQ28z610_Voltage>5000);
+																  bAccAvailability=bVSYS;
+															 };
+                               if ((e_FSM_Rest==mainFMSstate)||(e_FSM_Charge==mainFMSstate))
+															 {
+																  bVSYS=(pvVSYS>6000)
 																   &&((InCurrent>300)||
-																      ((!(mFSM_BQ28z610_BatteryStatus&BQ28z610_BatteryStatus_FullyDischarged))
-	                                   &&(pv_BQ28z610_Voltage>5000)															
-																      )
-																     )
-																     ;
+																       bAccAvailability
+																     );
+															 };
+
+																
+//																//It works strangely, but let
+//															 bVSYS=(pvVSYS>6000)
+//																   &&((InCurrent>300)||
+//																      ((!(mFSM_BQ28z610_BatteryStatus&BQ28z610_BatteryStatus_FullyDischarged))
+//	                                   &&(pv_BQ28z610_Voltage>5000)															
+//																      )
+//																     )
+//																     ;
 															 bADCVSYSVBAT=false;
 															 //if (!((e_FSM_Rest==mainFMSstate)||(e_FSM_Charge==mainFMSstate)))//debug
 															 //	 bVSYS=false;                                                  //debug
 															};	
 		                       rstate=e_FRS_Done;
 		                       break;
+															
 		
 		case e_TF_BQ25703_InputCurrentSet: 
 			                            if (0!=(mFSM_Error&(m_ReadTPSState)))

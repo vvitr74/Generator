@@ -310,6 +310,7 @@ void timeToString(uint8_t* timeArr)
     timeArr[9] = 0;
 }
 
+//----------------------------------BEGIN LOAD FROM FILES---------------------------------
 
 #define D_ParamStringLength 40
 s32_t freq_file,File_List;
@@ -423,6 +424,8 @@ e_FunctionReturnState getFreq()
 				else
 					playFreqArr_2[index>>1]=TempParam;
 				
+				index++;
+				
         pch = strchr(tempArrOld,13);
 					if (NULL==pch)
 					{rstate=e_FRS_DoneError;
@@ -430,9 +433,13 @@ e_FunctionReturnState getFreq()
 					}	
 				strcpy(tempArrOld,pch+1);		
 				n_for_CR= strlen(tempArrOld);
-				index++;
+				
 	}				
-	while (index<=200);			
+	while (index<200);	
+
+  frstChMult=((float)playParamArr[7]/10)*FPGA_GAIN/((index>>1)+(index&1));
+	scndChMult=((float)playParamArr[7]/10)*FPGA_GAIN/((index>>1));
+	
 return rstate;
 }
 
@@ -464,7 +471,7 @@ e_FunctionReturnState LoadParmFreq(uint16_t fileSectl)
 	return rstate;
 };
 
-
+//------------------------END LOAD FROM FILES-------------------------------------------------
 
 
 
@@ -604,9 +611,14 @@ void loadFreqToFpga(void)
 	uint8_t buff[5];
 	uint8_t temp;
 	
+  while(!(SPI2->SR & SPI_SR_TXE))
+  {}
+	while (SPI2->SR & SPI_SR_BSY)
+  {}
+	
 	FPGA_CS_L;
 	temp=FREQ_CW;
-	while(!(SPI2->SR & SPI_SR_TXE)){}
+	//while(!(SPI2->SR & SPI_SR_TXE)){}
 	spi2Transmit(&temp,1);
 	for(int i=0;i<100;i++){
 		if(playParamArr[6]==1){
@@ -640,6 +652,13 @@ void loadFreqToFpga(void)
 		while(!(SPI2->SR & SPI_SR_TXE)){}
 		spi2Transmit(buff,5);
 	}
+	
+	
+  while(!(SPI2->SR & SPI_SR_TXE))
+  {}
+	while (SPI2->SR & SPI_SR_BSY)
+  {}
+
 	FPGA_CS_H;
 }
 
@@ -651,17 +670,31 @@ void loadMultToFpga(void)
 	buff[0]=MULT_REG1_CW;
 	buff[1]=frstChMult >> 8;
 	buff[2]=frstChMult & 0x00FF;
-	while(!(SPI2->SR & SPI_SR_TXE)){}
+  while(!(SPI2->SR & SPI_SR_TXE))
+  {}
+	while (SPI2->SR & SPI_SR_BSY)
+  {}
 	FPGA_CS_L;
 	spi2Transmit(buff,3);
+	while(!(SPI2->SR & SPI_SR_TXE))
+  {}
+	while (SPI2->SR & SPI_SR_BSY)
+  {}	
 	FPGA_CS_H;
 		
 	buff[0]=MULT_REG2_CW;
 	buff[1]=scndChMult >> 8;
 	buff[2]=scndChMult & 0x00FF;
-	while(!(SPI2->SR & SPI_SR_TXE)){}
+  while(!(SPI2->SR & SPI_SR_TXE))
+  {}
+	while (SPI2->SR & SPI_SR_BSY)
+  {}	
 	FPGA_CS_L;
 	spi2Transmit(buff,3);
+  while(!(SPI2->SR & SPI_SR_TXE))
+  {}
+	while (SPI2->SR & SPI_SR_BSY)
+  {}	
 	FPGA_CS_H;
 }
 void startFpga(void)
@@ -920,53 +953,41 @@ void SLP(void)
 		//generation process	
 		case 3:
 //			getTimers();
-			if(durTimeMs>=999){
+			if(durTimeMs>=999)
+			{
 				durTimeS++;
 				durTimeMs=0;
 			}
-			if(durTimeS>=playParamArr[3]){
-				startFpga();
+			if(durTimeS>=playParamArr[3])
+			{
+				//startFpga();
 				durTimeS=0;
 ///rdd debug				spi1FifoClr();
 				spi2FifoClr();
 				calcFreq();
-				if(fpgaFlags.endOfFile==1){
+				if(fpgaFlags.endOfFile==1)
+				{
 					playFileSector++;
-					if(playFileSector<=SLPl_ui16_NumOffiles) 
-					{
-						playFileInList=playFileSector;
-						if(playFileSector==playFileSectorBegin)
+					if(playFileSector>=SLPl_ui16_NumOffiles) 
+					{playFileSector=0;
+					};	
+					playFileInList=playFileSector;
+					if(playFileSector==playFileSectorBegin)
 							setTotalTimer();
-						LoadParmFreq(playFileSector);
-						setFileTimer();
-						setInitFreq();
-						loadFreqToFpga();
-						loadMultToFpga();
-					}
-					else
-					{
-						playFileSector=0;
-						playFileInList=playFileSector;
-						if(playFileSector==playFileSectorBegin)
-							setTotalTimer();
-//						setTotalTimer();
-						LoadParmFreq(playFileSector);
-						setFileTimer();
-						setInitFreq();
-						loadFreqToFpga();
-						loadMultToFpga();
-					}
-					
-				}
-				loadFreqToFpga();
-			}
-			if(fpgaFlags.playStop==1){
+					LoadParmFreq(playFileSector);
+					setFileTimer();
+					setInitFreq();
+					loadFreqToFpga();
+					loadMultToFpga();
+					startFpga();
+			 }
+		  }	
+			if(fpgaFlags.playStop==1)
+			{
 				fpgaFlags.playStop=0;
-				//GPIOB->BSRR=GPIO_BSRR_BS0;	//FPGA 1.2 V off
 				fpgaFlags.fpgaConfigComplete=0;
 				fpgaFlags.playBegin=0;
 				fpgaFlags.clockStart=0;
-				//// none!!!!!!!!  disableSpi_2();
 				PM_OnOffPWR(PM_Player,false );//RDD OFF POWER
 				
 				curState=1;

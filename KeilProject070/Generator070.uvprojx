@@ -400,7 +400,7 @@
             <File>
               <FileName>GlobalKey.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\GlobalKey.c</FilePath>
+              <FilePath>..\User\src\GlobalKey.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -38,7 +38,7 @@ uint16_t frstChMult=0;
 uint16_t scndChMult=0;
 
 #define  playParamArr_size 8
-#define FPGA_GAIN 16313
+#define FPGA_GAIN 21620
 
 uint32_t playParamArr[playParamArr_size];
 /*************************************

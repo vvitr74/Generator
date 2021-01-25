@@ -3,6 +3,7 @@
 
 #include "board_PowerModes.h"
 #include "spiffs.h"
+#include "fs.h"
 
 void SLC_init(void);
 void SLC(void);

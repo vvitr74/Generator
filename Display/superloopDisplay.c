@@ -23,11 +23,6 @@
 
 //-------------------------for main-----------------------------------------------
 
-
-
-
-
-
 typedef enum  
 {SLD_FSM_InitialWait  		//work
 ,SLD_FSM_Off  						//work
@@ -101,6 +96,15 @@ static uint8_t filename[20];
 static uint8_t fileCount;
 static uint32_t offset;
 
+/**
+* Calls when freq.pls writing is done
+*/
+void on_playlist_write_done()
+{
+	bListUpdate=true;
+}
+
+    
 #define SLD_SleepDelay 1000
 
 int SLD(void)
@@ -201,6 +205,7 @@ int SLD(void)
 
 int SLD_init(void)
 {
+	spiffs_on_write_playlist_done(on_playlist_write_done);
 	return 0;
 };
 

@@ -53,17 +53,6 @@ void _sys_command_string(char *cmd, int len)
 
 #endif
 
-/**
-* Calls when freq.pls writing is done
-*/
-void on_playlist_write_done()
-{
-	GPIOB->BSRR = GPIO_BSRR_BS10;
-    delay_ms(100);
-    GPIOB->BSRR = GPIO_BSRR_BR10;
-    delay_ms(100);
-    GPIOB->BSRR = GPIO_BSRR_BS10;
-}
 
 int main(void)
 {
@@ -73,7 +62,7 @@ int main(void)
     __enable_irq();
 #endif    
     
-    spiffs_on_write_playlist_done(on_playlist_write_done);
+
     
 #ifdef debug1	
 __disable_irq();	

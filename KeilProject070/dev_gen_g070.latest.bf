@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <root>
   <fw>
-    <version>21.01.25</version>
-    <date>1/25/2021 2:33:22 PM</date>
+    <version>21.01.26</version>
+    <date>1/26/2021 12:17:27 PM</date>
     <device>dev_gen_g070</device>
   </fw>
   <chunks>

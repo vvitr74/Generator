@@ -233,14 +233,19 @@ INIT_DONE released high
       ->
 Executes your design
 */
+
+#define CONF_BUF_SIZE 64
 void fpgaConfig(void)											//
 {
 	s32_t fpga_file;
 	int32_t read_res;
+	
 	fpga_file=SPIFFS_open(&fs, "FPGA.rbf", SPIFFS_O_RDONLY, 0);
 	
 	uint32_t bytesCnt=0;
-	uint8_t byteBuff;
+	uint8_t byteBuff[CONF_BUF_SIZE];
+	uint8_t bytesToRead=CONF_BUF_SIZE;
+	uint32_t bytesRemain=CONF_FILE_SIZE;
 //	byteBuff=0;
 //	spi2Transmit(&byteBuff, 1);
 	
@@ -258,16 +263,16 @@ void fpgaConfig(void)											//
 	while(!(GPIOC->IDR & GPIO_IDR_ID7)){/** \todo timeout */}
 	delay_ms(10);
 	FPGA_CS_L;															//for logger
-	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
-		read_res=SPIFFS_read(&fs, fpga_file, &byteBuff, 1);
-		if (read_res<1)
+	do{
+//	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
+		read_res=SPIFFS_read(&fs, fpga_file, &byteBuff, bytesToRead);
+		if (read_res<bytesToRead)
 		{	break;
 		};
-		spi2Transmit(&byteBuff, 1);
+		spi2Transmit(byteBuff, bytesToRead);
 		if(GPIOC->IDR & GPIO_IDR_ID6)
-			{byteBuff=0;
-			spi2Transmit(&byteBuff, 1);
-//			confComplete();
+			{byteBuff[0]=0;
+			spi2Transmit(byteBuff, 1);
 			fpgaFlags.fpgaConfigComplete=1;
 			FPGA_CS_H;
 			SPI2->CR1 &= ~SPI_CR1_SPE;
@@ -277,7 +282,13 @@ void fpgaConfig(void)											//
       SPIFFS_close(&fs, fpga_file);				
 			return;
 		}
-	}
+//	}
+		bytesRemain-=bytesToRead;
+		if(bytesRemain>=CONF_BUF_SIZE)
+			bytesToRead=CONF_BUF_SIZE;
+		else
+			bytesToRead=bytesRemain;
+	}while(bytesToRead!=0);
 //	byteBuff=0;
 //	spi2Transmit(&byteBuff, 1);
 	FPGA_CS_H;

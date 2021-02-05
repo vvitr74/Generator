@@ -40,8 +40,6 @@ uint16_t scndChMult=0;
 #define  playParamArr_size 8
 #define FPGA_GAIN 21620
 
-//GHandle ghProgBarWin;
-
 uint32_t playParamArr[playParamArr_size];
 /*************************************
 playParamArr[0] - frequencies
@@ -190,19 +188,6 @@ void TIM3_IRQHandler(void)
 			playClk=0;
 			durTimeMs=0;
 		}
-//		if(fpgaFlags.progBarClkStart==1){
-//			progBarClk++;
-//			if(progBarClk>=999){
-//				progBarClk=0;
-//				x+=18;
-//				gwinFillArea(ghProgBarWin, 10, 10, x , 20);
-//			}
-
-//		}
-//		else{
-//			progBarClk=0;
-//			x=0;
-//		}
 	}
 }
 

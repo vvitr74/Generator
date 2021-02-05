@@ -23,6 +23,8 @@
 //#include "spiffs.h"
 #include "romfs_files.h"
 
+//extern uint16_t SLPl_ui16_NumOffiles;
+
 //-------------------------for main-----------------------------------------------
 
 typedef enum  
@@ -556,6 +558,10 @@ void fileListInitStart(void)
 	FSM_fileListUpdate_state=0;
 };
 
+spiffs_stat file_stat;
+
+extern uint16_t SLPl_ui16_NumOffiles;
+uint16_t a;
 
 e_FunctionReturnState fileListRead(void)
 {	e_FunctionReturnState rstate;
@@ -563,7 +569,6 @@ e_FunctionReturnState fileListRead(void)
 	int8_t bytesCount;
   uint32_t i;	
 	static uint32_t offset;
-	 
 
 	rstate=e_FRS_Processing;
 
@@ -576,7 +581,9 @@ e_FunctionReturnState fileListRead(void)
   			//gwinListAddItem(ghList1, "_1.txt", gTrue);///RDD debug
 	     // gfxSleepMilliseconds(1);
 		
-			File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);
+			File_List=SPIFFS_open(&fs,"freq.pls",SPIFFS_O_RDONLY,0);
+			SPIFFS_fstat(&fs,File_List,&file_stat);
+			SLPl_ui16_NumOffiles=file_stat.size/22;
 		  fileCount=0;
 		  offset=0;
 		  //gwinListDeleteAll(ghList1);
@@ -584,7 +591,7 @@ e_FunctionReturnState fileListRead(void)
 		  break;
 		case 1: 
       while(1){
-//				if(fileCount<10){
+				if(fileCount<10){
 					bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, 22);
 					if (bytesCount<1)
 					{	FSM_fileListUpdate_state=101;
@@ -604,9 +611,11 @@ e_FunctionReturnState fileListRead(void)
 								break;
 						};
 					};
-//				}
-//				else
-//					break;
+				}
+				else{
+					FSM_fileListUpdate_state=101;
+					break;
+				}
 			}		
       break;			
 		case 100: //Done
@@ -663,7 +672,6 @@ gfxInit();
 return 0;	
 };
 
-extern uint16_t SLPl_ui16_NumOffiles;
 
 #define OFFSET 220
 
@@ -679,7 +687,7 @@ int SLDw(void)
 			if (((GEventGWinButton*)pe)->gwin == ghButton1)
 			{
 				playFileInList=gwinListGetSelected(ghList1);
-				SLPl_ui16_NumOffiles=gwinListItemCount(ghList1);	
+//				SLPl_ui16_NumOffiles=gwinListItemCount(ghList1);	//VV 5.02.21
 				if (SLPl_ui16_NumOffiles>0)
 				{	
 					fpgaFlags.playStart=1;

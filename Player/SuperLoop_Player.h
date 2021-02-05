@@ -45,15 +45,12 @@ typedef struct {
 	uint32_t fileListUpdate				:1;
 	uint32_t labelsUpdate					:1;
 	uint32_t clockStart						:1;
-//	uint32_t progBarClkStart			:1;
 	uint32_t nextFreq							:1;
 	uint32_t endOfFile						:1;
 	uint32_t addListItem					:1;
 	uint32_t addNewListItem				:1;
 	uint32_t clearList						:1;
 	uint32_t timeUpdate						:1;
-	uint32_t prewFiles						:1;
-	uint32_t nextFiles						:1;
 } t_fpgaFlags;
 
 extern volatile t_fpgaFlags fpgaFlags;

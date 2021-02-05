@@ -34,6 +34,8 @@ if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
 
 #include "board_PowerModes.h"
 
+#include "BQ28z610_Data.h"
+
 uint8_t maintaskstate=15;//15->skip debug
 
 
@@ -386,6 +388,9 @@ return rstatel;
 void SuperLoopACC(void)
 {
 	uint16_t data;
+	
+//	readDataFromFile();	//for debug
+	
 	e_FunctionReturnState wrstate;
 	static uint8_t state=0;
 	switch (state)

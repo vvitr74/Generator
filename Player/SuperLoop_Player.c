@@ -74,6 +74,7 @@ uint8_t fileHour=0;
 //totalTimeArr={'0','0',':','0','0',':','0','0',0};
 
 volatile uint32_t playClk;
+volatile uint32_t progBarClk;
 
 
 //-------------------------for SPI2-----------------------------------------------
@@ -175,6 +176,7 @@ void delay_ms(uint32_t delayTime){
 
 void TIM3_IRQHandler(void)
 {
+	static uint8_t x;
 	if(TIM3->SR & TIM_SR_UIF){
 		TIM3->SR = ~TIM_SR_UIF;
 		tim3TickCounter--;
@@ -233,14 +235,19 @@ INIT_DONE released high
       ->
 Executes your design
 */
+
+#define CONF_BUF_SIZE 64
 void fpgaConfig(void)											//
 {
 	s32_t fpga_file;
 	int32_t read_res;
+	
 	fpga_file=SPIFFS_open(&fs, "FPGA.rbf", SPIFFS_O_RDONLY, 0);
 	
 	uint32_t bytesCnt=0;
-	uint8_t byteBuff;
+	uint8_t byteBuff[CONF_BUF_SIZE];
+	uint8_t bytesToRead=CONF_BUF_SIZE;
+	uint32_t bytesRemain=CONF_FILE_SIZE;
 //	byteBuff=0;
 //	spi2Transmit(&byteBuff, 1);
 	
@@ -258,16 +265,16 @@ void fpgaConfig(void)											//
 	while(!(GPIOC->IDR & GPIO_IDR_ID7)){/** \todo timeout */}
 	delay_ms(10);
 	FPGA_CS_L;															//for logger
-	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
-		read_res=SPIFFS_read(&fs, fpga_file, &byteBuff, 1);
-		if (read_res<1)
+	do{
+//	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
+		read_res=SPIFFS_read(&fs, fpga_file, &byteBuff, bytesToRead);
+		if (read_res<bytesToRead)
 		{	break;
 		};
-		spi2Transmit(&byteBuff, 1);
+		spi2Transmit(byteBuff, bytesToRead);
 		if(GPIOC->IDR & GPIO_IDR_ID6)
-			{byteBuff=0;
-			spi2Transmit(&byteBuff, 1);
-//			confComplete();
+			{byteBuff[0]=0;
+			spi2Transmit(byteBuff, 1);
 			fpgaFlags.fpgaConfigComplete=1;
 			FPGA_CS_H;
 			SPI2->CR1 &= ~SPI_CR1_SPE;
@@ -277,7 +284,13 @@ void fpgaConfig(void)											//
       SPIFFS_close(&fs, fpga_file);				
 			return;
 		}
-	}
+//	}
+		bytesRemain-=bytesToRead;
+		if(bytesRemain>=CONF_BUF_SIZE)
+			bytesToRead=CONF_BUF_SIZE;
+		else
+			bytesToRead=bytesRemain;
+	}while(bytesToRead!=0);
 //	byteBuff=0;
 //	spi2Transmit(&byteBuff, 1);
 	FPGA_CS_H;
@@ -375,7 +388,7 @@ e_FunctionReturnState getControlParam(void)
 					_sscanf( pch+1,"%i",&TempParam);
 					playParamArr[strCnt-1]=TempParam;
 				};	
-        pch = strchr(tempArrOld,13);
+        pch = strchr(tempArrOld,10);
 				if (NULL==pch)
 				{	rstate=e_FRS_DoneError;
 					break;
@@ -426,7 +439,7 @@ e_FunctionReturnState getFreq()
 				
 				index++;
 				
-        pch = strchr(tempArrOld,13);
+        pch = strchr(tempArrOld,10);	//VV 2.02.21
 					if (NULL==pch)
 					{rstate=e_FRS_DoneError;
 						 break;
@@ -927,7 +940,9 @@ void SLP(void)
 			spi2FifoClr();
 		
 			fpgaFlags.fpgaConfig=1;
+//			fpgaFlags.progBarClkStart=1;
 			fpgaConfig();
+//			fpgaFlags.progBarClkStart=0;
 //			fpgaFlags.fpgaConfigComplete=1;	//for debug
 			fpgaFlags.labelsUpdate=1;
 			if(fpgaFlags.fpgaConfigComplete==1){
@@ -960,13 +975,12 @@ void SLP(void)
 			}
 			if(durTimeS>=playParamArr[3])
 			{
-				//startFpga();
+				startFpga();
 				durTimeS=0;
 ///rdd debug				spi1FifoClr();
 				spi2FifoClr();
 				calcFreq();
-				if(fpgaFlags.endOfFile==1)
-				{
+				if(fpgaFlags.endOfFile==1){
 					playFileSector++;
 					if(playFileSector>=SLPl_ui16_NumOffiles) 
 					{playFileSector=0;
@@ -979,8 +993,10 @@ void SLP(void)
 					setInitFreq();
 					loadFreqToFpga();
 					loadMultToFpga();
-					startFpga();
+//					startFpga();
 			 }
+				loadFreqToFpga();
+				
 		  }	
 			if(fpgaFlags.playStop==1)
 			{

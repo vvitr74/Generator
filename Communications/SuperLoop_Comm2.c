@@ -2,6 +2,8 @@
 #include "SuperLoop_Comm2.h"
 #include "SL_CommModbus.h"
 
+#include "BQ28z610_Data.h"
+
 //------------------------------------for iteraction with MOFBUS
 #define USBcommPause 1000
 
@@ -119,6 +121,9 @@ extern void SLC(void)
 			PM_OnOffPWR(PM_Communication,true );
 			spiffs_init();
 		  SL_CommModbusInit();
+		
+//		readDataFromFile();	//for debug
+		
 		  state_inner=SLC_FSM_CommAbsent;
 			break;
 		case SLC_FSM_CommAbsent: //

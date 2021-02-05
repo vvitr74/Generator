@@ -62,8 +62,10 @@ void SysTick_Handler(void)
 	static uint8_t status=0;	
 	static uint32_t button_new; 
 	static uint16_t	button_old, button_stable_new, button_stable_old;
+	static uint32_t cur_time, stop_time;
 	
 	SystemTicks++;
+	cur_time++;
 //	ledTick++;
 //  if (ledTick >= 200)   
 //		{ledTick = 0;
@@ -89,6 +91,9 @@ void SysTick_Handler(void)
 	button_old=button_new;
 	button_sign|=(~button_stable_old)&button_stable_new;
 	button_stable_old=button_stable_new;
+	
+	if(!button_new) {stop_time=cur_time;}
+	if((cur_time-stop_time)>=5000) {NVIC_SystemReset();}
 }
 /*************************************************************************************************************************
 *

@@ -106,7 +106,7 @@ extern void SLC(void)
 			spiffs_init();
 		  SL_CommModbusInit();
 		
-		readDataFromFile();	//for debug
+//		readDataFromFile();	//for debug
 		
 		  state_inner=SLC_FSM_CommAbsent;
 			break;

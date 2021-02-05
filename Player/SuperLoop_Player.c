@@ -40,6 +40,8 @@ uint16_t scndChMult=0;
 #define  playParamArr_size 8
 #define FPGA_GAIN 21620
 
+//GHandle ghProgBarWin;
+
 uint32_t playParamArr[playParamArr_size];
 /*************************************
 playParamArr[0] - frequencies
@@ -74,6 +76,7 @@ uint8_t fileHour=0;
 //totalTimeArr={'0','0',':','0','0',':','0','0',0};
 
 volatile uint32_t playClk;
+volatile uint32_t progBarClk;
 
 
 //-------------------------for SPI2-----------------------------------------------
@@ -175,6 +178,7 @@ void delay_ms(uint32_t delayTime){
 
 void TIM3_IRQHandler(void)
 {
+	static uint8_t x;
 	if(TIM3->SR & TIM_SR_UIF){
 		TIM3->SR = ~TIM_SR_UIF;
 		tim3TickCounter--;
@@ -186,6 +190,19 @@ void TIM3_IRQHandler(void)
 			playClk=0;
 			durTimeMs=0;
 		}
+//		if(fpgaFlags.progBarClkStart==1){
+//			progBarClk++;
+//			if(progBarClk>=999){
+//				progBarClk=0;
+//				x+=18;
+//				gwinFillArea(ghProgBarWin, 10, 10, x , 20);
+//			}
+
+//		}
+//		else{
+//			progBarClk=0;
+//			x=0;
+//		}
 	}
 }
 
@@ -386,7 +403,7 @@ e_FunctionReturnState getControlParam(void)
 					_sscanf( pch+1,"%i",&TempParam);
 					playParamArr[strCnt-1]=TempParam;
 				};	
-        pch = strchr(tempArrOld,13);
+        pch = strchr(tempArrOld,10);
 				if (NULL==pch)
 				{	rstate=e_FRS_DoneError;
 					break;
@@ -437,7 +454,7 @@ e_FunctionReturnState getFreq()
 				
 				index++;
 				
-        pch = strchr(tempArrOld,13);
+        pch = strchr(tempArrOld,10);	//VV 2.02.21
 					if (NULL==pch)
 					{rstate=e_FRS_DoneError;
 						 break;
@@ -938,7 +955,9 @@ void SLP(void)
 			spi2FifoClr();
 		
 			fpgaFlags.fpgaConfig=1;
+//			fpgaFlags.progBarClkStart=1;
 			fpgaConfig();
+//			fpgaFlags.progBarClkStart=0;
 //			fpgaFlags.fpgaConfigComplete=1;	//for debug
 			fpgaFlags.labelsUpdate=1;
 			if(fpgaFlags.fpgaConfigComplete==1){
@@ -971,13 +990,12 @@ void SLP(void)
 			}
 			if(durTimeS>=playParamArr[3])
 			{
-				//startFpga();
+				startFpga();
 				durTimeS=0;
 ///rdd debug				spi1FifoClr();
 				spi2FifoClr();
 				calcFreq();
-				if(fpgaFlags.endOfFile==1)
-				{
+				if(fpgaFlags.endOfFile==1){
 					playFileSector++;
 					if(playFileSector>=SLPl_ui16_NumOffiles) 
 					{playFileSector=0;
@@ -990,8 +1008,10 @@ void SLP(void)
 					setInitFreq();
 					loadFreqToFpga();
 					loadMultToFpga();
-					startFpga();
+//					startFpga();
 			 }
+				loadFreqToFpga();
+				
 		  }	
 			if(fpgaFlags.playStop==1)
 			{

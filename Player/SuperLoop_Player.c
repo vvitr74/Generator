@@ -990,6 +990,13 @@ void SLP(void)
 				fpgaFlags.clockStart=0;
 				PM_OnOffPWR(PM_Player,false );//RDD OFF POWER
 				
+			  totalSec=0;
+		    totalMin=0;
+		    totalHour=0;
+		    fileSec=0;
+		    fileMin=0;
+		    fileHour=0;
+				
 				curState=1;
 			}
 			break;

@@ -29,6 +29,7 @@ typedef enum
 ,SLD_FSM_OnTransition 		//work
 ,SLD_FSM_On 							//work
 ,SLD_FSM_PopulateList	    //work
+,SLD_FSM_NotFlash					//work
 ,SLD_FSM_OffTransition 		//work
 ,SLD_FSM_DontMindSleep		//e_PS_DontMindSleep
 ,SLD_FSM_SleepTransition 	//work
@@ -48,6 +49,7 @@ const e_PowerState SLD_Encoder[SLD_FSM_NumOfEl]=
 ,e_PS_Work						//SLD_FSM_OnTransition
 ,e_PS_Work						//SLD_FSM_On
 ,e_PS_Work						//SLD_FSM_PopulateList
+,e_PS_Work            //SLD_FSM_NotFlash	
 ,e_PS_Work						//SLD_FSM_OffTransition 
 ,e_PS_DontMindSleep		//SLD_FSM_DontMindSleep	
 ,e_PS_DontMindSleep		//SLD_FSM_SleepTransition
@@ -139,36 +141,55 @@ int SLD(void)
 		    state_inner=SLD_FSM_On;
       break;
 		case SLD_FSM_On: // on
+		  if (SLC_Busy_State())
+			{ state_inner=SLD_FSM_NotFlash;
+			}
+			else
+			{
 #ifdef def_debug_AccDispay
 	    	SLDwACC();
 #else
 		    SLDw();
 #endif		
-		  
-		  if (bListUpdate&&SLC_SPIFFS_State())
-			{	fileListInitStart();
-				state_inner=SLD_FSM_PopulateList;
-			};
+				if (SLC_SPIFFS_State())
+				{
+					if (bListUpdate)
+					{	fileListInitStart();
+						state_inner=SLD_FSM_PopulateList;
+					};
+				}	
+			
 		
-  		if ((!bVSYS)|button_sign)
-			{
-				button_sign=0;
-				state_inner=SLD_FSM_OffTransition;
+				if ((!bVSYS)|button_sign)
+				{
+					button_sign=0;
+					state_inner=SLD_FSM_OffTransition;
+				};
 			};
-			break;
+				break;
 		case SLD_FSM_PopulateList:	
-			  bListUpdate=false;
-//      do
-			{
-				rstatel=fileListRead();
-		    if (e_FRS_Done==rstatel)
-					gwinListAddItem(ghList1, (char*)filename, gTrue);	
-		    if (e_FRS_DoneError==rstatel)
-					 state_inner=SLD_FSM_On;	
-				  gfxSleepMilliseconds(10); 
-			}
+				if (SLC_SPIFFS_State()) 
+				{
+//      	do
+					{
+						rstatel=fileListRead();
+						if (e_FRS_Done==rstatel)
+							gwinListAddItem(ghList1, (char*)filename, gTrue);	
+						if (e_FRS_DoneError==rstatel)
+							state_inner=SLD_FSM_On;	
+							bListUpdate=false;
+							gfxSleepMilliseconds(10); 
+					}
+				}
+				else 
+				{	state_inner=SLD_FSM_On;	
+				};	
 //				while (e_FRS_DoneError!=rstatel);
-        break;	
+      break;	
+		case SLD_FSM_NotFlash:	
+			  if (!SLC_Busy_State())
+					state_inner=SLD_FSM_On;
+		  break;
 		case SLD_FSM_OffTransition: 
       	SLD_DisplDeInit();               //off transition
         PM_OnOffPWR(PM_Display,false );				
@@ -533,9 +554,8 @@ return 0;
 
 extern uint16_t SLPl_ui16_NumOffiles;
 
-int SLDw(void)
-{ uint16_t tt;
-	//event handling
+void GetEvent()
+{	
 	pe = geventEventWait(&gl,10 ); //gDelayForever
 	switch(pe->type)
 	{
@@ -561,29 +581,48 @@ int SLDw(void)
 		default:
 			break;
 	}
-	
-	//information output to the display
-	
-	if(fpgaFlags.endOfFile==1){
-		fpgaFlags.endOfFile=0;
-		gwinListSetSelected(ghList1,playFileSector,TRUE);
+};
+
+
+void DisplaySelectedFile(uint32_t n)
+{
+		gwinListSetSelected(ghList1,n,TRUE);
 		gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
-//			playFileInList=gwinListGetSelected(ghList1);
-	}
-	
-	if(fpgaFlags.playStop==1){
-//		fpgaFlags.playStop=0;
+};
+
+void DisplayPlayStop()
+{
 		gwinSetText(ghLabel3,"Init OK",gFalse);
 		gwinSetText(ghLabel4,"Stop",gFalse);
 		gwinSetText(ghLabel5,"Not selected",gFalse);
 		gwinSetText(ghLabel6,"00:00:00",gFalse);
 		gwinSetText(ghLabel7,"00:00:00",gFalse);
-		totalSec=0;
-		totalMin=0;
-		totalHour=0;
-		fileSec=0;
-		fileMin=0;
-		fileHour=0;
+
+};
+
+int SLDw(void)
+{ uint16_t tt;
+	//event handling
+
+	GetEvent();
+	
+	if (SLC_Busy_State())
+	{
+		gwinSetText(ghLabel3,"Comm-tion, Pls wait",gFalse);
+		fpgaFlags.playStop=1;
+	};                         
+	//information output to the display
+	
+	if(fpgaFlags.endOfFile==1)
+	{
+		DisplaySelectedFile(playFileSector);
+		fpgaFlags.endOfFile=0;
+	}
+	
+	if(fpgaFlags.playStop==1)
+	{
+//		fpgaFlags.playStop=0;
+     DisplayPlayStop();
 	}
 	
 	if(fpgaFlags.fpgaConfig==1){

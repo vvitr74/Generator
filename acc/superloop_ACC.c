@@ -34,9 +34,19 @@ if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
 
 #include "board_PowerModes.h"
 
+#include "BQ28z610_Data.h"
+
+
+static e_SLAcc_BatStatus SLAcc_BatStatus;
+
+__inline e_SLAcc_BatStatus Get_SLAcc_BatteryStatus(void)
+{
+  return SLAcc_BatStatus;
+};
+
+
+
 uint8_t maintaskstate=15;//15->skip debug
-
-
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
 
 static uint16_t data_IIN_DPM;
@@ -386,6 +396,9 @@ return rstatel;
 void SuperLoopACC(void)
 {
 	uint16_t data;
+	
+//	readDataFromFile();	//for debug
+	
 	e_FunctionReturnState wrstate;
 	static uint8_t state=0;
 	switch (state)

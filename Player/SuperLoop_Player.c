@@ -74,6 +74,7 @@ uint8_t fileHour=0;
 //totalTimeArr={'0','0',':','0','0',':','0','0',0};
 
 volatile uint32_t playClk;
+volatile uint32_t progBarClk;
 
 
 //-------------------------for SPI2-----------------------------------------------
@@ -175,6 +176,7 @@ void delay_ms(uint32_t delayTime){
 
 void TIM3_IRQHandler(void)
 {
+	static uint8_t x;
 	if(TIM3->SR & TIM_SR_UIF){
 		TIM3->SR = ~TIM_SR_UIF;
 		tim3TickCounter--;
@@ -233,14 +235,19 @@ INIT_DONE released high
       ->
 Executes your design
 */
+
+#define CONF_BUF_SIZE 64
 void fpgaConfig(void)											//
 {
 	s32_t fpga_file;
 	int32_t read_res;
+	
 	fpga_file=SPIFFS_open(&fs, "FPGA.rbf", SPIFFS_O_RDONLY, 0);
 	
 	uint32_t bytesCnt=0;
-	uint8_t byteBuff;
+	uint8_t byteBuff[CONF_BUF_SIZE];
+	uint8_t bytesToRead=CONF_BUF_SIZE;
+	uint32_t bytesRemain=CONF_FILE_SIZE;
 //	byteBuff=0;
 //	spi2Transmit(&byteBuff, 1);
 	
@@ -258,16 +265,16 @@ void fpgaConfig(void)											//
 	while(!(GPIOC->IDR & GPIO_IDR_ID7)){/** \todo timeout */}
 	delay_ms(10);
 	FPGA_CS_L;															//for logger
-	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
-		read_res=SPIFFS_read(&fs, fpga_file, &byteBuff, 1);
-		if (read_res<1)
+	do{
+//	for(bytesCnt=0;bytesCnt<CONF_FILE_SIZE;bytesCnt++){
+		read_res=SPIFFS_read(&fs, fpga_file, &byteBuff, bytesToRead);
+		if (read_res<bytesToRead)
 		{	break;
 		};
-		spi2Transmit(&byteBuff, 1);
+		spi2Transmit(byteBuff, bytesToRead);
 		if(GPIOC->IDR & GPIO_IDR_ID6)
-			{byteBuff=0;
-			spi2Transmit(&byteBuff, 1);
-//			confComplete();
+			{byteBuff[0]=0;
+			spi2Transmit(byteBuff, 1);
 			fpgaFlags.fpgaConfigComplete=1;
 			FPGA_CS_H;
 			SPI2->CR1 &= ~SPI_CR1_SPE;
@@ -277,7 +284,13 @@ void fpgaConfig(void)											//
       SPIFFS_close(&fs, fpga_file);				
 			return;
 		}
-	}
+//	}
+		bytesRemain-=bytesToRead;
+		if(bytesRemain>=CONF_BUF_SIZE)
+			bytesToRead=CONF_BUF_SIZE;
+		else
+			bytesToRead=bytesRemain;
+	}while(bytesToRead!=0);
 //	byteBuff=0;
 //	spi2Transmit(&byteBuff, 1);
 	FPGA_CS_H;
@@ -375,7 +388,7 @@ e_FunctionReturnState getControlParam(void)
 					_sscanf( pch+1,"%i",&TempParam);
 					playParamArr[strCnt-1]=TempParam;
 				};	
-        pch = strchr(tempArrOld,13);
+        pch = strchr(tempArrOld,10);
 				if (NULL==pch)
 				{	rstate=e_FRS_DoneError;
 					break;
@@ -426,7 +439,7 @@ e_FunctionReturnState getFreq()
 				
 				index++;
 				
-        pch = strchr(tempArrOld,13);
+        pch = strchr(tempArrOld,10);	//VV 2.02.21
 					if (NULL==pch)
 					{rstate=e_FRS_DoneError;
 						 break;
@@ -818,32 +831,22 @@ void setTotalTimer(void)
 //	
 //}
 
-//-----------------------------------Hi level function---------------------------------------
+//-----------------------------------Hi level function---------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!
 uint8_t curState;
 
-//typedef enum  
-//{SLD_FSM_InitialWait  		//work
-//,SLD_FSM_Off  						//work
-//,SLD_FSM_OnTransition 		//work
-//,SLD_FSM_On 							//work
-//,SLD_FSM_OffTransition 		//work
-//,SLD_FSM_DontMindSleep		//e_PS_DontMindSleep
-//,SLD_FSM_SleepTransition 	//work
-//,SLD_FSM_Sleep           	//  ready for sleep
-//,SLD_FSM_WakeTransition  	//work
-//,SLD_FSM_NumOfEl	
-//} e_SLD_FSM;
+
 
 /**
 \brief Map e_SLD_FSM onto e_PowerState
 
 e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 */
-const e_PowerState SLPl_Encoder[4]=
-{e_PS_ReadySleep						//SLD_FSM_InitialWait
-,e_PS_ReadySleep						//SLD_FSM_Off
-,e_PS_Work						//SLD_FSM_OnTransition
-,e_PS_Work						//SLD_FSM_On
+const e_PowerState SLPl_Encoder[SLPl_FSM_NumOfElements]=
+{e_PS_Work      						//SLPl_FSM_InitialWait
+,e_PS_ReadySleep						//SLPl_FSM_off
+,e_PS_Work									//SLPl_FSM_OnTransition
+,e_PS_Work									//SLPl_FSM_On
+,e_PS_Work									//SLPl_FSM_OffTransition
 };
 
 //---------------------------------for power sleep---------------------------------------------
@@ -870,9 +873,24 @@ __inline bool SLPl_PWRState(void)
 {
 	return SLPl_PWR_State;
 };
+//---------------------------------- For display-----------------------------------------------
+void SLPl_Start(uint32_t nof)
+{
+	fpgaFlags.playStart=1;
+	playFileSector=nof;
+};
+void SLPl_Stop()
+{
+	
+};
+
 
 //-------------------------for main------------------------------------------------------------
 
+__inline  e_SLPl_FSM Get_SLPl_FSM_State(void)
+{
+  return curState;
+}	
 
 void SLP_init(void)
 {
@@ -881,6 +899,8 @@ void SLP_init(void)
 	//SLPl_PowerState=e_PS_ReadySleep;//RDD for pwr
 }
 
+void CalcTimers(void);
+
 void SLP(void)
 {
 	if(spiDispCapture==1){
@@ -888,7 +908,7 @@ void SLP(void)
 	}
 	switch(curState){
 		//file list initialization
-		case 0:
+		case SLPl_FSM_InitialWait:
 //			if(fpgaFlags.fileListUpdate==1){
 //				//if(!W25qxx_IsEmptySector(fileSect,0))
 //					{
@@ -911,26 +931,33 @@ void SLP(void)
 			break;
 		
 		//waiting for start 
-		case 1:
-			if(fpgaFlags.playStart==1){
+		case SLPl_FSM_off:
+			if(fpgaFlags.playStart==1)
+			{
 				fpgaFlags.playStart=0;
-				curState=2;
-			}
+				if (SLC_Busy_State())
+				{
+					SetStatusString("Сan't play when comm");
+				}
+				else
+				{
+					curState=2;
+				};
+			};
 			break;
-		//preparation for the generation process
-		case 2:
-			//SLPl_PowerState=e_PS_Work;//RDD for pwr
 		
+		case SLPl_FSM_OnTransition://preparation for the generation process
 			PM_OnOffPWR(PM_Player,true );//RDD ON POWER
 		  initSpi_2();
-///rdd debug			spi1FifoClr();
 			spi2FifoClr();
-		
-			fpgaFlags.fpgaConfig=1;
+//			fpgaFlags.fpgaConfig=1;
+////			fpgaFlags.progBarClkStart=1;
 			fpgaConfig();
-//			fpgaFlags.fpgaConfigComplete=1;	//for debug
+////			fpgaFlags.progBarClkStart=0;
+////			fpgaFlags.fpgaConfigComplete=1;	//for debug
 			fpgaFlags.labelsUpdate=1;
-			if(fpgaFlags.fpgaConfigComplete==1){
+			if(fpgaFlags.fpgaConfigComplete==1)
+			{
 				playFileSector=playFileInList;
 				playFileSectorBegin=playFileSector;
 				setTotalTimer();
@@ -944,29 +971,32 @@ void SLP(void)
 				fpgaFlags.playBegin=1;
 				fpgaFlags.labelsUpdate=1;
 				curState=3;
+				SetStatusString("Config OK");
 			}
-			else{
+			else
+			{
+				SetStatusString("Config failed");
 				curState=1;
 			}
 			break;
 			
 		//generation process	
-		case 3:
+		case SLPl_FSM_On:
 //			getTimers();
 			if(durTimeMs>=999)
 			{
 				durTimeS++;
 				durTimeMs=0;
 			}
+			CalcTimers();
 			if(durTimeS>=playParamArr[3])
 			{
-				//startFpga();
+				startFpga();
 				durTimeS=0;
 ///rdd debug				spi1FifoClr();
 				spi2FifoClr();
 				calcFreq();
-				if(fpgaFlags.endOfFile==1)
-				{
+				if(fpgaFlags.endOfFile==1){
 					playFileSector++;
 					if(playFileSector>=SLPl_ui16_NumOffiles) 
 					{playFileSector=0;
@@ -979,16 +1009,25 @@ void SLP(void)
 					setInitFreq();
 					loadFreqToFpga();
 					loadMultToFpga();
-					startFpga();
+//					startFpga();
 			 }
+				loadFreqToFpga();
+				
 		  }	
-			if(fpgaFlags.playStop==1)
+			if ((fpgaFlags.playStop==1)||(SLC_Busy_State()))
 			{
 				fpgaFlags.playStop=0;
 				fpgaFlags.fpgaConfigComplete=0;
 				fpgaFlags.playBegin=0;
 				fpgaFlags.clockStart=0;
 				PM_OnOffPWR(PM_Player,false );//RDD OFF POWER
+				
+			  totalSec=0;
+		    totalMin=0;
+		    totalHour=0;
+		    fileSec=0;
+		    fileMin=0;
+		    fileHour=0;
 				
 				curState=1;
 			}
@@ -998,4 +1037,52 @@ void SLP(void)
 	}
 }
 
+void CalcTimers(void)
+{
+		if(playClk>=999)
+		{
+		playClk=0;
+		
+		//Program timer
+		if(fileSec==0){
+			fileSec=59;
+			if(fileMin==0){
+				fileMin=59;
+				if(fileHour==0){
+					fileHour=99;
+				}
+				else{
+					fileHour--;
+				}
+			}
+			else{
+				fileMin--;
+			}
+		}
+		else{
+			fileSec--;
+		}
+	
+		//Total timer
+		if(totalSec==0){
+			totalSec=59;
+			if(totalMin==0){
+				totalMin=59;
+				if(totalHour==0){
+					totalHour=99;
+				}
+				else{
+					totalHour--;
+				}
+			}
+			else{
+				totalMin--;
+			}
+		}
+		else{
+			totalSec--;
+		}
+		fpgaFlags.timeUpdate=1;
+	}
+};
 

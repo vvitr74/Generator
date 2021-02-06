@@ -2,6 +2,8 @@
 #include "SuperLoop_Comm2.h"
 #include "SL_CommModbus.h"
 
+#include "BQ28z610_Data.h"
+
 //------------------------------------for iteraction with MOFBUS
 #define USBcommPause 1000
 
@@ -43,7 +45,18 @@ const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
 ,false						//SLC_FSM_Init
 ,true		          //SLC_FSM_CommAbsent
-,true						  //SLC_FSM_OnTransitionOffPlayer
+,false						  //SLC_FSM_OnTransitionOffPlayer
+,false					  	//SLC_FSM_USBCommunication 
+,false	          	//SLC_FSM_AndroidConnected	
+,false		      	//SLC_FSM_Sleep
+,false						//SLC_FSM_WakeTransition
+};
+
+const bool SLC_BusyEncoder[SLC_FSM_NumOfEl]=
+{false						//SLC_FSM_InitialWaitSupply
+,false						//SLC_FSM_Init
+,false		          //SLC_FSM_CommAbsent
+,false						  //SLC_FSM_OnTransitionOffPlayer
 ,true					  	//SLC_FSM_USBCommunication 
 ,true	          	//SLC_FSM_AndroidConnected	
 ,false		      	//SLC_FSM_Sleep
@@ -60,6 +73,10 @@ static bool OffPlayer=true; //rdd debug
 __inline bool SLC_SPIFFS_State(void)
 {
 	 return SPIFFS_ReadyEncoder[state_inner];
+};
+__inline bool SLC_Busy_State(void)
+{
+	 return SLC_BusyEncoder[state_inner];
 };
 
 
@@ -103,6 +120,9 @@ extern void SLC(void)
 			PM_OnOffPWR(PM_Communication,true );
 			spiffs_init();
 		  SL_CommModbusInit();
+		
+//		readDataFromFile();	//for debug
+		
 		  state_inner=SLC_FSM_CommAbsent;
 			break;
 		case SLC_FSM_CommAbsent: //

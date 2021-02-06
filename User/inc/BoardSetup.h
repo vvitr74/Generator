@@ -45,6 +45,9 @@
 #define TFT_CS					  3			// PD3  CHIP SELECT
 #define TFT_CS_LOW			  GPIOD->BSRR = GPIO_BSRR_BR3
 #define TFT_CS_HI				  GPIOD->BSRR = GPIO_BSRR_BS3
+#define TFT_CS_H 					GPIOD->BSRR=GPIO_BSRR_BS3
+#define TFT_CS_L 					GPIOD->BSRR=GPIO_BSRR_BR3
+
 
 #define TFT_SCL					  3			// PB3 	SERIAL CLOCK 
 #define TFT_SCL_LOW			  GPIOB->BSRR = GPIO_BSRR_BR3	

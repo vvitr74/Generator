@@ -11,6 +11,19 @@
 #include <stdbool.h>
 #include "PowerModes_Defs.h"
 
+typedef enum  
+{SLAcc_Initial  	
+,SLAcc_batEmpty	
+,SLAcc_batLowLev  						
+,SLAcc_batMedLev 		
+,SLAcc_batHighLev 							
+,SLAcc_batFull
+,SLAcc_batCharging 	
+,SLAcc_NumOfElements	
+} e_SLAcc_BatStatus;
+
+extern e_SLAcc_BatStatus Get_SLAcc_BatteryStatus(void);
+
 //----------------------------------for main---------------------------------------------
 extern void SuperLoopACC(void);
 extern void SuperLoopACC_init(void);

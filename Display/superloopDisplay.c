@@ -20,10 +20,21 @@
 #include "board_PowerModes.h"
 #include "BoardSetup.h"
 #include "SuperLoop_Comm2.h"
+#include "superloop.h"
 //#include "spiffs.h"
 #include "romfs_files.h"
 
 //extern uint16_t SLPl_ui16_NumOffiles;
+
+ #define D_statusstring_Length 50
+char statusstring[D_statusstring_Length]="initial state";
+bool bstatusstring;
+void SetStatusString(char* s)
+{
+	bstatusstring=true;
+	strncpy(statusstring,s,D_statusstring_Length-1);
+};
+
 
 //-------------------------for main-----------------------------------------------
 
@@ -110,7 +121,7 @@ void on_playlist_write_done()
 	bListUpdate=true;
 }
 
-    
+extern  GHandle	ghList1;   
 #define SLD_SleepDelay 1000
 
 int SLD(void)
@@ -139,7 +150,7 @@ int SLD(void)
 			break;
 		case SLD_FSM_OnTransition: //on transition
 				PM_OnOffPWR(PM_Display,true );
-				SLD_DisplInit();
+				SLD_DisplReInit();
 		    bListUpdate=true;
 		    gfxSleepMilliseconds(10); 
 		    state_inner=SLD_FSM_On;
@@ -172,7 +183,7 @@ int SLD(void)
 			};
 				break;
 		case SLD_FSM_PopulateList:	
-				if (SLC_SPIFFS_State()) 
+//				if (SLC_SPIFFS_State()) 
 				{
 //      	do
 					{
@@ -185,9 +196,9 @@ int SLD(void)
 							gfxSleepMilliseconds(10); 
 					}
 				}
-				else 
-				{	state_inner=SLD_FSM_On;	
-				};	
+//				else 
+//				{	state_inner=SLD_FSM_On;	
+//				};	
 //				while (e_FRS_DoneError!=rstatel);
       break;	
 		case SLD_FSM_NotFlash:	
@@ -238,6 +249,10 @@ int SLD_init(void)
 extern char	heap[GFX_OS_HEAP_SIZE];
 extern gThread	hThread;
 
+static e_SLAcc_BatStatus batStateOld;
+static e_SLPl_FSM PlStateOld;
+static t_DisplayFlags ButtonFlags;
+static uint32_t FileListCurrentPage;
 //uint8_t fileSect=0;
 
 void GFXPreinit (void)
@@ -260,6 +275,9 @@ int SLD_DisplDeInit(void)
 
 int SLD_DisplReInit(void)
 {
+	batStateOld=0;
+	PlStateOld=0;
+	
 	GFXPreinit();
 	SLD_DisplInit();
 
@@ -693,6 +711,27 @@ gfxInit();
 return 0;	
 };
 
+void DisplayBatteryStatus(void)
+{
+	if (batStateOld!=Get_SLAcc_BatteryStatus())
+	switch(Get_SLAcc_BatteryStatus())
+	{
+		case SLAcc_batEmpty:createImage_batEmpty();
+			break;
+		case SLAcc_batLowLev:createImage_batLowLev();
+			break;
+		case SLAcc_batMedLev:createImage_batMedLev();
+			break;
+		case SLAcc_batHighLev:createImage_batHighLev();
+			break;
+		case SLAcc_batFull:createImage_batFull();
+		  break;
+		case SLAcc_batCharging:createImage_batCharging();
+			break;
+		default:;
+	};
+	  batStateOld=Get_SLAcc_BatteryStatus();
+};
 
 void GetEvent()
 {	
@@ -700,25 +739,20 @@ void GetEvent()
 	switch(pe->type)
 	{
 		case GEVENT_GWIN_BUTTON:
-			if (((GEventGWinButton*)pe)->gwin == ghButton1)
-			{
-				playFileInList=gwinListGetSelected(ghList1);
-//				SLPl_ui16_NumOffiles=gwinListItemCount(ghList1);	//VV 5.02.21
-				if (SLPl_ui16_NumOffiles>0)
-				{	
-					fpgaFlags.playStart=1;
-					fpgaFlags.fpgaConfig=1;
-				};
-			};	
-			if (((GEventGWinButton*)pe)->gwin == ghButton2)
-			{
-				if(curState==3)
-				{
-					fpgaFlags.playStop=1;
-				}
-			}
-			if (((GEventGWinButton*)pe)->gwin == ghButton3)	//prev 10 files
-			{
+			ButtonFlags.playStart|=(((GEventGWinButton*)pe)->gwin == ghButton1);
+		  ButtonFlags.playStop|=(((GEventGWinButton*)pe)->gwin == ghButton2);
+		  ButtonFlags.fileListUp|=(((GEventGWinButton*)pe)->gwin == ghButton3);
+		  ButtonFlags.fileListDown|=(((GEventGWinButton*)pe)->gwin == ghButton4);
+		break;
+		default:;
+	}	
+			
+};
+
+void FileListUpDown()
+{
+				if (ButtonFlags.fileListUp)	//prev 10 files
+			{ ButtonFlags.fileListUp=0;
 				if(curState==3)
 				{
 //					fpgaFlags.prewFiles=1;
@@ -731,8 +765,8 @@ void GetEvent()
 //				  gfxSleepMilliseconds(10);
 				}
 			}
-			if (((GEventGWinButton*)pe)->gwin == ghButton4)	//next 10 files
-			{
+			if (ButtonFlags.fileListDown)	//next 10 files
+			{ ButtonFlags.fileListDown=0;
 				if(curState==3)
 				{
 //					fpgaFlags.nextFiles=1;
@@ -745,19 +779,8 @@ void GetEvent()
 //				  gfxSleepMilliseconds(10);
 				}
 			}
-			
-			break;
-		default:
-			break;
-	}
-};
 
-
-void DisplaySelectedFile(uint32_t n)
-{
-		gwinListSetSelected(ghList1,n,TRUE);
-		gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
-};
+}
 
 void DisplayPlayStop()
 {
@@ -769,88 +792,50 @@ void DisplayPlayStop()
 
 };
 
-int SLDw(void)
-{ uint16_t tt;
-	//event handling
+void StartStop(void)
+{
+	uint32_t nof,cf;
+			if (ButtonFlags.playStart)
+			{ ButtonFlags.playStart=0;
+				nof=gwinListItemCount(ghList1);	
+				if (nof>0)
+				{
+					SetStatusString("Config. Please wait");
+					gfxSleepMilliseconds(10);
+					cf=gwinListGetSelected(ghList1)+FileListCurrentPage;
+					SLPl_Start(cf);
+				}	
+			};	
+			if (ButtonFlags.playStop)
+			{ ButtonFlags.playStop=0;
+				//DisplayPlayStop();
+				SLPl_Stop();
+			};
+};
 
-	GetEvent();
+
+void DisplaySelectedFile(uint32_t n)
+{
+		//gwinListSetSelected(ghList1,n,TRUE);
+		//gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
 	
-	if (SLC_Busy_State())
-	{
-		gwinSetText(ghLabel3,"Comm-tion, Pls wait",gFalse);
-		fpgaFlags.playStop=1;
-	};                         
-	//information output to the display
-	
-	if(fpgaFlags.endOfFile==1)
-	{
-		DisplaySelectedFile(playFileSector);
-		fpgaFlags.endOfFile=0;
-	}
-	
-	if(fpgaFlags.playStop==1)
-	{
-//		fpgaFlags.playStop=0;
-     DisplayPlayStop();
-	}
-	
-	if(fpgaFlags.fpgaConfig==1){
-		fpgaFlags.fpgaConfig=0;
-		gwinSetText(ghLabel3,"Config. Please wait",gFalse);
-//		createProgBar();
-	}
-	
-	
-	if(fpgaFlags.labelsUpdate==1){
-		fpgaFlags.labelsUpdate=0;
-		if(fpgaFlags.fpgaConfigComplete==1){
-			gwinSetText(ghLabel3,"Config OK",gFalse);
-//			gwinDestroy(ghProgBarWin);
-//			createLabels();
-		}
-		else{
-			gwinSetText(ghLabel3,"Config failed",gFalse);
-//			gwinDestroy(ghProgBarWin);
-//			createLabels();
-		}
-		if(fpgaFlags.playBegin==1){
-			gwinSetText(ghLabel4,"Start",gFalse);
-			gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
-		}
-	}
-	
-//	if(fpgaFlags.timeUpdate==1){
-//		fpgaFlags.timeUpdate=0;
-//	
-//		gwinSetText(ghLabel6,fileTimeArr,gFalse);
-//		
-//		
-//		gwinSetText(ghLabel7,totalTimeArr,gFalse);
-//		
-//	}
-	
-	if(playClk>=999){
-		playClk=0;
-		
-		//Program timer
-		if(fileSec==0){
-			fileSec=59;
-			if(fileMin==0){
-				fileMin=59;
-				if(fileHour==0){
-					fileHour=99;
-				}
-				else{
-					fileHour--;
-				}
-			}
-			else{
-				fileMin--;
-			}
-		}
-		else{
-			fileSec--;
-		}
+		//gwinSetText(ghLabel4,"Start",gFalse);
+  	//gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
+
+};
+
+
+
+void DisplayStatusString(void)
+{
+  if (bstatusstring)
+	{	bstatusstring=false;
+		gwinSetText(ghLabel3,statusstring,gFalse);
+	};
+};
+
+void DisplayTimers(void)
+{
 		fileTimeArr[0]=fileHour/10;
 		fileTimeArr[1]=fileHour%10;
 		fileTimeArr[3]=fileMin/10;
@@ -860,25 +845,6 @@ int SLDw(void)
 		timeToString(fileTimeArr);
 		gwinSetText(ghLabel6,(const char*)fileTimeArr,gFalse);
 	
-		//Total timer
-		if(totalSec==0){
-			totalSec=59;
-			if(totalMin==0){
-				totalMin=59;
-				if(totalHour==0){
-					totalHour=99;
-				}
-				else{
-					totalHour--;
-				}
-			}
-			else{
-				totalMin--;
-			}
-		}
-		else{
-			totalSec--;
-		}
 		totalTimeArr[0]=totalHour/10;
 		totalTimeArr[1]=totalHour%10;
 		totalTimeArr[3]=totalMin/10;
@@ -887,7 +853,62 @@ int SLDw(void)
 		totalTimeArr[7]=totalSec%10;
 		timeToString(totalTimeArr);
 		gwinSetText(ghLabel7,(const char*)totalTimeArr,gFalse);
-	}
 
+};
+
+int SLDw(void)
+{ uint16_t tt;
+	//event handling
+
+	GetEvent();
+	
+	StartStop();
+	
+	switch(Get_SLPl_FSM_State())
+	{
+		case SLPl_FSM_InitialWait:
+			  
+			break;
+		case  SLPl_FSM_off:
+			    if (PlStateOld!=Get_SLPl_FSM_State())
+			      DisplayPlayStop();
+					if (!SLC_Busy_State())
+						FileListUpDown();
+			break;
+		case  SLPl_FSM_OnTransition:
+			
+			break;
+		case  SLPl_FSM_On:
+	      if(fpgaFlags.endOfFile==1)
+        	{
+        		DisplaySelectedFile(playFileSector);
+        		fpgaFlags.endOfFile=0;
+        	}
+			
+			break;
+		case  SLPl_FSM_OffTransition:
+			     
+			break;
+		default:;
+			
+	};
+	PlStateOld=Get_SLPl_FSM_State();
+	
+	
+
+	DisplayStatusString();
+	 
+	if (1==fpgaFlags.timeUpdate)
+	{
+		fpgaFlags.timeUpdate=0;
+		DisplayTimers();
+	};
+	
+			ButtonFlags.playStart=0;
+		  ButtonFlags.playStop=0;
+		  ButtonFlags.fileListUp=0;
+		  ButtonFlags.fileListDown=0;
+
+	
 return 0;	
 };

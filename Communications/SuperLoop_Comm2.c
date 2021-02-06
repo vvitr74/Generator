@@ -80,7 +80,6 @@ __inline bool SLC_Busy_State(void)
 };
 
 
-
 //---------------------------------for power sleep---------------------------------------------
 //static e_PowerState SLD_PowerState; 
 static bool SLC_GoToSleep;

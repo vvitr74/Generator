@@ -32,7 +32,7 @@
 #include "fs.h"
 
 #ifdef RELEASE
-#define APPLICATION_ADDRESS (uint32_t)0x08001800 /**  offset start address */
+#define APPLICATION_ADDRESS (uint32_t)0x08003800 /**  offset start address */
 
 void _ttywrch(int ch)
 {

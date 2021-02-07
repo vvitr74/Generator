@@ -66,6 +66,14 @@ void SysTick_Handler(void)
 	
 	SystemTicks++;
 	cur_time++;
+    
+    /*if((SystemTicks % 200) == 0)
+    {
+        GPIOB->ODR ^= GPIO_ODR_OD10;
+    }
+    */
+    
+    
 //	ledTick++;
 //  if (ledTick >= 200)   
 //		{ledTick = 0;

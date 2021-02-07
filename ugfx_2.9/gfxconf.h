@@ -202,13 +202,13 @@
 //    #define GWIN_NEED_FLASHING                       GFXOFF
 //        #define GWIN_FLASHING_PERIOD                 250
 
-//#define GWIN_NEED_CONSOLE                            GFXOFF
-//    #define GWIN_CONSOLE_USE_HISTORY                 GFXOFF
-//        #define GWIN_CONSOLE_HISTORY_AVERAGING       GFXOFF
-//        #define GWIN_CONSOLE_HISTORY_ATCREATE        GFXOFF
-//    #define GWIN_CONSOLE_ESCSEQ                      GFXOFF
-//    #define GWIN_CONSOLE_USE_BASESTREAM              GFXOFF
-//    #define GWIN_CONSOLE_USE_FLOAT                   GFXOFF
+#define GWIN_NEED_CONSOLE                            GFXON
+    #define GWIN_CONSOLE_USE_HISTORY                 GFXON
+        #define GWIN_CONSOLE_HISTORY_AVERAGING       GFXON
+        #define GWIN_CONSOLE_HISTORY_ATCREATE        GFXON
+    #define GWIN_CONSOLE_ESCSEQ                      GFXON
+    #define GWIN_CONSOLE_USE_BASESTREAM              GFXON
+    #define GWIN_CONSOLE_USE_FLOAT                   GFXON
 //#define GWIN_NEED_GRAPH                              GFXOFF
 //#define GWIN_NEED_GL3D                               GFXOFF
 

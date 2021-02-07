@@ -4,6 +4,7 @@
 #include "board_PowerModes.h"
 #include "spiffs.h"
 #include "fs.h"
+#include "bluetooth.h"
 
 void SLC_init(void);
 void SLC(void);

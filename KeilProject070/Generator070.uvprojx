@@ -705,6 +705,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>BLE</GroupName>
+          <Files>
+            <File>
+              <FileName>bluetooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BLE\bluetooth.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
         <Group>

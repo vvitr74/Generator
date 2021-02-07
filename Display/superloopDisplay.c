@@ -254,6 +254,7 @@ GHandle	ghList1;
 GHandle ghImage1;
 GHandle ghProgBarWin;
 GHandle ghProgBar;
+GHandle ghCons;
 
 static GHandle  ghButton1, ghButton2, ghButton3, ghButton4;
 
@@ -339,36 +340,36 @@ static void createButtons(void) {
 	wi.g.show = gTrue;
 
 	// Apply the START button parameters
-	wi.g.width = 100;
-	wi.g.height = 30;
-	wi.g.y = 280;
-	wi.g.x = 10;
-	wi.text = "Start";
-	ghButton1 = gwinButtonCreate(0, &wi);
+//	wi.g.width = 100;
+//	wi.g.height = 30;
+//	wi.g.y = 280;
+//	wi.g.x = 10;
+//	wi.text = "Start";
+//	ghButton1 = gwinButtonCreate(0, &wi);
 	
 	// Apply the STOP button parameters
 	wi.g.width = 100;
 	wi.g.height = 30;
 	wi.g.y = 280;
 	wi.g.x = 130;
-	wi.text = "Stop";
+	wi.text = "Clear";
 	ghButton2 = gwinButtonCreate(0, &wi);
 	
 	// Apply the PREW button parameters
-	wi.g.width = 35;
-	wi.g.height = 60;
-	wi.g.y = 20;
-	wi.g.x = 195;
-	wi.text = "Prew";
-	ghButton3 = gwinButtonCreate(0, &wi);
+//	wi.g.width = 35;
+//	wi.g.height = 60;
+//	wi.g.y = 20;
+//	wi.g.x = 195;
+//	wi.text = "Prew";
+//	ghButton3 = gwinButtonCreate(0, &wi);
 	
 	// Apply the NEXT button parameters
-	wi.g.width = 35;
-	wi.g.height = 60;
-	wi.g.y = 90;
-	wi.g.x = 195;
-	wi.text = "Next";
-	ghButton3 = gwinButtonCreate(0, &wi);
+//	wi.g.width = 35;
+//	wi.g.height = 60;
+//	wi.g.y = 90;
+//	wi.g.x = 195;
+//	wi.text = "Next";
+//	ghButton3 = gwinButtonCreate(0, &wi);
 }
 
 static void createLabels(void) {
@@ -548,6 +549,24 @@ static void createProgBar(void)
 	gwinFillArea(ghProgBarWin, 10, 10, 50, 20);
 }
 
+static void createConsole(void)
+{
+	GWindowInit	wi;
+	gFont	font;
+	
+	font = gdispOpenFont("UI2");
+	
+	gwinClearInit(&wi);
+  wi.show = gTrue; wi.x = 10; wi.y = 10; wi.width = 220; wi.height = 260;
+  ghCons = gwinConsoleCreate(0, &wi);
+	
+	gwinSetColor(ghCons, GFX_WHITE);
+  gwinSetBgColor(ghCons, GFX_BLACK);
+	gwinSetFont(ghCons, font);
+	gwinClear(ghCons);
+//	gwinPrintf(ghCons,"Hello!");
+}
+
 //--------------------END Create uGFX Objects------------------------
 
 
@@ -652,16 +671,30 @@ gfxInit();
 
 	// create the widgets
 	createButtons();
-	createLists();
-	createLabels();
+//	createLists();
+//	createLabels();
 //	createImage_batMedLev();
 //	createImage_batFull();
 //	createImage_batLowLev();
 //	createImage_batHighLev();
 //	createImage_batEmpty();
-	createImage_batCharging();
+//	createImage_batCharging();
 //	createProgBar();
-
+	createConsole();
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+//	gwinPrintf(ghCons,"Hello! ");
+	
 	// We want to listen for widget events
 	geventListenerInit(&gl);
 	gwinAttachListener(&gl);
@@ -674,6 +707,13 @@ return 0;
 
 
 #define OFFSET 220
+char btChRx;
+uint8_t btChRxRdy;
+char btRespArr[256];
+uint8_t rxIrqCnt;
+uint8_t btState;
+uint32_t btCurTime;
+uint32_t lastIrqTime;
 
 int SLDw(void)
 { uint16_t tt;
@@ -690,16 +730,18 @@ int SLDw(void)
 //				SLPl_ui16_NumOffiles=gwinListItemCount(ghList1);	//VV 5.02.21
 				if (SLPl_ui16_NumOffiles>0)
 				{	
-					fpgaFlags.playStart=1;
-					fpgaFlags.fpgaConfig=1;
+//					fpgaFlags.playStart=1;
+//					fpgaFlags.fpgaConfig=1;
 				};
 			};	
 			if (((GEventGWinButton*)pe)->gwin == ghButton2)
 			{
-				if(curState==3)
-				{
-					fpgaFlags.playStop=1;
-				}
+//				if(curState==3)
+//				{
+//					fpgaFlags.playStop=1;
+					gwinDestroy(ghCons);
+					createConsole();
+//				}
 			}
 			if (((GEventGWinButton*)pe)->gwin == ghButton3)	//prev 10 files
 			{
@@ -736,6 +778,17 @@ int SLDw(void)
 	}
 	
 	//information output to the display
+	
+	if(btChRxRdy==1){
+		btChRxRdy=0;
+		gwinPutCharArray(ghCons,btRespArr,rxIrqCnt);
+		rxIrqCnt=0;
+	}
+	
+	if((btCurTime-lastIrqTime)>=1000 && rxIrqCnt!=0){
+		gwinPutCharArray(ghCons,btRespArr,rxIrqCnt);
+		rxIrqCnt=0;
+	}
 	
 	if(fpgaFlags.endOfFile==1){
 		fpgaFlags.endOfFile=0;

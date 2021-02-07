@@ -52,6 +52,7 @@ int BSInit(void)
 };
 
 uint16_t button_sign;
+extern uint32_t btCurTime;
 
 //******************************************** for Display period= 1 ms ***************************************************
  
@@ -66,6 +67,7 @@ void SysTick_Handler(void)
 	
 	SystemTicks++;
 	cur_time++;
+	btCurTime++;
 //	ledTick++;
 //  if (ledTick >= 200)   
 //		{ledTick = 0;

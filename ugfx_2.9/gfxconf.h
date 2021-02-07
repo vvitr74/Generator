@@ -311,7 +311,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // GFILE                                                                 //
 ///////////////////////////////////////////////////////////////////////////
-//#define GFX_USE_GFILE                                GFXOFF
+#define GFX_USE_GFILE                                GFXON
 
 //#define GFILE_NEED_PRINTG                            GFXOFF
 //#define GFILE_NEED_SCANG                             GFXOFF

@@ -7,6 +7,7 @@
 #include "superloopDisplay.h"
 #include "superloop_Player.h"
 #include "Spi1.h"
+#include "SuperLoop_Comm2.h"
 
 //#define SLP_WakeUpPause 500
 
@@ -80,17 +81,17 @@ void SuperLoop_PowerModes_Init(void)
 */	
 void SuperLoop_PowerModes(void)
 	{
-		e_PowerState rplayer,rdispl,racc;//rcomm;
+		e_PowerState rplayer,rdispl,racc,rcomm;
 
 		rplayer=	SLPl_GetPowerState();
 		rdispl=		SLD_GetPowerState();
 		racc=			SLAcc_GetPowerState();
-		//rcomm=SLPo_GetPowerState();
+		rcomm=		SLC_GetPowerState();
 		return; ///RDD debug
 		switch (SLP_state)
 		{
 			case 0://work mode
-				if ((rdispl&&racc&&rplayer))
+				if ((rdispl&&racc&&rplayer&&rcomm))
 					{
 						SLPl_SetSleepState(true);
 						SLD_SetSleepState(true);
@@ -99,7 +100,7 @@ void SuperLoop_PowerModes(void)
 					}
 				break;
 			case 1:	//wait transition for sleep
-					if (!(rdispl&&racc&&rplayer)) SLP_state= 3;
+					if (!(rdispl&&racc&&rplayer&&rcomm)) SLP_state= 3;
 					if ((e_PS_ReadySleep==rplayer)
 						&&(e_PS_ReadySleep==rdispl)
 					  &&(e_PS_ReadySleep==racc)

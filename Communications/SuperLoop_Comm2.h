@@ -9,9 +9,10 @@ void SLC_init(void);
 void SLC(void);
 
 
-e_PowerState SLC_GetPowerState(void);
-e_PowerState SLC_SetSleepState(bool state);
-bool SLC_SPIFFS_State(void);
+extern  e_PowerState SLC_GetPowerState(void);
+extern  e_PowerState SLC_SetSleepState(bool state);
+extern  bool SLC_Busy_State(void);
+extern  bool SLC_SPIFFS_State(void);
 
 void Communication_InSleep();
 void Communication_OutSleep();

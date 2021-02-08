@@ -8,6 +8,8 @@
 #define USBcommPause 1000
 
 static systemticks_t USBcommLastTimel;
+//------------------------------------for Display----------------------------------------------
+s32_t File_List;
 //---------------------------------------------------------------------------------------------
 extern int spiffs_init();
 
@@ -15,9 +17,10 @@ extern int spiffs_init();
 
 typedef enum  
 {SLC_FSM_InitialWaitSupply  		//work
-,SLC_FSM_Init  						      //work
+,SLC_FSM_InitComms  						//work
+,SLC_FSM_InitFiles	            //work
 ,SLC_FSM_CommAbsent 		        //e_PS_DontMindSleep
-,SLC_FSM_OnTransitionOffPlayer 	//work
+,SLC_FSM_OffPlayerTransition 	  //work
 ,SLC_FSM_USBCommunication		    //e_PS_DontMindSleep
 ,SLC_FSM_AndroidConnected 	    //work
 ,SLC_FSM_Sleep           	      //  ready for sleep
@@ -32,7 +35,8 @@ e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 */
 const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 {e_PS_Work						//SLC_FSM_InitialWaitSupply
-,e_PS_Work						//SLC_FSM_Init
+,e_PS_Work						//SLC_FSM_InitComms
+,e_PS_Work						//SLC_FSM_InitFiles	
 ,e_PS_DontMindSleep		//SLC_FSM_CommAbsent
 ,e_PS_Work						//SLC_FSM_OnTransitionOffPlayer
 ,e_PS_Work						//SLC_FSM_USBCommunication 
@@ -43,7 +47,8 @@ const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 
 const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
-,false						//SLC_FSM_Init
+,false						//SLC_FSM_InitComms
+,false						//SLC_FSM_InitFiles	
 ,true		          //SLC_FSM_CommAbsent
 ,false						  //SLC_FSM_OnTransitionOffPlayer
 ,false					  	//SLC_FSM_USBCommunication 
@@ -52,32 +57,33 @@ const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 ,false						//SLC_FSM_WakeTransition
 };
 
-const bool SLC_BusyEncoder[SLC_FSM_NumOfEl]=
-{false						//SLC_FSM_InitialWaitSupply
-,false						//SLC_FSM_Init
-,false		          //SLC_FSM_CommAbsent
-,false						  //SLC_FSM_OnTransitionOffPlayer
-,true					  	//SLC_FSM_USBCommunication 
-,true	          	//SLC_FSM_AndroidConnected	
-,false		      	//SLC_FSM_Sleep
-,false						//SLC_FSM_WakeTransition
-};
+//const bool SLC_BusyEncoder[SLC_FSM_NumOfEl]=
+//{false						//SLC_FSM_InitialWaitSupply
+//,false						//SLC_FSM_InitComms
+//,false						//SLC_FSM_InitFiles		
+//,false		        //SLC_FSM_CommAbsent
+//,true					  	//SLC_FSM_OnTransitionOffPlayer
+//,true					  	//SLC_FSM_USBCommunication 
+//,true	          	//SLC_FSM_AndroidConnected	
+//,false		      	//SLC_FSM_Sleep
+//,false						//SLC_FSM_WakeTransition
+//};
 
 
 
 
 static e_SLC_FSM state_inner;
 //static bool USBcomm;
-static bool OffPlayer=true; //rdd debug
+//static bool OffPlayer=true; //rdd debug
 
 __inline bool SLC_SPIFFS_State(void)
 {
 	 return SPIFFS_ReadyEncoder[state_inner];
 };
-__inline bool SLC_Busy_State(void)
-{
-	 return SLC_BusyEncoder[state_inner];
-};
+//__inline bool SLC_Busy_State(void)
+//{
+//	 return SLC_BusyEncoder[state_inner];
+//};
 
 
 //---------------------------------for power sleep---------------------------------------------
@@ -114,42 +120,57 @@ extern void SLC(void)
 	{
 		case SLC_FSM_InitialWaitSupply: // initial on
 			if (bVSYS) 
-      {state_inner=SLC_FSM_Init;};
+      {state_inner=SLC_FSM_InitComms;};
 			break;
-		case SLC_FSM_Init:
+		case SLC_FSM_InitComms:
 			PM_OnOffPWR(PM_Communication,true );
 			spiffs_init();
 		  SL_CommModbusInit();
 		
 //		readDataFromFile();	//for debug
 		
-		  state_inner=SLC_FSM_CommAbsent;
+		  state_inner=SLC_FSM_InitFiles;
+			break;
+		case SLC_FSM_InitFiles:
+			  File_List=SPIFFS_open(&fs,"freq.pls",SPIFFS_O_RDONLY,0);
+				SLPl_InitFiles();
+		    state_inner=SLC_FSM_CommAbsent;
 			break;
 		case SLC_FSM_CommAbsent: //
 			  SL_CommModbus();
 				if (SLC_GoToSleep)
+				   {
+						SPIFFS_close(&fs, File_List);
 					  PM_OnOffPWR(PM_Communication,false);
+						//unmount
+						state_inner=SLC_FSM_Sleep;
+					 }						 
+						 
 				USBcommLastTimel=USBcommLastTime; //not volatile
 				if ((SystemTicks-USBcommLastTimel)>(2*USBcommPause))
 				   {   USBcommLastTime=SystemTicks-(2*USBcommPause);
 					 }	 
 
 				if ((SystemTicks-USBcommLastTimel)<USBcommPause)
-					  state_inner=SLC_FSM_OnTransitionOffPlayer;
+				{
+					  SPIFFS_close(&fs, File_List);
+					  state_inner=SLC_FSM_OffPlayerTransition;
+				}
 //				if (Bluetooth)
 //					  state_inner=SLC_FSM_OnTransitionOffPlayer;
       break;
-		case SLC_FSM_OnTransitionOffPlayer: // on
+		case SLC_FSM_OffPlayerTransition: // on
 			SL_CommModbus();
-  		if (OffPlayer)
+  		if (SLPl_FFSFree())
 			{
+ 				SPIFFS_close(&fs, File_List);
 				state_inner=SLC_FSM_USBCommunication;
 			};
 			break;
 		case SLC_FSM_USBCommunication: 
 			SL_CommModbus();
       if ((SystemTicks-USBcommLastTimel)>(USBcommPause))				
-				  state_inner=SLC_FSM_CommAbsent;
+				  state_inner=SLC_FSM_InitFiles;
 		  break;	
 		case SLC_FSM_AndroidConnected:
 			break;
@@ -159,7 +180,7 @@ extern void SLC(void)
 				  };
 			break;
 		case SLC_FSM_WakeTransition: //wake transition
-		  state_inner=SLC_FSM_CommAbsent;
+		  state_inner=SLC_FSM_InitialWaitSupply;
 		break;
     default: state_inner=SLC_FSM_InitialWaitSupply;		
 	};

@@ -31,7 +31,6 @@ uint16_t steps;
 uint16_t startSectAddr;
 
 extern uint16_t playFileInList;
-extern uint16_t playFileSector;
 uint16_t playFileSectorBegin;
 uint8_t i=0;
 uint16_t frstChMult=0;
@@ -326,10 +325,10 @@ void timeToString(uint8_t* timeArr)
 //----------------------------------BEGIN LOAD FROM FILES---------------------------------
 
 #define D_ParamStringLength 40
-s32_t freq_file,File_List;
+s32_t freq_file;
 static	uint8_t n_for_CR;
 static	char tempArrOld[D_ParamStringLength+1];
-static  char filename[D_FileNameLength+1];
+        char SLPl_filename[D_FileNameLength+1];
 static int8_t bytesCount;
 
 e_FunctionReturnState getFileName(uint16_t fileSectl)
@@ -341,15 +340,15 @@ e_FunctionReturnState getFileName(uint16_t fileSectl)
 	
 	startAddr=fileSectl*D_FileNameLength;
 	
-	File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);/// \todo one time open
+//	File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);/// \todo one time open
   SPIFFS_lseek(&fs, File_List,startAddr,SPIFFS_SEEK_SET);
 	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, D_FileNameLength);
 	if (bytesCount<1)
 	{	rstate=e_FRS_DoneError;
 	}
 	byteBuff[bytesCount]=0;
-	_sscanf( byteBuff,"%18s",filename);
-	SPIFFS_close(&fs, File_List); /// \todo one time close
+	_sscanf( byteBuff,"%18s",SLPl_filename);
+	//SPIFFS_close(&fs, File_List); /// \todo one time close
 	return rstate;
 }
 
@@ -466,9 +465,9 @@ e_FunctionReturnState LoadParam(uint16_t fileSectl)
 {  
 	e_FunctionReturnState rstate;
 	getFileName(fileSectl);
-	freq_file=SPIFFS_open(&fs, filename, SPIFFS_O_RDONLY, 0);
+	freq_file=SPIFFS_open(&fs, SLPl_filename, SPIFFS_O_RDONLY, 0);
 	rstate=getControlParam();
-	SPIFFS_close(&fs, freq_file);
+  SPIFFS_close(&fs, freq_file);
 	return rstate;
 };
 
@@ -476,7 +475,7 @@ e_FunctionReturnState LoadParmFreq(uint16_t fileSectl)
 { 
 	e_FunctionReturnState rstate;
 	getFileName(fileSectl);
-	freq_file=SPIFFS_open(&fs, filename, SPIFFS_O_RDONLY, 0);
+	freq_file=SPIFFS_open(&fs, SLPl_filename, SPIFFS_O_RDONLY, 0);
 	rstate=getControlParam();
 	if (!rstate)
 	   rstate=getFreq();
@@ -745,7 +744,9 @@ void setFileTimer(void)
 	fileSec=timeArr[2];
 }
 
-void setTotalTimer(void)
+static uint32_t TotalTime;
+
+void InitTotalTime(void)
 {
 	uint32_t time=0;
 	
@@ -761,7 +762,26 @@ void setTotalTimer(void)
 			playParamArr[3]=0;
 		  }
 	}
-	SecToHhMmSs(time);
+TotalTime=time;
+	
+};
+
+void InitFileNum(void)
+{
+	spiffs_stat file_stat;
+//			File_List=SPIFFS_open(&fs,"freq.pls",SPIFFS_O_RDONLY,0);
+			SPIFFS_fstat(&fs,File_List,&file_stat);
+			SLPl_ui16_NumOffiles=file_stat.size/D_FileNameLength;
+};
+
+void SLPl_InitFiles(void)
+{
+	InitFileNum();	
+	InitTotalTime();
+};
+
+void setTotalTimer(void)
+{	SecToHhMmSs(TotalTime);
 	totalHour=timeArr[0];
 	totalMin=timeArr[1];
 	totalSec=timeArr[2];
@@ -849,6 +869,16 @@ const e_PowerState SLPl_Encoder[SLPl_FSM_NumOfElements]=
 ,e_PS_Work									//SLPl_FSM_OffTransition
 };
 
+const bool SLPl_FFSFree_Encoder[SLPl_FSM_NumOfElements]=
+{true      						//SLPl_FSM_InitialWait
+,true						//SLPl_FSM_off
+,false									//SLPl_FSM_OnTransition
+,false									//SLPl_FSM_On
+,false									//SLPl_FSM_OffTransition
+};
+
+
+
 //---------------------------------for power sleep---------------------------------------------
 //static e_PowerState SLPl_PowerState; 
 //static bool SLPl_GoToSleep;
@@ -865,13 +895,11 @@ __inline e_PowerState SLPl_SetSleepState(bool state)
 	return SLPl_Encoder[curState];
 };
 
-//---------------------------------- for power on off ------------------------------------------
+//---------------------------------- for comm ------------------------------------------
 
-bool SLPl_PWR_State;
-
-__inline bool SLPl_PWRState(void)
+__inline bool SLPl_FFSFree(void)
 {
-	return SLPl_PWR_State;
+	return SLPl_FFSFree_Encoder[curState];
 };
 //---------------------------------- For display-----------------------------------------------
 void SLPl_Start(uint32_t nof)
@@ -881,7 +909,7 @@ void SLPl_Start(uint32_t nof)
 };
 void SLPl_Stop()
 {
-	
+	fpgaFlags.playStop=1;
 };
 
 
@@ -935,7 +963,7 @@ void SLP(void)
 			if(fpgaFlags.playStart==1)
 			{
 				fpgaFlags.playStart=0;
-				if (SLC_Busy_State())
+				if (!SLC_SPIFFS_State())
 				{
 					SetStatusString("Сan't play when comm");
 				}
@@ -958,7 +986,7 @@ void SLP(void)
 			fpgaFlags.labelsUpdate=1;
 			if(fpgaFlags.fpgaConfigComplete==1)
 			{
-				playFileSector=playFileInList;
+//				playFileSector=playFileInList;
 				playFileSectorBegin=playFileSector;
 				setTotalTimer();
 				LoadParmFreq(playFileSector);
@@ -991,7 +1019,7 @@ void SLP(void)
 			CalcTimers();
 			if(durTimeS>=playParamArr[3])
 			{
-				startFpga();
+//				startFpga();
 				durTimeS=0;
 ///rdd debug				spi1FifoClr();
 				spi2FifoClr();
@@ -1001,7 +1029,7 @@ void SLP(void)
 					if(playFileSector>=SLPl_ui16_NumOffiles) 
 					{playFileSector=0;
 					};	
-					playFileInList=playFileSector;
+//					playFileInList=playFileSector;
 					if(playFileSector==playFileSectorBegin)
 							setTotalTimer();
 					LoadParmFreq(playFileSector);
@@ -1009,12 +1037,12 @@ void SLP(void)
 					setInitFreq();
 					loadFreqToFpga();
 					loadMultToFpga();
-//					startFpga();
+					startFpga();
 			 }
 				loadFreqToFpga();
 				
 		  }	
-			if ((fpgaFlags.playStop==1)||(SLC_Busy_State()))
+			if ((fpgaFlags.playStop==1)||(!SLC_SPIFFS_State()))
 			{
 				fpgaFlags.playStop=0;
 				fpgaFlags.fpgaConfigComplete=0;

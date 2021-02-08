@@ -35,6 +35,7 @@ uint16_t playFileSectorBegin;
 uint8_t i=0;
 uint16_t frstChMult=0;
 uint16_t scndChMult=0;
+static uint32_t durTimeSLast;
 
 #define  playParamArr_size 8
 #define FPGA_GAIN 21620
@@ -712,7 +713,8 @@ void loadMultToFpga(void)
 void startFpga(void)
 {
 	FPGA_START_H;
-	delay_ms(1);
+	durTimeSLast=playParamArr[3];
+	delay_ms(2);
 	FPGA_START_L;
 }
 
@@ -969,7 +971,7 @@ void SLP(void)
 				}
 				else
 				{
-					curState=2;
+					curState=SLPl_FSM_OnTransition;
 				};
 			};
 			break;
@@ -998,13 +1000,13 @@ void SLP(void)
 				fpgaFlags.clockStart=1;
 				fpgaFlags.playBegin=1;
 				fpgaFlags.labelsUpdate=1;
-				curState=3;
+				curState=SLPl_FSM_On;
 				SetStatusString("Config OK");
 			}
 			else
 			{
 				SetStatusString("Config failed");
-				curState=1;
+				curState=SLPl_FSM_off;
 			}
 			break;
 			
@@ -1017,30 +1019,31 @@ void SLP(void)
 				durTimeMs=0;
 			}
 			CalcTimers();
-			if(durTimeS>=playParamArr[3])
+			if(durTimeS>=durTimeSLast)
 			{
-//				startFpga();
 				durTimeS=0;
+        calcFreq(); 
 ///rdd debug				spi1FifoClr();
 				spi2FifoClr();
-				calcFreq();
-				if(fpgaFlags.endOfFile==1){
-					playFileSector++;
-					if(playFileSector>=SLPl_ui16_NumOffiles) 
-					{playFileSector=0;
-					};	
-//					playFileInList=playFileSector;
+				
+				if(fpgaFlags.endOfFile==1)
+					{
+						playFileSector++;
+						if(playFileSector>=SLPl_ui16_NumOffiles) 
+						{	
+							playFileSector=0;
+						};	
 					if(playFileSector==playFileSectorBegin)
 							setTotalTimer();
+//					playFileInList=playFileSector;
 					LoadParmFreq(playFileSector);
 					setFileTimer();
 					setInitFreq();
-					loadFreqToFpga();
 					loadMultToFpga();
-					startFpga();
-			 }
+					
+			    }
 				loadFreqToFpga();
-				
+				startFpga();
 		  }	
 			if ((fpgaFlags.playStop==1)||(!SLC_SPIFFS_State()))
 			{
@@ -1057,10 +1060,10 @@ void SLP(void)
 		    fileMin=0;
 		    fileHour=0;
 				
-				curState=1;
+				curState=SLPl_FSM_off;
 			}
 			break;
-		default:curState=0;
+		default:curState=SLPl_FSM_InitialWait;
 			break;
 	}
 }

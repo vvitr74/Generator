@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "GlobalKey.h"
 #include "superloopDisplay.h"
 #include "mainFSM.h"
 #include "board_PowerModes.h"
@@ -108,7 +109,7 @@ void fileListInitStart(void);
 
 static bool bListUpdate;
 static uint8_t FSM_fileListUpdate_state;
-static s32_t File_List;
+//static s32_t File_List;
 static uint8_t filename[20];
 static uint8_t fileCount;
 static uint32_t offset;
@@ -156,7 +157,7 @@ int SLD(void)
 		    state_inner=SLD_FSM_On;
       break;
 		case SLD_FSM_On: // on
-		  if (SLC_Busy_State())
+		  if (!SLC_SPIFFS_State())
 			{ state_inner=SLD_FSM_NotFlash;
 			}
 			else
@@ -202,7 +203,7 @@ int SLD(void)
 //				while (e_FRS_DoneError!=rstatel);
       break;	
 		case SLD_FSM_NotFlash:	
-			  if (!SLC_Busy_State())
+			  if (SLC_SPIFFS_State())
 					state_inner=SLD_FSM_On;
 		  break;
 		case SLD_FSM_OffTransition: 
@@ -407,7 +408,7 @@ static void createButtons(void) {
 	wi.g.y = 90;
 	wi.g.x = 195;
 	wi.text = "Next";
-	ghButton3 = gwinButtonCreate(0, &wi);
+	ghButton4 = gwinButtonCreate(0, &wi);
 }
 
 static void createLabels(void) {
@@ -588,7 +589,8 @@ static void createProgBar(void)
 }
 
 //--------------------END Create uGFX Objects------------------------
-
+#define D_StringInList 10
+static uint32_t CurrentPage;
 
 void fileListInitStart(void)
 {
@@ -597,9 +599,9 @@ void fileListInitStart(void)
 	FSM_fileListUpdate_state=0;
 };
 
-spiffs_stat file_stat;
 
-extern uint16_t SLPl_ui16_NumOffiles;
+
+
 uint16_t a;
 
 e_FunctionReturnState fileListRead(void)
@@ -607,7 +609,7 @@ e_FunctionReturnState fileListRead(void)
 	char byteBuff[20];
 	int8_t bytesCount;
   uint32_t i;	
-	static uint32_t offset;
+	uint32_t offset;
 
 	rstate=e_FRS_Processing;
 
@@ -619,19 +621,17 @@ e_FunctionReturnState fileListRead(void)
 		    gfxSleepMilliseconds(10);
   			//gwinListAddItem(ghList1, "_1.txt", gTrue);///RDD debug
 	     // gfxSleepMilliseconds(1);
-		
-			File_List=SPIFFS_open(&fs,"freq.pls",SPIFFS_O_RDONLY,0);
-			SPIFFS_fstat(&fs,File_List,&file_stat);
-			SLPl_ui16_NumOffiles=file_stat.size/22;
+//		  File_List=SPIFFS_open(&fs,"freq.pls",SPIFFS_O_RDONLY,0);
 		  fileCount=0;
-		  offset=0;
+		  offset=D_StringInList*CurrentPage*D_FileNameLength;
 		  //gwinListDeleteAll(ghList1);
+		  SPIFFS_lseek(&fs, File_List,offset,SPIFFS_SEEK_SET);
 		  FSM_fileListUpdate_state++;
 		  break;
 		case 1: 
       while(1){
 				if(fileCount<10){
-					bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, 22);
+					bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, D_FileNameLength);
 					if (bytesCount<1)
 					{	FSM_fileListUpdate_state=101;
 						break;
@@ -663,7 +663,7 @@ e_FunctionReturnState fileListRead(void)
 		  FSM_fileListUpdate_state=1;
 			break;
 		case 101: //DoneError
-			SPIFFS_close(&fs, File_List);
+//			SPIFFS_close(&fs, File_List);
 			rstate=e_FRS_DoneError;
 		  FSM_fileListUpdate_state=0;
 		  offset=0;
@@ -751,35 +751,27 @@ void GetEvent()
 
 void FileListUpDown()
 {
-				if (ButtonFlags.fileListUp)	//prev 10 files
+	if (ButtonFlags.fileListDown)	//prev 10 files
+			{ 
+				ButtonFlags.fileListDown=0;
+				if ((((CurrentPage+1)*D_StringInList)>=(SLPl_ui16_NumOffiles))
+					&&(CurrentPage>0)
+				   )
+				{}
+					else
+					{
+  					CurrentPage++;
+            bListUpdate=true;
+					};
+			}
+			if (ButtonFlags.fileListUp)	//next 10 files
 			{ ButtonFlags.fileListUp=0;
-				if(curState==3)
+				if (CurrentPage>0)
 				{
-//					fpgaFlags.prewFiles=1;
-//					SPIFFS_lseek(&fs,File_List,-OFFSET,SPIFFS_SEEK_CUR);
-//					rstatel=fileListRead();
-//					if (e_FRS_Done==rstatel)
-//						gwinListAddItem(ghList1, (char*)filename, gTrue);	
-//					if (e_FRS_DoneError==rstatel)
-//						 state_inner=SLD_FSM_On;	
-//				  gfxSleepMilliseconds(10);
-				}
-			}
-			if (ButtonFlags.fileListDown)	//next 10 files
-			{ ButtonFlags.fileListDown=0;
-				if(curState==3)
-				{
-//					fpgaFlags.nextFiles=1;
-//					SPIFFS_lseek(&fs,File_List,OFFSET,SPIFFS_SEEK_CUR);
-//					rstatel=fileListRead();
-//					if (e_FRS_Done==rstatel)
-//						gwinListAddItem(ghList1, (char*)filename, gTrue);	
-//					if (e_FRS_DoneError==rstatel)
-//						 state_inner=SLD_FSM_On;	
-//				  gfxSleepMilliseconds(10);
-				}
-			}
-
+  					CurrentPage--;
+            bListUpdate=true;
+				};
+			};
 }
 
 void DisplayPlayStop()
@@ -792,7 +784,7 @@ void DisplayPlayStop()
 
 };
 
-void StartStop(void)
+void Start(void)
 {
 	uint32_t nof,cf;
 			if (ButtonFlags.playStart)
@@ -802,26 +794,35 @@ void StartStop(void)
 				{
 					SetStatusString("Config. Please wait");
 					gfxSleepMilliseconds(10);
-					cf=gwinListGetSelected(ghList1)+FileListCurrentPage;
+					cf=gwinListGetSelected(ghList1)+FileListCurrentPage*D_StringInList;
 					SLPl_Start(cf);
 				}	
 			};	
+};
+
+void Stop(void)
+{
 			if (ButtonFlags.playStop)
 			{ ButtonFlags.playStop=0;
 				//DisplayPlayStop();
 				SLPl_Stop();
 			};
-};
+}
 
 
 void DisplaySelectedFile(uint32_t n)
 {
-		//gwinListSetSelected(ghList1,n,TRUE);
-		//gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
-	
-		//gwinSetText(ghLabel4,"Start",gFalse);
-  	//gwinSetText(ghLabel5,gwinListGetSelectedText(ghList1),gFalse);
-
+	uint32_t n1;
+	if (CurrentPage!=n/D_StringInList)
+	{
+		CurrentPage=n/D_StringInList;
+	  bListUpdate=true;
+	}
+	else
+	{
+		n1=n-CurrentPage*D_StringInList;
+    gwinListSetSelected(ghList1,n1,TRUE);
+	};
 };
 
 
@@ -862,26 +863,30 @@ int SLDw(void)
 
 	GetEvent();
 	
-	StartStop();
-	
 	switch(Get_SLPl_FSM_State())
 	{
 		case SLPl_FSM_InitialWait:
 			  
 			break;
 		case  SLPl_FSM_off:
+			    Start();
 			    if (PlStateOld!=Get_SLPl_FSM_State())
 			      DisplayPlayStop();
-					if (!SLC_Busy_State())
+					if (SLC_SPIFFS_State())
 						FileListUpDown();
 			break;
 		case  SLPl_FSM_OnTransition:
 			
 			break;
 		case  SLPl_FSM_On:
-	      if(fpgaFlags.endOfFile==1)
+		    if (PlStateOld!=Get_SLPl_FSM_State())
+			      gwinSetText(ghLabel4,"Start",gFalse);
+
+			  Stop();
+	      if ((fpgaFlags.endOfFile==1)||(PlStateOld!=Get_SLPl_FSM_State()))
         	{
         		DisplaySelectedFile(playFileSector);
+						gwinSetText(ghLabel5,SLPl_filename,gFalse);
         		fpgaFlags.endOfFile=0;
         	}
 			

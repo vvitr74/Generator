@@ -3,7 +3,8 @@
 
 #include <stdbool.h>
 #include <math.h>
-#include "stm32g0xx.h"
+#include <stm32g0xx.h>
+#include "GlobalKey.h"
 #include "PowerModes_Defs.h"
 #include "SuperLoop_Comm.h"
 #include "superloopDisplay.h"
@@ -52,6 +53,11 @@ typedef struct {
 
 extern volatile t_fpgaFlags fpgaFlags;
 
+extern uint16_t SLPl_ui16_NumOffiles;
+
+
+extern char SLPl_filename[D_FileNameLength+1];
+
 void SLPl_Start(uint32_t nof);
 void SLPl_Stop();
 
@@ -70,7 +76,7 @@ extern volatile uint32_t progBarClk;
 extern  e_PowerState SLPl_GetPowerState(void);
 extern  e_PowerState SLPl_SetSleepState(bool state);
 extern  e_SLPl_FSM Get_SLPl_FSM_State(void);
-extern  bool SLPl_PWRState(void);
+extern bool SLPl_FFSFree(void);
 
 // For main
 void SLP_init(void);
@@ -79,6 +85,10 @@ void SLP(void);
 //For display
 extern uint8_t curState;
 extern uint16_t playFileSector;
+
+//For superloopComm
+
+void SLPl_InitFiles(void);
 
 
 

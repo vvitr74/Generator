@@ -1,5 +1,6 @@
 #include <string.h>
 #include "SL_CommModbus.h"
+#include "SuperLoop_Comm2.h"
 
 #include "mb.h"
 #include "mbport.h"
@@ -48,11 +49,17 @@ int SL_CommModbusInit(void)
 eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
                             USHORT usNCoils, eMBRegisterMode eMode )
 {
-	USBcommLastTime=SystemTicks;
+
     
     if (eMode == MB_REG_WRITE)
     {
-        if (usAddress == (ERASE_ALL_START_COIL+1))
+			 USBcommLastTime=SystemTicks;
+			 if (!SLC_FFSEnable())   //get error if FFS is busy
+			 {   
+					 return MB_ENORES;
+			 };
+
+			 if (usAddress == (ERASE_ALL_START_COIL+1))
         {
             return spiffs_erase_all();
         }
@@ -71,7 +78,7 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
 
 eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 {
-	USBcommLastTime=SystemTicks;
+	//USBcommLastTime=SystemTicks;
  //   USBcommLastTimeSet=true;
 	
     return MB_ENOREG;
@@ -80,7 +87,7 @@ eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT us
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
 	
-	 USBcommLastTime=SystemTicks;
+//	 USBcommLastTime=SystemTicks;
 //   USBcommLastTimeSet=true;
 	
     uint8_t reg = pucRegBuffer[0];
@@ -128,11 +135,17 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
 eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
                               USHORT usNRegs, eMBRegisterMode eMode )
 {
-    USBcommLastTime=SystemTicks;
+    
     
     if (eMode == MB_REG_WRITE && 
         (usAddress == (ERASE_FN_EXT_REG0+1) || usAddress == (ERASE_FN_EXT_REG1+1)))
     {
+			USBcommLastTime=SystemTicks;			 
+			if (!SLC_FFSEnable())  //get error if FFS is busy
+			 {   
+					 return MB_ENORES;
+			 }; 
+			
         uint8_t offset = (usAddress - (ERASE_FN_EXT_REG0+1))<<1;
         if ((offset + (usNRegs<<1)) > sizeof(erase_fn_ext_reg))
         {

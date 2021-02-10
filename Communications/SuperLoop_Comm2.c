@@ -57,17 +57,17 @@ const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 ,false						//SLC_FSM_WakeTransition
 };
 
-//const bool SLC_BusyEncoder[SLC_FSM_NumOfEl]=
-//{false						//SLC_FSM_InitialWaitSupply
-//,false						//SLC_FSM_InitComms
-//,false						//SLC_FSM_InitFiles		
-//,false		        //SLC_FSM_CommAbsent
-//,true					  	//SLC_FSM_OnTransitionOffPlayer
-//,true					  	//SLC_FSM_USBCommunication 
-//,true	          	//SLC_FSM_AndroidConnected	
-//,false		      	//SLC_FSM_Sleep
-//,false						//SLC_FSM_WakeTransition
-//};
+const bool SLC_FFSEnable_Encoder[SLC_FSM_NumOfEl]=
+{false						//SLC_FSM_InitialWaitSupply
+,false						//SLC_FSM_InitComms
+,false						//SLC_FSM_InitFiles		
+,false		        //SLC_FSM_CommAbsent
+,false				  	//SLC_FSM_OnTransitionOffPlayer
+,true					  	//SLC_FSM_USBCommunication 
+,true	          	//SLC_FSM_AndroidConnected	
+,false		      	//SLC_FSM_Sleep
+,false						//SLC_FSM_WakeTransition
+};
 
 
 
@@ -80,10 +80,10 @@ __inline bool SLC_SPIFFS_State(void)
 {
 	 return SPIFFS_ReadyEncoder[state_inner];
 };
-//__inline bool SLC_Busy_State(void)
-//{
-//	 return SLC_BusyEncoder[state_inner];
-//};
+__inline bool SLC_FFSEnable(void)
+{
+	 return SLC_FFSEnable_Encoder[state_inner];
+};
 
 
 //---------------------------------for power sleep---------------------------------------------
@@ -153,7 +153,7 @@ extern void SLC(void)
 
 				if ((SystemTicks-USBcommLastTimel)<USBcommPause)
 				{
-					  SPIFFS_close(&fs, File_List);
+					  //SPIFFS_close(&fs, File_List);
 					  state_inner=SLC_FSM_OffPlayerTransition;
 				}
 //				if (Bluetooth)

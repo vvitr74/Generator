@@ -100,6 +100,7 @@ static systemticks_t LastUpdateTime;
 int SLDw(void);
 void displayACC(void);
 int SLDwACC(void);
+void DisplayBatteryStatus(void);
 //------------------------FSM control--------------------------------------------
 int SLD_DisplInit(void);
 int SLD_DisplReInit(void);
@@ -157,34 +158,37 @@ int SLD(void)
 		    state_inner=SLD_FSM_On;
       break;
 		case SLD_FSM_On: // on
+			DisplayBatteryStatus();
 		  if (!SLC_SPIFFS_State())
-			{ state_inner=SLD_FSM_NotFlash;
+			{ //state_inner=SLD_FSM_NotFlash;
 			}
 			else
 			{
+//				if (SLC_SPIFFS_State())
+				{
+					if (bListUpdate)
+					{	fileListInitStart();
+						state_inner=SLD_FSM_PopulateList;
+					}
+					else
+          {
 #ifdef def_debug_AccDispay
 	    	SLDwACC();
 #else
 		    SLDw();
 #endif		
-				if (SLC_SPIFFS_State())
-				{
-					if (bListUpdate)
-					{	fileListInitStart();
-						state_inner=SLD_FSM_PopulateList;
 					};
 				}	
 			
-		
-				if ((!bVSYS)|button_sign)
+		  };
+			if ((!bVSYS)|button_sign)
 				{
 					button_sign=0;
 					state_inner=SLD_FSM_OffTransition;
 				};
-			};
 				break;
 		case SLD_FSM_PopulateList:	
-//				if (SLC_SPIFFS_State()) 
+				if (SLC_SPIFFS_State()) 
 				{
 //      	do
 					{
@@ -197,12 +201,13 @@ int SLD(void)
 							gfxSleepMilliseconds(10); 
 					}
 				}
-//				else 
-//				{	state_inner=SLD_FSM_On;	
-//				};	
+				else 
+				{	state_inner=SLD_FSM_On;	
+				};	
 //				while (e_FRS_DoneError!=rstatel);
       break;	
 		case SLD_FSM_NotFlash:	
+			  DisplayBatteryStatus();
 			  if (SLC_SPIFFS_State())
 					state_inner=SLD_FSM_On;
 		  break;

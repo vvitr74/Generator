@@ -250,6 +250,8 @@ static bool bADCVSYSVBAT;
 static bool bAccAvailability;
 static systemticks_t SystemTicksOld;
 
+e_FunctionReturnState WriteBQ25703(void);
+
 #define D_incCurPause 1000
 #define D_BQ28z610_BatteryStatus_INITmask (1<<7)
 #define D_BQ28z610_BatteryStatus_TDAmask (1<<11)
@@ -284,7 +286,7 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 													 rstate=e_FRS_Done;
 			                     break;//10
 	  case e_TF_SignCharge:  sign=mainFMSstate;
-			                     if ((VOLTAGE_CHARGED<pv_BQ28z610_Voltage/2)&&(BatteryIChargeCutOff>pvIcharge))
+			                     if ((VOLTAGE_CHARGE_RENEWAL<pv_BQ28z610_Voltage/2)&&(BatteryIChargeCutOff>pvIcharge))
 			                         sign=e_FSM_Rest;
 													 if (0!=(mFSM_Error &(m_BQ28z610_Reads
 														                   |m_BQ25703_ADCIBAT_Read))) 
@@ -316,7 +318,7 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 																  bVSYS=(pvVSYS>6000)
 																      &&(pv_BQ28z610_Voltage>6000)
 																      &&(0==(mFSM_BQ28z610_BatteryStatus&
-																             (D_BQ28z610_BatteryStatus_INITmask|D_BQ28z610_BatteryStatus_TDAmask)
+																             (D_BQ28z610_BatteryStatus_TDAmask)
 																            )
 																        );
 																  bAccAvailability=bVSYS;
@@ -377,7 +379,59 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 		case e_TF_BatteryFSM:           ChargeCurr=fChargeCurrent(mFSM_BQ28z610_Temperature,pv_BQ28z610_Voltage/2);
 													          rstate=e_FRS_Done;
 													          break;
-		case e_TF_BQ25703_Charge_Check: if (
+		case e_TF_BQ25703_Charge_Check: rstate=WriteBQ25703();
+//			                                if (
+//			                                 (
+//			                                 (0!=(mFSM_Error &m_BQ28z610_Reads))
+//		                                    )||
+//		                                   ( 
+//		                                   (0==mFSM_BQ28z610_Temperature)  //not power from 25703
+//														         &&(0==pv_BQ28z610_Voltage)
+//													           &&(0==mFSM_BQ28z610_RSOC)
+//		                                    )
+//		                                    )
+//																				{rstate=BQ25703_Charge_Check(300); }  //If something is wrong, we will provide a charge
+//																				else if (0!=(mFSM_Error &(
+//														                    m_BQ28z610_Reads
+//													                     |m_BQ25703_ADCIBAT_Read)))
+//																			         {rstate=e_FRS_Done;}
+//                                             else 																			
+//																							{rstate=BQ25703_Charge_Check(ChargeCurr); };
+																		break;
+		
+  	default: 	rstate=e_FRS_DoneError;
+	}
+	return rstate;
+}
+
+static uint16_t ChargeVolt;
+
+e_FunctionReturnState WriteBQ25703(void)
+{ static uint8_t state;
+	//static uint8_t buf[20];
+	
+	e_FunctionReturnState returnstate,returnstatel;
+	  returnstate=e_FRS_Processing;
+	  switch(state)
+	  {
+	  case 0:  
+			   if (mFSM_BQ28z610_RSOC<50)
+				 {ChargeVolt=4100;}
+				 else
+				 {ChargeVolt=4200;}
+	       state++;
+//						 break;
+	  case 1: 
+			   
+      	 returnstatel=BQ25703_Write_Check(MaxChargeVoltage, ((ChargeVolt*2)&0x7ff0));
+	
+			   if (e_FRS_Done==returnstatel)
+	           {state++;};
+			   if (e_FRS_DoneError==returnstatel)
+	           {state=101;};
+						 break;
+		case 2:
+                                    if (
 			                                 (
 			                                 (0!=(mFSM_Error &m_BQ28z610_Reads))
 		                                    )||
@@ -387,19 +441,33 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 													           &&(0==mFSM_BQ28z610_RSOC)
 		                                    )
 		                                    )
-																				{rstate=BQ25703_Charge_Check(300); }  //If something is wrong, we will provide a charge
+																				{returnstatel=BQ25703_Charge_Check(300); }  //If something is wrong, we will provide a charge
 																				else if (0!=(mFSM_Error &(
 														                    m_BQ28z610_Reads
 													                     |m_BQ25703_ADCIBAT_Read)))
-																			         {rstate=e_FRS_Done;}
+																			         {state=100;}
                                              else 																			
-																							{rstate=BQ25703_Charge_Check(ChargeCurr); };
-																		break;
-		
-  	default: 	rstate=e_FRS_DoneError;
-	}
-	return rstate;
+																							{returnstatel=BQ25703_Charge_Check(ChargeCurr); };
+				 if (e_FRS_Done==returnstatel)
+	           {state=100;};
+			   if (e_FRS_DoneError==returnstatel)
+	           {state=101;};
+						 break;
+		case 100:
+      			returnstate=e_FRS_Done;//Normal exit
+						state=0;
+			      break;
+		case 101: 
+						returnstate=e_FRS_DoneError;		//Error
+            state=0;						
+						break;
+	  default:  state=0;
+	  }
+	  return returnstate;
 }
+
+
+
 
 /**
 

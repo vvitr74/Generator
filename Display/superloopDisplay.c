@@ -792,7 +792,6 @@ void FileListUpDown()
 			{ 
 				ButtonFlags.fileListDown=0;
 				if ((((CurrentPage+1)*D_StringInList)>=(SLPl_ui16_NumOffiles))
-					&&(CurrentPage>0)
 				   )
 				{}
 					else

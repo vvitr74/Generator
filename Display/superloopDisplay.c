@@ -114,7 +114,7 @@ static uint8_t FSM_fileListUpdate_state;
 static uint8_t filename[20];
 static uint8_t fileCount;
 static uint32_t offset;
-
+static bool bListUpdate1;
 /**
 * Calls when freq.pls writing is done
 */
@@ -166,7 +166,9 @@ int SLD(void)
 			{
 //				if (SLC_SPIFFS_State())
 				{
-					if (bListUpdate)
+					bListUpdate1=bListUpdate1||bListUpdate;
+					bListUpdate=0;
+					if (bListUpdate1)
 					{	fileListInitStart();
 						state_inner=SLD_FSM_PopulateList;
 					}
@@ -197,7 +199,7 @@ int SLD(void)
 							gwinListAddItem(ghList1, (char*)filename, gTrue);	
 						if (e_FRS_DoneError==rstatel)
 							state_inner=SLD_FSM_On;	
-							bListUpdate=false;
+							bListUpdate1=false;
 							gfxSleepMilliseconds(10); 
 					}
 				}
@@ -256,6 +258,7 @@ extern char	heap[GFX_OS_HEAP_SIZE];
 extern gThread	hThread;
 
 static e_SLAcc_BatStatus batStateOld;
+static uint16_t Old_mFSM_BQ28z610_RSOC;
 static e_SLPl_FSM PlStateOld;
 static t_DisplayFlags ButtonFlags;
 static uint32_t FileListCurrentPage;
@@ -283,6 +286,7 @@ int SLD_DisplReInit(void)
 {
 	batStateOld=0;
 	PlStateOld=0;
+	Old_mFSM_BQ28z610_RSOC=0;
 	
 	GFXPreinit();
 	SLD_DisplInit();
@@ -294,7 +298,7 @@ int SLD_DisplReInit(void)
 ////------------------------Display control objects--------------------------------------------
 GListener	gl;
 GHandle	ghLabel1, ghLabel2, ghLabel3, ghLabel4, ghLabel5, ghLabel6, ghLabel7;
-GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12;
+GHandle ghLabel8, ghLabel9, ghLabel10, ghLabel11, ghLabel12,ghLabel13_RSOC;
 GHandle	ghList1;
 GHandle ghImage1;
 GHandle ghProgBarWin;
@@ -306,6 +310,10 @@ static	GEvent* pe;
 //static const gOrientation	orients[] = { gOrientation0, gOrientation90, gOrientation180, gOrientation270 };
 //static	unsigned which;
 
+#define D_image_wigx 195
+#define D_image_wigy 0
+#define D_image_wigwidth 35
+#define D_image_wigheight 20
 
 //-------------------BEGIN  OF BEBUG ACC Display-------------
 
@@ -425,7 +433,7 @@ static void createLabels(void) {
 	
 	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 170;
 //	wi.text = "Self test: OK";
-	wi.text = "Init OK";
+	wi.text = "Check File Systems";
 	ghLabel3 = gwinLabelCreate(0, &wi);
 //	gwinLabelSetAttribute(ghLabel3,100,"Self test:");
 	
@@ -468,6 +476,12 @@ static void createLabels(void) {
 	wi.g.width = 110; wi.g.height = 20; wi.g.x = 10, wi.g.y = 250;
 	wi.text = "Total timer:";
 	ghLabel12 = gwinLabelCreate(0, &wi);
+
+	wi.g.width = 160-D_image_wigx; wi.g.height = 20; wi.g.x = 160; wi.g.y = 0;
+	wi.text = "  0%";
+	ghLabel13_RSOC = gwinLabelCreate(0, &wi);
+
+	
 }
 
 
@@ -485,13 +499,15 @@ static void createLists(void) {
 
 	// The list widget
 	wi.g.width = 180;
-	wi.g.height = 130;
+	wi.g.height = 135;
 	wi.g.y = 20;
 	wi.g.x = 10;
 	wi.text = "Name of list 1";
 	ghList1 = gwinListCreate(0, &wi, gFalse);
 //	gwinListSetScroll(ghList1, scrollSmooth);
 }
+
+
 
 static void createImage_batMedLev(void)
 {
@@ -502,7 +518,7 @@ static void createImage_batMedLev(void)
 	wi.g.show = gTrue;
  
 	// create the first image widget
-	wi.g.x = 195; wi.g.y = 0; wi.g.width = 35; wi.g.height = 20;
+	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
 	ghImage1 = gwinImageCreate(0, &wi.g);
 	gwinImageOpenMemory(ghImage1, batMedLev);
 }
@@ -516,7 +532,7 @@ static void createImage_batHighLev(void)
 	wi.g.show = gTrue;
  
 	// create the first image widget
-	wi.g.x = 195; wi.g.y = 0; wi.g.width = 35; wi.g.height = 20;
+	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
 	ghImage1 = gwinImageCreate(0, &wi.g);
 	gwinImageOpenMemory(ghImage1, batHighLev);
 }
@@ -530,7 +546,7 @@ static void createImage_batLowLev(void)
 	wi.g.show = gTrue;
  
 	// create the first image widget
-	wi.g.x = 195; wi.g.y = 0; wi.g.width = 35; wi.g.height = 20;
+	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
 	ghImage1 = gwinImageCreate(0, &wi.g);
 	gwinImageOpenMemory(ghImage1, batLowLev);
 }
@@ -544,7 +560,7 @@ static void createImage_batEmpty(void)
 	wi.g.show = gTrue;
  
 	// create the first image widget
-	wi.g.x = 195; wi.g.y = 0; wi.g.width = 35; wi.g.height = 20;
+	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
 	ghImage1 = gwinImageCreate(0, &wi.g);
 	gwinImageOpenMemory(ghImage1, batEmpty);
 }
@@ -558,7 +574,7 @@ static void createImage_batCharging(void)
 	wi.g.show = gTrue;
  
 	// create the first image widget
-	wi.g.x = 195; wi.g.y = 0; wi.g.width = 35; wi.g.height = 20;
+	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
 	ghImage1 = gwinImageCreate(0, &wi.g);
 	gwinImageOpenMemory(ghImage1, batCharging);
 }
@@ -573,7 +589,7 @@ static void createImage_batFull(void)
 	wi.g.show = gTrue;
  
 	// create the first image widget
-	wi.g.x = 195; wi.g.y = 0; wi.g.width = 35; wi.g.height = 20;
+	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
 	ghImage1 = gwinImageCreate(0, &wi.g);
 	gwinImageOpenMemory(ghImage1, batFull);
 }
@@ -718,24 +734,40 @@ return 0;
 
 void DisplayBatteryStatus(void)
 {
+	char str[20];
+	
 	if (batStateOld!=Get_SLAcc_BatteryStatus())
 	switch(Get_SLAcc_BatteryStatus())
 	{
-		case SLAcc_batEmpty:createImage_batEmpty();
+		case SLAcc_batLowLev://createImage_batLowLev();
+				gwinImageOpenMemory(ghImage1, batLowLev);
 			break;
-		case SLAcc_batLowLev:createImage_batLowLev();
+		case SLAcc_batMedLev://createImage_batMedLev();
+				gwinImageOpenMemory(ghImage1, batMedLev);
 			break;
-		case SLAcc_batMedLev:createImage_batMedLev();
+		case SLAcc_batHighLev://createImage_batHighLev(); 
+				gwinImageOpenMemory(ghImage1, batHighLev);
 			break;
-		case SLAcc_batHighLev:createImage_batHighLev();
-			break;
-		case SLAcc_batFull:createImage_batFull();
+		case SLAcc_batFull://createImage_batFull();        
+				gwinImageOpenMemory(ghImage1, batFull);
 		  break;
-		case SLAcc_batCharging:createImage_batCharging();
+		case SLAcc_batCharging://createImage_batCharging();
+				gwinImageOpenMemory(ghImage1, batCharging);
 			break;
-		default:;
+		default://SLAcc_batEmpty:createImage_batEmpty(); 
+		    gwinImageOpenMemory(ghImage1, batEmpty);
 	};
+	 
+	if (Old_mFSM_BQ28z610_RSOC!=mFSM_BQ28z610_RSOC)
+	{
+		sprintf(str, "%3d%%", mFSM_BQ28z610_RSOC);
+	  gwinSetText(ghLabel13_RSOC, str, TRUE);
+	};
+	
+	
 	  batStateOld=Get_SLAcc_BatteryStatus();
+	  Old_mFSM_BQ28z610_RSOC=mFSM_BQ28z610_RSOC;
+	
 };
 
 void GetEvent()

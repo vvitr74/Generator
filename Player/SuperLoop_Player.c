@@ -770,10 +770,12 @@ TotalTime=time;
 
 void InitFileNum(void)
 {
+s32_t res;	
 	spiffs_stat file_stat;
 //			File_List=SPIFFS_open(&fs,"freq.pls",SPIFFS_O_RDONLY,0);
-			SPIFFS_fstat(&fs,File_List,&file_stat);
-			SLPl_ui16_NumOffiles=file_stat.size/D_FileNameLength;
+			res=SPIFFS_fstat(&fs,File_List,&file_stat);
+	    if (SPIFFS_OK==res)
+				SLPl_ui16_NumOffiles=file_stat.size/D_FileNameLength;
 };
 
 void SLPl_InitFiles(void)

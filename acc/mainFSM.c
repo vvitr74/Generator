@@ -12,6 +12,8 @@
 
 #include "mainFSM.h"
 #include "battery.h"
+#include "BoardSetup.h"
+
 //#include "stm32l0xx_hal.h"
 typedef uint32_t key_type;
 typedef uint32_t t_TransitionFunctionType;
@@ -77,7 +79,7 @@ typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inh
 #define key_OffCharge_OffCharge ( \
 m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read\
 |m_BQ25703_VSYSVBAT_Read  \
-|m_SignChargeOff|m_VsysAnaliz )  //steady
+|m_SignChargeOff|m_VsysAnaliz|m_BQ25703_InputCurrentSet|m_BQ25703_InputCurrentWrite )  //steady
 #define key_OffCharge_OffRest 0
 #define key_OffCharge_Init 0
 
@@ -87,7 +89,7 @@ m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read\
 #define key_OffRest_OffRest ( \
 m_ReadTPSState|m_BQ28z610_Reads|m_BQ25703_ADCIBAT_Read\
 |m_BQ25703_VSYSVBAT_Read  \
-|m_SignRestOff|m_VsysAnaliz )  //steady
+|m_SignRestOff|m_VsysAnaliz |m_BQ25703_InputCurrentSet|m_BQ25703_InputCurrentWrite)  //steady
 #define key_OffRest_Init (m_25703init)
 
 
@@ -246,6 +248,11 @@ e_FunctionReturnState  MainTransition(key_type key)
 static unsigned char u8_11_ff[11]={0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};//ToDo do const
 static bool bADCVSYSVBAT;
 static bool bAccAvailability;
+static systemticks_t SystemTicksOld;
+
+#define D_incCurPause 1000
+#define D_BQ28z610_BatteryStatus_INITmask (1<<7)
+#define D_BQ28z610_BatteryStatus_TDAmask (1<<11)
 e_FunctionReturnState TransitionFunction(uint8_t state)
 {   e_FunctionReturnState rstate;
 	switch (state)
@@ -255,9 +262,10 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 	  case e_TF_hiz: rstate=BQ25703_SetBits_Check(ChargeOption3,ChargeOption3_EN_HIZ,0); break;//2
 	  case e_TF_hizOff: rstate=BQ25703_SetBits_Check(ChargeOption3,0,ChargeOption3_EN_HIZ); break;//3
   	case e_TF_25703init: rstate=BQ25703_Init_Check(); break;//4
-		case e_TF_IIN200: currl=200;
-			                if (currl>I87) currl=I87;
-			                rstate=BQ25703_IIN_Check(currl);
+		case e_TF_IIN200: //currl=200;
+			                //if (currl>I87) currl=I87;
+			                //rstate=BQ25703_IIN_Check(currl);
+		                  rstate=e_FRS_Done;
                       break;    //5
 		case e_TF_ReadTPSState:              rstate=ReadTPSState();  break;//6
 //		case e_TF_BQ28z610_Read_Temperature: rstate=BQ28z610_Read(e_BQ28z610_Temperature,&mFSM_BQ28z610_Temperature,mainFSMfunction);break;//7  
@@ -305,14 +313,19 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 		                          { 
                                if ((e_FSM_RestOff==mainFMSstate)||(e_FSM_ChargeOff==mainFMSstate))
 															 {
-																  bVSYS=(pvVSYS>6000)&&(pv_BQ28z610_Voltage>5000);
+																  bVSYS=(pvVSYS>6000)
+																      &&(pv_BQ28z610_Voltage>6000)
+																      &&(0==(mFSM_BQ28z610_BatteryStatus&
+																             (D_BQ28z610_BatteryStatus_INITmask|D_BQ28z610_BatteryStatus_TDAmask)
+																            )
+																        );
 																  bAccAvailability=bVSYS;
 															 };
                                if ((e_FSM_Rest==mainFMSstate)||(e_FSM_Charge==mainFMSstate))
 															 {
 																  bVSYS=(pvVSYS>6000)
-																   &&((InCurrent>300)||
-																       bAccAvailability
+																   &&((InCurrent>300)
+																 ||    bAccAvailability
 																     );
 															 };
 
@@ -338,8 +351,12 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 																			{rstate=e_FRS_Done;}
 																		else 
 																		{	
-		
-		                                InCurrent+=100;
+																			 
+																		if ((SystemTicksOld+D_incCurPause)<SystemTicks)
+																		{
+																			SystemTicksOld=SystemTicks;   
+																			InCurrent+=100;
+																		}	
 													          if (InCurrent>(I87-CurrentAdditional))
 																			           InCurrent=I87-CurrentAdditional; 
 													          if  (InCurrent<0)
@@ -370,7 +387,7 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 													           &&(0==mFSM_BQ28z610_RSOC)
 		                                    )
 		                                    )
-																				{rstate=BQ25703_Charge_Check(400); }  //If something is wrong, we will provide a charge
+																				{rstate=BQ25703_Charge_Check(300); }  //If something is wrong, we will provide a charge
 																				else if (0!=(mFSM_Error &(
 														                    m_BQ28z610_Reads
 													                     |m_BQ25703_ADCIBAT_Read)))
@@ -390,9 +407,11 @@ e_BQ28z610_BatteryStatus
 */
 #define Readbq28z610_Error_State 101
 #define Readbq28z610_Done_State 100
+static uint16_t tempdata;
 e_FunctionReturnState Readbq28z610(void)
 { static uint8_t state;
 	//static uint8_t buf[20];
+	
 	e_FunctionReturnState returnstate,returnstatel;
 	  returnstate=e_FRS_Processing;
 	  switch(state)
@@ -421,10 +440,18 @@ e_FunctionReturnState Readbq28z610(void)
 	  case 3:  
       	 returnstatel=BQ28z610_Read(e_BQ28z610_RelativeStateOfCharge,&mFSM_BQ28z610_RSOC,mainFSMfunction);
 			   if (e_FRS_Done==returnstatel)
+	           {state++;};
+			   if (e_FRS_DoneError==returnstatel)
+	           {state=Readbq28z610_Error_State;};
+						 break;
+		case 4://rstate=BQ25703_ADCIBAT_Read(&pvIcharge,&pvIdescharge);				 
+      	 returnstatel=BQ25703_Read(IIN_DPM, &tempdata);
+			   if (e_FRS_Done==returnstatel)
 	           {state=Readbq28z610_Done_State;};
 			   if (e_FRS_DoneError==returnstatel)
 	           {state=Readbq28z610_Error_State;};
 						 break;
+						 
 		case Readbq28z610_Done_State:
       			returnstate=e_FRS_Done;//Normal exit
 						state=0;

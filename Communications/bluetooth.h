@@ -1,4 +1,8 @@
+#ifndef _bluethooth_H
+#define _bluethooth_H
+
 #include "stm32g0xx.h"
+#include <stdint.h>
 
 #define USART2_ALT_FUNC 0x01
 #define USART2_DIV (USART2_PCLK/USART2_BAUDRATE)
@@ -19,14 +23,17 @@
 #define DISCONNECT "K,1"
 #define REBOOT "R,1"
 
-void btInit(void);
-void btIoPinsInit(void);
-void btUartInit(void);
-void btOn(void);
-void btOff(void);
-void setComMode(void);
-int txCommand(uint8_t* cmdArr,uint8_t cmdArrDim);
-void rxResponse(uint8_t* buff);
-void btHardRst(uint32_t rstDurMs,uint32_t delAfterRstMs);
-uint8_t uart2Tx(char *txBuff, uint8_t txBytesNum);
+extern char USART2_RDR;
 
+void btInit(void);
+//void btIoPinsInit(void);
+//void btUartInit(void);
+//void btOn(void);
+//void btOff(void);
+//void setComMode(void);
+//int txCommand(uint8_t* cmdArr,uint8_t cmdArrDim);
+//void rxResponse(uint8_t* buff);
+//void btHardRst(uint32_t rstDurMs,uint32_t delAfterRstMs);
+//uint8_t uart2Tx(char *txBuff, uint8_t txBytesNum);
+
+#endif

@@ -1,59 +1,145 @@
-#include "bluetooth.h"
 #include "stm32g0xx.h"
-//#include "tim3.h"
 #include <string.h>
+#include <stdbool.h>
+#include "BoardSetup.h"
+#include "bluetooth.h"
+#include "tim3.h"
+#include "SuperLoop_Comm2.h"
+#include "port.h"
+#include "mbport.h"
+
 //#include "rn4870Model.h"
 
+void btIoPinsInit(void);
+void btUartInit(void);
+void btOn(void);
+void btOff(void);
+void setComMode(void);
+int txCommand(uint8_t* cmdArr,uint8_t cmdArrDim);
+void rxResponse(uint8_t* buff);
+void btHardRst(uint32_t rstDurMs,uint32_t delAfterRstMs);
+uint8_t uart2Tx(char *txBuff, uint8_t txBytesNum);
+
+
+
+typedef enum  
+{SLBL_Int_init  		//work
+,SLBL_Int_Work  						//work
+,SLBL_Int_NumOfEl	
+} e_SLBL_Int;
+
+char USART2_RDR;
+
+#define D_BufferSize 256
 
 #define OFFSET 220
 char btChRx;
 uint8_t btChRxRdy;
-char btRespArr[256];
-uint8_t rxIrqCnt;
+char btRespArr[D_BufferSize];
+uint8_t rxIrqCnt,rxIrqCntRead,rxIrqCntOld,rxIrqCntl;
 uint8_t btState;
-uint32_t btCurTime;
+
+
+e_SLBL_Int btInterfaceState;
+//uint32_t btCurTime;
 uint32_t lastIrqTime;
+
+
+
+static bool byte_DLE;
 
 uint8_t debArr[10];
 
 #define BYTES_IN_PACK 10
 
+#define D_BL_Packet_Pause 1000
+
+void SLBL(void)
+{			
+	if (0==btState) return;
+	if ((PS_Int_No==PS_Int)&&(SLBL_Int_Work==btInterfaceState))
+			  PS_Int=PS_Int_BLE; 
+	rxIrqCntl=rxIrqCnt;
+	if (((lastIrqTime+D_BL_Packet_Pause)<SystemTicks)&&(rxIrqCntRead!=rxIrqCntl))
+	{
+		if (('%'==btRespArr[--rxIrqCntl]) && ('D'==btRespArr[--rxIrqCntl]) )
+			btInterfaceState = SLBL_Int_Work;
+		if (('%'==btRespArr[--rxIrqCntl]) && ('T'==btRespArr[--rxIrqCntl]) )
+		{ btInterfaceState = SLBL_Int_init;
+			if (PS_Int_BLE==PS_Int)
+				PS_Int=PS_Int_No;
+		};
+   rxIrqCntRead=rxIrqCntl;
+	};
+}
+
 void USART2_IRQHandler(void)
 {
-	if(USART2->ISR & USART_ISR_RXNE_RXFNE){
+	if(USART2->ISR & USART_ISR_RXNE_RXFNE)
+	{
 		USART2->ICR |= USART_ICR_ORECF;	
 		btChRx=USART2->RDR;
 		btRespArr[rxIrqCnt]=btChRx;
-		rxIrqCnt++;
-		switch(btState){
+		rxIrqCnt++;//&0xff
+		//if (rxIrqCnt>=D_BufferSize)
+		switch(btState)
+		{
 			case 0:	//BLE init
-				if(rxIrqCnt>=0x42){
-					btChRxRdy=1;
-					btState=1;
-				}
-				break;
-			case 1:	//waiting for connection
-				if(rxIrqCnt>=0x8){
-					btChRxRdy=1;
-					btState=2;
-				}
-				break;
-			case 2:	//working
-//				if(rxIrqCnt>=1){
+				if((rxIrqCnt)>=0x42)
+				{
 //					btChRxRdy=1;
-//				}
-				lastIrqTime=btCurTime;
+					btState=1;
+					rxIrqCntRead=rxIrqCnt;
+				}
 				break;
 			default:
-				break;
+				lastIrqTime=SystemTicks;
+				if (DLE==btChRx)
+				{	
+					byte_DLE=true;
+				}
+				else
+				{
+					if (byte_DLE)
+					{	USART2_RDR=btChRx+1;
+						byte_DLE=false;
+					};					 
+					if (PS_Int_BLE==PS_Int)
+					{
+						USART2_RDR=btChRx;
+						pxMBFrameCBByteReceived();
+					};
+		    }
+
+	    }
 		}
-//		
-//		rxIrqCnt++;
-	}
+    if ( (USART2->ISR & USART_ISR_TXE_TXFNF) && (USART2->CR1 & USART_CR1_TXEIE_TXFNFIE) )
+    {
+        USART1->ICR |= USART_ICR_TXFECF;             
+        USART1->RQR |= USART_RQR_TXFRQ;
+       switch (PS_Int)
+			{
+				case PS_Int_BLE:
+					  if (byte_TX_DLE)
+						{	byte_TX_DLE=false;
+						}
+						else
+						{
+							pxMBFrameCBTransmitterEmpty();
+						};
+			      break;
+				default:;
+					
+			}
+        return;
+    }	
+	
 }
 
 void btInit(void)
 {
+	rxIrqCnt=0;
+	btState=0;
 	btIoPinsInit();
 	btUartInit();
 	btOn();

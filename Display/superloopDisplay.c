@@ -477,7 +477,7 @@ static void createLabels(void) {
 	wi.text = "Total timer:";
 	ghLabel12 = gwinLabelCreate(0, &wi);
 
-	wi.g.width = 160-D_image_wigx; wi.g.height = 20; wi.g.x = 160; wi.g.y = 0;
+	wi.g.width = 160-D_image_wigx; wi.g.height = 20; wi.g.x = 150; wi.g.y = 0;
 	wi.text = "  0%";
 	ghLabel13_RSOC = gwinLabelCreate(0, &wi);
 

@@ -1,13 +1,18 @@
 #include "BoardSetup.h"
 #include "SuperLoop_Comm2.h"
 #include "SL_CommModbus.h"
-
+#include "bluetooth.h"
 #include "BQ28z610_Data.h"
 
 //------------------------------------for iteraction with MOFBUS
 #define USBcommPause 1000
 
 static systemticks_t USBcommLastTimel;
+
+
+e_PS_Int PS_Int;
+bool byte_TX_DLE;
+
 //------------------------------------for Display----------------------------------------------
 s32_t File_List;
 //---------------------------------------------------------------------------------------------

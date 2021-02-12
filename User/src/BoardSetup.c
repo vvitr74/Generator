@@ -67,7 +67,7 @@ void SysTick_Handler(void)
 	
 	SystemTicks++;
 	cur_time++;
-	btCurTime++;
+//	btCurTime++;
 //	ledTick++;
 //  if (ledTick >= 200)   
 //		{ledTick = 0;

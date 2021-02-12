@@ -20,7 +20,7 @@
  */
 
 #include "GlobalKey.h"
-#include "SuperLoop_Comm2.h"
+//#include "SuperLoop_Comm2.h"
 #include "bluetooth.h"
 #include "port.h"
 

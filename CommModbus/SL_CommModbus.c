@@ -1,5 +1,6 @@
 #include <string.h>
 #include "SL_CommModbus.h"
+#include "SL_CommModbus.h"
 #include "SuperLoop_Comm2.h"
 
 #include "mb.h"
@@ -44,7 +45,7 @@ int SL_CommModbusInit(void)
     eStatus = eMBEnable();	
     return 0;
 }
-
+ 
 
 eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
                             USHORT usNCoils, eMBRegisterMode eMode )

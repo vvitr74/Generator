@@ -131,7 +131,7 @@ extern void SLC(void)
 			PM_OnOffPWR(PM_Communication,true );
 			spiffs_init();
 		  SL_CommModbusInit();
-			btInit();
+			//btInit();
 		
 //		readDataFromFile();	//for debug
 		

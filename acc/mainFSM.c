@@ -286,7 +286,7 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 													 rstate=e_FRS_Done;
 			                     break;//10
 	  case e_TF_SignCharge:  sign=mainFMSstate;
-			                     if ((VOLTAGE_CHARGE_RENEWAL<pv_BQ28z610_Voltage/2)&&(BatteryIChargeCutOff>pvIcharge))
+			                     if ((VOLTAGE_CHARGE_END<pv_BQ28z610_Voltage/2)&&(BatteryIChargeCutOff>pvIcharge))
 			                         sign=e_FSM_Rest;
 													 if (0!=(mFSM_Error &(m_BQ28z610_Reads
 														                   |m_BQ25703_ADCIBAT_Read))) 

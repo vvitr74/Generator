@@ -477,8 +477,8 @@ static void createLabels(void) {
 	wi.text = "Total timer:";
 	ghLabel12 = gwinLabelCreate(0, &wi);
 
-	wi.g.width = 160-D_image_wigx; wi.g.height = 20; wi.g.x = 150; wi.g.y = 0;
-	wi.text = "  0%";
+	wi.g.width = D_image_wigx-150; wi.g.height = 20; wi.g.x = 150; wi.g.y = 0;
+	wi.text = "   0%";
 	ghLabel13_RSOC = gwinLabelCreate(0, &wi);
 
 	
@@ -760,7 +760,7 @@ void DisplayBatteryStatus(void)
 	 
 	if (Old_mFSM_BQ28z610_RSOC!=mFSM_BQ28z610_RSOC)
 	{
-		sprintf(str, "%3d%%", mFSM_BQ28z610_RSOC);
+		sprintf(str, "%4d%% ", mFSM_BQ28z610_RSOC);
 	  gwinSetText(ghLabel13_RSOC, str, TRUE);
 	};
 	

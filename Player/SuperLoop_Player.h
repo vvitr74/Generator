@@ -6,7 +6,7 @@
 #include <stm32g0xx.h>
 #include "GlobalKey.h"
 #include "PowerModes_Defs.h"
-#include "SuperLoop_Comm.h"
+#include "SuperLoop_Comm2.h"
 #include "superloopDisplay.h"
 #include "I2C_COMMON1.h"
 

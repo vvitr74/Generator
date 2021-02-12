@@ -235,7 +235,7 @@ INIT_DONE released high
       ->
 Executes your design
 */
-
+#define CONF_FILE_SIZE  718569
 #define CONF_BUF_SIZE 64
 void fpgaConfig(void)											//
 {

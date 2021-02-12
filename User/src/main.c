@@ -1,4 +1,5 @@
 #include "GlobalKey.h"
+#include "UID.h"
 
 //#define debug1
 
@@ -19,14 +20,14 @@
 #endif
 
 #ifdef COMMS
-#include "SuperLoop_Comm.h"
+#include "SuperLoop_Comm2.h"
 #endif
 
 #ifdef PLAYER
-#include "fpga.h"
-#include "flash.h"
-#include "Spi.h"
-#include "tim3.h"
+//#include "fpga.h"
+//#include "flash.h"
+#include "Spi1.h"
+//#include "tim3.h"
 #endif
 
 #include "fs.h"
@@ -135,6 +136,9 @@ SLP_init();
 	PM_OnOffPWR(PM_Display,false );
   PM_OnOffPWR(PM_Player,false );	
 	PM_OnOffPWR(PM_Communication,false );
+	
+	getUID();
+	
   while(1){
 
 #ifdef LCDUSE

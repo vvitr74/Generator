@@ -2,7 +2,7 @@
 #define __BOARDSETUP_H
 
 #include "stm32g0xx.h" 
-#include "fpga.h"
+//#include "fpga.h"
 #include "gfx.h"
 
 #define HSE_READY_DELAY   (uint32_t)1600000;

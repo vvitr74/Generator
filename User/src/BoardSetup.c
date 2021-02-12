@@ -8,7 +8,7 @@ Setting up shared resources that are used by multiple software modules
 #endif
 
 #include "BoardSetup.h"
-#include "fpga.h"
+//#include "fpga.h"
 
 //for power
 void BoardSetup_InSleep(void)
@@ -52,6 +52,7 @@ int BSInit(void)
 };
 
 uint16_t button_sign;
+extern uint32_t btCurTime;
 
 //******************************************** for Display period= 1 ms ***************************************************
  
@@ -66,6 +67,7 @@ void SysTick_Handler(void)
 	
 	SystemTicks++;
 	cur_time++;
+	btCurTime++;
 //	ledTick++;
 //  if (ledTick >= 200)   
 //		{ledTick = 0;

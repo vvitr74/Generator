@@ -228,13 +228,12 @@ static s32_t w25_flash_erase(uint32_t addr, uint32_t size)
 * @param data_len Length of data
 * @return 0 - if there no error
 */
-static int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offset, uint8_t *data, size_t data_len)
+static int spiffs_write_file_part(const char *filename, size_t fname_len, uint32_t offset, uint8_t *data, size_t data_len, uint8_t last)
 {
     int32_t res = 0;
     static spiffs_file fd;
     if(offset == 0)
     {
-        SPIFFS_close(&fs, fd);
         fd = SPIFFS_open(&fs, filename, SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
     }
     else
@@ -266,6 +265,10 @@ static int spiffs_write_file_part(const char *filename, size_t fname_len, uint32
     
     SPIFFS_fflush(&fs,fd);
     
+    if (last)
+    {
+       SPIFFS_close(&fs, fd);
+    }
     
     return res;
 }
@@ -449,7 +452,7 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     ptr += sizeof(uint32_t);
     
-    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf)); 
+    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf), last_item); 
     
     if (res == 0 && last_item)
     {

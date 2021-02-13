@@ -122,10 +122,10 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
     }
     
         
-    if(reg >= SERIAL_REG && reg < (SERIAL_REG + (sizeof(SERIAL)>>1)))
+    if(reg >= SERIAL_REG && reg < (SERIAL_REG + 6))
     {     
 
-        memcpy((void*)pucRegBuffer,(const void*)SERIAL, sizeof(SERIAL));
+        memcpy((void*)pucRegBuffer,(const void*)SERIAL, 2+2+4+4);
         return MB_ENOERR;
     }
     

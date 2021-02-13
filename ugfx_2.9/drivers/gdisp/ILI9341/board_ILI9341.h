@@ -9,6 +9,7 @@
 #define _GDISP_LLD_BOARD_H
 
 #include "BoardSetup.h"
+//#include "uGFXport.h"
 #include "superloopDisplay.h"
 
 static GFXINLINE void init_board(GDisplay *g) {

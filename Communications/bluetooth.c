@@ -1,7 +1,6 @@
 #include "stm32g0xx.h"
 #include <string.h>
 #include <stdbool.h>
-#include "BoardSetup.h"
 #include "bluetooth.h"
 #include "tim3.h"
 #include "SuperLoop_Comm2.h"
@@ -50,27 +49,39 @@ static bool byte_DLE;
 
 uint8_t debArr[10];
 
+systemticks_t lastUSBTime;
+
 #define BYTES_IN_PACK 10
 
 #define D_BL_Packet_Pause 1000
 
 void SLBL(void)
 {			
+	if ((lastUSBTime+D_BL_Packet_Pause)<SystemTicks)
+	{ if (PS_Int_USB==PS_Int)
+		PS_Int=PS_Int_No;
+	}	
+	else	
+	{if (PS_Int_No==PS_Int)
+		PS_Int=PS_Int_USB;
+	};	
+	
 	if (0==btState) return;
 	if ((PS_Int_No==PS_Int)&&(SLBL_Int_Work==btInterfaceState))
 			  PS_Int=PS_Int_BLE; 
 	rxIrqCntl=rxIrqCnt;
 	if (((lastIrqTime+D_BL_Packet_Pause)<SystemTicks)&&(rxIrqCntRead!=rxIrqCntl))
 	{
-		if (('%'==btRespArr[--rxIrqCntl]) && ('D'==btRespArr[--rxIrqCntl]) )
+		if (('%'==btRespArr[rxIrqCntl-1]) && ('D'==btRespArr[rxIrqCntl-2]) )
 			btInterfaceState = SLBL_Int_Work;
-		if (('%'==btRespArr[--rxIrqCntl]) && ('T'==btRespArr[--rxIrqCntl]) )
+		if (('%'==btRespArr[rxIrqCntl-1]) && ('T'==btRespArr[rxIrqCntl-2]) )
 		{ btInterfaceState = SLBL_Int_init;
 			if (PS_Int_BLE==PS_Int)
 				PS_Int=PS_Int_No;
 		};
    rxIrqCntRead=rxIrqCntl;
 	};
+
 }
 
 void USART2_IRQHandler(void)
@@ -94,18 +105,18 @@ void USART2_IRQHandler(void)
 				break;
 			default:
 				lastIrqTime=SystemTicks;
-				if (DLE==btChRx)
-				{	
-					byte_DLE=true;
-				}
-				else
+				if ((PS_Int_BLE==PS_Int)&&(btInterfaceState == SLBL_Int_Work))
 				{
-					if (byte_DLE)
-					{	USART2_RDR=btChRx+1;
-						byte_DLE=false;
-					};					 
-					if (PS_Int_BLE==PS_Int)
+					if (DLE==btChRx)
+					{	
+						byte_DLE=true;
+					}
+					else
 					{
+						if (byte_DLE)
+						{	USART2_RDR=btChRx+1;
+							byte_DLE=false;
+						};					 
 						USART2_RDR=btChRx;
 						pxMBFrameCBByteReceived();
 					};
@@ -152,18 +163,18 @@ void btIoPinsInit(void)
 										GPIO_MODER_MODE2_0 |  GPIO_MODER_MODE2_1 |
 										GPIO_MODER_MODE3_0 |  GPIO_MODER_MODE3_1 |
 										GPIO_MODER_MODE4_0 |  GPIO_MODER_MODE4_1);
-	GPIOA->MODER |= GPIO_MODER_MODE0_0 |
-									GPIO_MODER_MODE1_0 |
-									GPIO_MODER_MODE2_1 |
-									GPIO_MODER_MODE3_1 |
-									GPIO_MODER_MODE4_0;
-	GPIOA->OTYPER &= ~(GPIO_OTYPER_OT0 |
-										 GPIO_OTYPER_OT1 |
-										 GPIO_OTYPER_OT4);
+	GPIOA->MODER |= GPIO_MODER_MODE0_0 | //output 
+									GPIO_MODER_MODE1_0 | //output
+									GPIO_MODER_MODE2_1 | // alternate
+									GPIO_MODER_MODE3_1 | // alternate
+									GPIO_MODER_MODE4_0;  // output
+	GPIOA->OTYPER &= ~(GPIO_OTYPER_OT0 | // push-pull
+										 GPIO_OTYPER_OT1 | // push-pull
+										 GPIO_OTYPER_OT4); // push-pull
 	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPD2_0 | GPIO_PUPDR_PUPD2_1);
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPD2_0;
-	GPIOA->OSPEEDR |= GPIO_OSPEEDR_OSPEED2_0 | GPIO_OSPEEDR_OSPEED2_1;
-	GPIOA->BSRR = GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BS4;
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPD2_0; // pull up
+	GPIOA->OSPEEDR |= GPIO_OSPEEDR_OSPEED2_0 | GPIO_OSPEEDR_OSPEED2_1;// high speed
+	GPIOA->BSRR = GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BS4; //set
 	GPIOA->AFR[0] = (USART2_ALT_FUNC<<GPIO_AFRL_AFSEL2_Pos) | 
 									(USART2_ALT_FUNC<<GPIO_AFRL_AFSEL3_Pos);
 }

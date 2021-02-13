@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -436,6 +436,11 @@
               <FileName>superloopDisplay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Display\superloopDisplay.c</FilePath>
+            </File>
+            <File>
+              <FileName>uGFXport.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Display\uGFXport.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,14 +1,10 @@
 /*
 Setting up shared resources that are used by multiple software modules
 */
-#ifdef STM32G070xx   //STM32G070CBTx
-#include "stm32g0xx.h"
-#else
-#include <stm32g030xx.h>
-#endif
 
+#include "stm32g0xx.h"
 #include "BoardSetup.h"
-//#include "fpga.h"
+
 
 //for power
 void BoardSetup_InSleep(void)
@@ -108,25 +104,6 @@ void delayms(uint16_t count)// delays count  -0/+1 ms
    lt=SystemTicks;                                                                                
    while ((SystemTicks-lt)<=count);                                                                                  
   }
-
-/*************************************************************************************************************************
-*
-*                                   For uGFX Delays    
-*	
-**************************************************************************************************************************/
-
-systemticks_t gfxSystemTicks(void)
-{
-	return SystemTicks;
-}
-
-systemticks_t gfxMillisecondsToTicks(delaytime_t ms)
-{
-	return ms;
-}
-
-
-
 
 /*************************************************************************************************************************
 *
@@ -411,6 +388,8 @@ void switchDisplayInterfacePinsToPwr(FunctionalState pwrMode){
  TFT_LED_OFF;                      
 }
 
+
+void BS_BLE_PinsOnOff(FunctionalState pwrMode);
 /**
 \brief  Global Power + FLASH CS+ SPI1 (for flash and display)
 
@@ -431,6 +410,8 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
 		GPIOA->MODER &= ~(GPIO_MODER_MODE9_Msk |                         // switch to analog mode       USB-COM
                       GPIO_MODER_MODE10_Msk);
 		
+		BS_BLE_PinsOnOff( pwrMode);
+		
 		TFT_LED_OFF;
 		PWR_GLOBAL_OFF;
 		PWR_TFT_ON;
@@ -441,6 +422,9 @@ void switchSPI1InterfacePinsToPwr(FunctionalState pwrMode)
 		PWR_UTSTAGE_OFF; 
 		PWR_TFT_OFF; 
 		PWR_GLOBAL_ON; 
+		 
+		BS_BLE_PinsOnOff( pwrMode); 
+		 
 		 
 		FLASH_CS_H; 
 		 
@@ -537,6 +521,46 @@ void B_ACC_PinsOnOff(FunctionalState pwrMode)
 		{
 			GPIOB->MODER &=~(GPIO_MODER_MODE8_Msk |GPIO_MODER_MODE9_Msk);
 			GPIOB->MODER |= (GPIO_MODER_MODE8_1 | GPIO_MODER_MODE9_1); // Charger I2C pins set as alternative    
+		};
+};
+
+
+#define USART2_ALT_FUNC 0x01
+void BS_BLE_PinsOnOff(FunctionalState pwrMode)
+{
+	
+  if (pwrMode == DISABLE)
+		{  
+	GPIOA->MODER |= (GPIO_MODER_MODE0_Msk |
+										GPIO_MODER_MODE1_Msk |
+										GPIO_MODER_MODE2_Msk |  
+										GPIO_MODER_MODE3_Msk |  
+										GPIO_MODER_MODE4_Msk   );		
+		}
+		else
+		{
+
+//			GPIOB->MODER &=~(GPIO_MODER_MODE8_Msk |GPIO_MODER_MODE9_Msk);//Charger I2C pins set as general purpose input mode 
+	GPIOA->MODER &= ~(GPIO_MODER_MODE0_0 |  GPIO_MODER_MODE0_1 |
+										GPIO_MODER_MODE1_0 |  GPIO_MODER_MODE1_1 |
+										GPIO_MODER_MODE2_0 |  GPIO_MODER_MODE2_1 |
+										GPIO_MODER_MODE3_0 |  GPIO_MODER_MODE3_1 |
+										GPIO_MODER_MODE4_0 |  GPIO_MODER_MODE4_1);
+	GPIOA->MODER |= GPIO_MODER_MODE0_0 | //output 
+									GPIO_MODER_MODE1_0 | //output
+									GPIO_MODER_MODE2_1 | // alternate
+									GPIO_MODER_MODE3_1 | // alternate
+									GPIO_MODER_MODE4_0;  // output
+	GPIOA->OTYPER &= ~(GPIO_OTYPER_OT0 | // push-pull
+										 GPIO_OTYPER_OT1 | // push-pull
+										 GPIO_OTYPER_OT4); // push-pull
+	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPD2_0 | GPIO_PUPDR_PUPD2_1);
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPD2_0; // pull up
+	GPIOA->OSPEEDR |= GPIO_OSPEEDR_OSPEED2_0 | GPIO_OSPEEDR_OSPEED2_1;// high speed
+	GPIOA->BSRR = GPIO_BSRR_BS0 | GPIO_BSRR_BS1 | GPIO_BSRR_BS4; //set
+	GPIOA->AFR[0] = (USART2_ALT_FUNC<<GPIO_AFRL_AFSEL2_Pos) | 
+									(USART2_ALT_FUNC<<GPIO_AFRL_AFSEL3_Pos);
+			
 		};
 };
 

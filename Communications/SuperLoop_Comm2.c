@@ -131,7 +131,7 @@ extern void SLC(void)
 			PM_OnOffPWR(PM_Communication,true );
 			spiffs_init();
 		  SL_CommModbusInit();
-			//btInit();
+			btInit();
 		
 //		readDataFromFile();	//for debug
 		
@@ -144,6 +144,7 @@ extern void SLC(void)
 			break;
 		case SLC_FSM_CommAbsent: //
 			  SL_CommModbus();
+		    SLBL();//
 				if (SLC_GoToSleep)
 				   {
 						SPIFFS_close(&fs, File_List);
@@ -152,7 +153,7 @@ extern void SLC(void)
 						state_inner=SLC_FSM_Sleep;
 					 }						 
 						 
-				USBcommLastTimel=USBcommLastTime; //not volatile
+				USBcommLastTimel=USBcommLastTime; //MODBUScommLastTime
 				if ((SystemTicks-USBcommLastTimel)>(2*USBcommPause))
 				   {   USBcommLastTime=SystemTicks-(2*USBcommPause);
 					 }	 
@@ -162,11 +163,10 @@ extern void SLC(void)
 					  //SPIFFS_close(&fs, File_List);
 					  state_inner=SLC_FSM_OffPlayerTransition;
 				}
-//				if (Bluetooth)
-//					  state_inner=SLC_FSM_OnTransitionOffPlayer;
       break;
 		case SLC_FSM_OffPlayerTransition: // on
 			SL_CommModbus();
+		  SLBL();
   		if (SLPl_FFSFree())
 			{
  				SPIFFS_close(&fs, File_List);
@@ -175,11 +175,10 @@ extern void SLC(void)
 			break;
 		case SLC_FSM_USBCommunication: 
 			SL_CommModbus();
+		   SLBL();
       if ((SystemTicks-USBcommLastTimel)>(USBcommPause))				
 				  state_inner=SLC_FSM_InitFiles;
 		  break;	
-		case SLC_FSM_AndroidConnected:
-			break;
 		case SLC_FSM_Sleep:
 				if ((!SLC_GoToSleep) ) 
 	  			{state_inner=SLC_FSM_WakeTransition;

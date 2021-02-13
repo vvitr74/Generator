@@ -20,7 +20,7 @@
  */
 
 #include "GlobalKey.h"
-//#include "SuperLoop_Comm2.h"
+#include "Boardsetup.h"
 #include "bluetooth.h"
 #include "port.h"
 
@@ -205,9 +205,14 @@ CHAR data;
 		}
 }
 */
+
+
+
+
 #ifdef MODBUS
 void USART1_IRQHandler(void)
 {
+	  lastUSBTime=SystemTicks;
     if ( (USART1->ISR & USART_ISR_TXE_TXFNF) && (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE) )
     {
         USART1->ICR |= USART_ICR_TXFECF;             

@@ -1,7 +1,6 @@
 #include "stm32g0xx.h"
 #include <string.h>
 #include <stdbool.h>
-#include "BoardSetup.h"
 #include "bluetooth.h"
 #include "tim3.h"
 #include "SuperLoop_Comm2.h"
@@ -50,27 +49,39 @@ static bool byte_DLE;
 
 uint8_t debArr[10];
 
+systemticks_t lastUSBTime;
+
 #define BYTES_IN_PACK 10
 
 #define D_BL_Packet_Pause 1000
 
 void SLBL(void)
 {			
+	if ((lastUSBTime+D_BL_Packet_Pause)<SystemTicks)
+	{ if (PS_Int_USB==PS_Int)
+		PS_Int=PS_Int_No;
+	}	
+	else	
+	{if (PS_Int_No==PS_Int)
+		PS_Int=PS_Int_USB;
+	};	
+	
 	if (0==btState) return;
 	if ((PS_Int_No==PS_Int)&&(SLBL_Int_Work==btInterfaceState))
 			  PS_Int=PS_Int_BLE; 
 	rxIrqCntl=rxIrqCnt;
 	if (((lastIrqTime+D_BL_Packet_Pause)<SystemTicks)&&(rxIrqCntRead!=rxIrqCntl))
 	{
-		if (('%'==btRespArr[--rxIrqCntl]) && ('D'==btRespArr[--rxIrqCntl]) )
+		if (('%'==btRespArr[rxIrqCntl-1]) && ('D'==btRespArr[rxIrqCntl-2]) )
 			btInterfaceState = SLBL_Int_Work;
-		if (('%'==btRespArr[--rxIrqCntl]) && ('T'==btRespArr[--rxIrqCntl]) )
+		if (('%'==btRespArr[rxIrqCntl-1]) && ('T'==btRespArr[rxIrqCntl-2]) )
 		{ btInterfaceState = SLBL_Int_init;
 			if (PS_Int_BLE==PS_Int)
 				PS_Int=PS_Int_No;
 		};
    rxIrqCntRead=rxIrqCntl;
 	};
+
 }
 
 void USART2_IRQHandler(void)
@@ -94,18 +105,18 @@ void USART2_IRQHandler(void)
 				break;
 			default:
 				lastIrqTime=SystemTicks;
-				if (DLE==btChRx)
-				{	
-					byte_DLE=true;
-				}
-				else
+				if ((PS_Int_BLE==PS_Int)&&(btInterfaceState == SLBL_Int_Work))
 				{
-					if (byte_DLE)
-					{	USART2_RDR=btChRx+1;
-						byte_DLE=false;
-					};					 
-					if (PS_Int_BLE==PS_Int)
+					if (DLE==btChRx)
+					{	
+						byte_DLE=true;
+					}
+					else
 					{
+						if (byte_DLE)
+						{	USART2_RDR=btChRx+1;
+							byte_DLE=false;
+						};					 
 						USART2_RDR=btChRx;
 						pxMBFrameCBByteReceived();
 					};

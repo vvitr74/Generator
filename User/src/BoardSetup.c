@@ -1,14 +1,10 @@
 /*
 Setting up shared resources that are used by multiple software modules
 */
-#ifdef STM32G070xx   //STM32G070CBTx
-#include "stm32g0xx.h"
-#else
-#include <stm32g030xx.h>
-#endif
 
+#include "stm32g0xx.h"
 #include "BoardSetup.h"
-//#include "fpga.h"
+
 
 //for power
 void BoardSetup_InSleep(void)
@@ -108,25 +104,6 @@ void delayms(uint16_t count)// delays count  -0/+1 ms
    lt=SystemTicks;                                                                                
    while ((SystemTicks-lt)<=count);                                                                                  
   }
-
-/*************************************************************************************************************************
-*
-*                                   For uGFX Delays    
-*	
-**************************************************************************************************************************/
-
-systemticks_t gfxSystemTicks(void)
-{
-	return SystemTicks;
-}
-
-systemticks_t gfxMillisecondsToTicks(delaytime_t ms)
-{
-	return ms;
-}
-
-
-
 
 /*************************************************************************************************************************
 *

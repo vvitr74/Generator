@@ -3,6 +3,7 @@
 
 #include "stm32g0xx.h"
 #include <stdint.h>
+#include "BoardSetup.h"
 
 #define USART2_ALT_FUNC 0x01
 #define USART2_DIV (USART2_PCLK/USART2_BAUDRATE)
@@ -24,8 +25,10 @@
 #define REBOOT "R,1"
 
 extern char USART2_RDR;
+extern systemticks_t lastUSBTime;
 
 void btInit(void);
+void SLBL(void);
 //void btIoPinsInit(void);
 //void btUartInit(void);
 //void btOn(void);

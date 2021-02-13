@@ -523,47 +523,9 @@ static void createImage_batMedLev(void)
 	gwinImageOpenMemory(ghImage1, batMedLev);
 }
 
-static void createImage_batHighLev(void)
-{
-	GWidgetInit	wi;
 
-	// Apply some default values for GWIN
-	gwinWidgetClearInit(&wi);
-	wi.g.show = gTrue;
- 
-	// create the first image widget
-	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
-	ghImage1 = gwinImageCreate(0, &wi.g);
-	gwinImageOpenMemory(ghImage1, batHighLev);
-}
 
-static void createImage_batLowLev(void)
-{
-	GWidgetInit	wi;
 
-	// Apply some default values for GWIN
-	gwinWidgetClearInit(&wi);
-	wi.g.show = gTrue;
- 
-	// create the first image widget
-	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
-	ghImage1 = gwinImageCreate(0, &wi.g);
-	gwinImageOpenMemory(ghImage1, batLowLev);
-}
-
-static void createImage_batEmpty(void)
-{
-	GWidgetInit	wi;
-
-	// Apply some default values for GWIN
-	gwinWidgetClearInit(&wi);
-	wi.g.show = gTrue;
- 
-	// create the first image widget
-	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
-	ghImage1 = gwinImageCreate(0, &wi.g);
-	gwinImageOpenMemory(ghImage1, batEmpty);
-}
 
 static void createImage_batCharging(void)
 {
@@ -580,19 +542,7 @@ static void createImage_batCharging(void)
 }
 
 
-static void createImage_batFull(void)
-{
-	GWidgetInit	wi;
 
-	// Apply some default values for GWIN
-	gwinWidgetClearInit(&wi);
-	wi.g.show = gTrue;
- 
-	// create the first image widget
-	wi.g.x = D_image_wigx; wi.g.y = D_image_wigy; wi.g.width = D_image_wigwidth; wi.g.height = D_image_wigheight;
-	ghImage1 = gwinImageCreate(0, &wi.g);
-	gwinImageOpenMemory(ghImage1, batFull);
-}
 
 static void createProgBar(void)
 {
@@ -714,11 +664,6 @@ gfxInit();
 	createButtons();
 	createLists();
 	createLabels();
-//	createImage_batMedLev();
-//	createImage_batFull();
-//	createImage_batLowLev();
-//	createImage_batHighLev();
-//	createImage_batEmpty();
 	createImage_batCharging();
 //	createProgBar();
 

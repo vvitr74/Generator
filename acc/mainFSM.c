@@ -20,8 +20,8 @@ typedef uint32_t t_TransitionFunctionType;
 
 //e_FunctionReturnState BQ25703_ADCVSYSVBAT_Read(uint16_t *Vsys,uint16_t *Vbat)//V. mV
 typedef enum  {e_TF_inh,e_TF_hiz,e_TF_25703init,e_TF_IIN200,e_TF_hizOff,e_TF_inhOff //6  //don't dependence form input
-,e_TF_ReadTPSState,e_TF_BQ28z610_Reads //+3 =9
-,e_TF_BQ25703_ADCIBAT_Read	//+2=11 //input
+,e_TF_ReadTPSState,e_TF_BQ28z610_Reads //+2 =8
+,e_TF_BQ25703_ADCIBAT_Read	//+1=11 //input
 ,e_TF_SignChargeOff,e_TF_SignCharge,e_TF_SignRestOff,e_TF_SignRest //+4=15  // to do desision
 ,e_TF_BQ25703_InputCurrentSet,e_TF_BQ25703_InputCurrentWrite,e_TF_BatteryFSM,e_TF_BQ25703_Charge_Check  //+3=18   //write calculated form input data value
 ,e_TF_BQ25703_VSYSVBAT_Read,e_TF_VsysAnaliz //+2=20
@@ -311,9 +311,10 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 			                     break; 
 													 
                            			
-		case e_TF_VsysAnaliz:  if ((0==(mFSM_Error&(m_BQ25703_VSYSVBAT_Read|m_BQ28z610_Reads)))&&bADCVSYSVBAT)  
+		case e_TF_VsysAnaliz:  if ((0==(mFSM_Error&(m_BQ25703_VSYSVBAT_Read)))&&bADCVSYSVBAT)  
 		                          { 
-                               if ((e_FSM_RestOff==mainFMSstate)||(e_FSM_ChargeOff==mainFMSstate))
+                               if (((e_FSM_RestOff==mainFMSstate)||(e_FSM_ChargeOff==mainFMSstate))
+																 &&(0==(mFSM_Error&(m_BQ28z610_Reads))))
 															 {
 																  bVSYS=(pvVSYS>6000)
 																      &&(pv_BQ28z610_Voltage>6000)
@@ -330,21 +331,11 @@ e_FunctionReturnState TransitionFunction(uint8_t state)
 																 ||    bAccAvailability
 																     );
 															 };
-
-																
-//																//It works strangely, but let
-//															 bVSYS=(pvVSYS>6000)
-//																   &&((InCurrent>300)||
-//																      ((!(mFSM_BQ28z610_BatteryStatus&BQ28z610_BatteryStatus_FullyDischarged))
-//	                                   &&(pv_BQ28z610_Voltage>5000)															
-//																      )
-//																     )
-//																     ;
-															 bADCVSYSVBAT=false;
 															 //if (!((e_FSM_Rest==mainFMSstate)||(e_FSM_Charge==mainFMSstate)))//debug
 															 //	 bVSYS=false;                                                  //debug
 															};	
-		                       rstate=e_FRS_Done;
+														bADCVSYSVBAT=false;
+														rstate=e_FRS_Done;
 		                       break;
 															
 		
@@ -550,21 +541,21 @@ e_FunctionReturnState ReadTPSState(void)
 			   if (e_FRS_Done==returnstatel)
 	           {state++;};
 			   if (e_FRS_DoneError==returnstatel)
-	           {state=5;};
+	           {state=101;};
 						 break;
     case 1:			// clear interrupt
 			       returnstatel=TPS65982_6_RW(TPS87,  e_TPS65987_IntClear1, u8_11_ff,  11,  I2C_OP_WRITE);
 			   if (e_FRS_Done==returnstatel)
 	           {state++;};
 			   if (e_FRS_DoneError==returnstatel)
-	           {state=5;};
+	           {state=101;};
 						 break;
 		case 2:				 //read interrupt    //debug
 		      	  returnstatel=TPS65982_6_RW(TPS87,  e_TPS65987_IntEvent1, buf,  11,  I2C_OP_READ);
 			   if (e_FRS_Done==returnstatel)
 	           {state++;};
 			   if (e_FRS_DoneError==returnstatel)
-	           {state=5;};
+	           {state=101;};
 						 break;
 				 
 		case 3:	
@@ -572,13 +563,20 @@ e_FunctionReturnState ReadTPSState(void)
 			   if (e_FRS_Done==returnstatel)
 	           {state++;};
 			   if (e_FRS_DoneError==returnstatel)
-	           {state+=2;};
+	           {state=101;};
 	          }
 			  break;
-		case 4:	returnstate=e_FRS_Done;//Normal exit
+		case 4://				e_TPS65987_PortControl
+	          returnstatel=TPS65982_6_RW(TPS87,  e_TPS65987_PowerStatusRegister, buf,  255,  I2C_OP_READ);
+			   if (e_FRS_Done==returnstatel)
+	           {state=100;};
+			   if (e_FRS_DoneError==returnstatel)
+	           {state=101;};
+			  break;
+		case 100:	returnstate=e_FRS_Done;//Normal exit
 						state=0;
 			      break;
-		case 5: I87=0; V87=0;
+		case 101: I87=0; V87=0;
 						returnstate=e_FRS_DoneError;		//Error
             state=0;						
 						break;

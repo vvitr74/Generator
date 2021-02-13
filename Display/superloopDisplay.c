@@ -261,7 +261,7 @@ static e_SLAcc_BatStatus batStateOld;
 static uint16_t Old_mFSM_BQ28z610_RSOC;
 static e_SLPl_FSM PlStateOld;
 static t_DisplayFlags ButtonFlags;
-static uint32_t FileListCurrentPage;
+//static uint32_t FileListCurrentPage;
 //uint8_t fileSect=0;
 
 void GFXPreinit (void)
@@ -775,7 +775,7 @@ void Start(void)
 				{
 					SetStatusString("Config. Please wait");
 					gfxSleepMilliseconds(10);
-					cf=gwinListGetSelected(ghList1)+FileListCurrentPage*D_StringInList;
+					cf=gwinListGetSelected(ghList1)+CurrentPage*D_StringInList;
 					SLPl_Start(cf);
 				}	
 			};	

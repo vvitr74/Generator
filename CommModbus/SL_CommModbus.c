@@ -8,9 +8,9 @@
 #include "version.h"
 #include "fs.h"
 
-#define VERSION_MAJOR_REG 21
-#define VERSION_MINOR_REG 02
-#define VERSION_BUILD_REG 15
+#define VERSION_MAJOR_REG 0x10
+#define VERSION_MINOR_REG 0x11
+#define VERSION_BUILD_REG 0x12
 
 #define SERIAL_REG 0x30
 #define ERASE_FN_EXT_REG0 0x38

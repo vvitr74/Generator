@@ -215,6 +215,7 @@ void USART1_IRQHandler(void)
 	  lastUSBTime=SystemTicks;
     if  (USART1->ISR & USART_ISR_TXE_TXFNF) 
 		{	USART1->ICR |= USART_ICR_TXFECF; 
+		//	USART1->RQR |= USART_RQR_TXFRQ;
 			if (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE) 
 			{
         USART1->RQR |= USART_RQR_TXFRQ;
@@ -234,7 +235,7 @@ void USART1_IRQHandler(void)
 			USART1->ICR |= USART_ICR_ORECF;
 			if (USART1->CR1 & USART_CR1_RXNEIE_RXFNEIE)
 			{
-				USART1->RQR |= USART_RQR_RXFRQ;
+			//	USART1->RQR |= USART_RQR_RXFRQ;
 				switch (PS_Int)
 				{
 					case PS_Int_BLE:

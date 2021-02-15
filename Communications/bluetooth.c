@@ -126,8 +126,8 @@ void USART2_IRQHandler(void)
 		}
     if ( (USART2->ISR & USART_ISR_TXE_TXFNF) && (USART2->CR1 & USART_CR1_TXEIE_TXFNFIE) )
     {
-        USART1->ICR |= USART_ICR_TXFECF;             
-        USART1->RQR |= USART_RQR_TXFRQ;
+        USART2->ICR |= USART_ICR_TXFECF;             
+        USART2->RQR |= USART_RQR_TXFRQ;
        switch (PS_Int)
 			{
 				case PS_Int_BLE:

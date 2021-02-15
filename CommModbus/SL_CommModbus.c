@@ -23,7 +23,8 @@
 #define REG_HOLDING_START   1000
 #define REG_HOLDING_NREGS   5
 
-systemticks_t USBcommLastTimel,USBcommLastTime;
+
+systemticks_t USBcommLastTime=-USBcommPause;
 
 static uint8_t erase_fn_ext_reg[4]; /**< Erase filename extension */
 

@@ -213,32 +213,36 @@ CHAR data;
 void USART1_IRQHandler(void)
 {
 	  lastUSBTime=SystemTicks;
-    if ( (USART1->ISR & USART_ISR_TXE_TXFNF) && (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE) )
-    {
-        USART1->ICR |= USART_ICR_TXFECF;             
-        USART1->RQR |= USART_RQR_TXFRQ;
-       switch (PS_Int)
+    if  (USART1->ISR & USART_ISR_TXE_TXFNF) 
+		{	USART1->ICR |= USART_ICR_TXFECF; 
+			if (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE) 
 			{
-				case PS_Int_BLE:
-					break;
-				default:
-					pxMBFrameCBTransmitterEmpty();
-			}
-        return;
-    }	
-	
-	if( (USART1->ISR & USART_ISR_RXNE_RXFNE) && (USART1->CR1 & USART_CR1_RXNEIE_RXFNEIE) )
-	{
-		USART1->ICR |= USART_ICR_ORECF;
-		USART1->RQR |= USART_RQR_RXFRQ;
-		
-   switch (PS_Int)
-		{
-			case PS_Int_BLE:
-				break;
-			default:
-					pxMBFrameCBByteReceived();
+        USART1->RQR |= USART_RQR_TXFRQ;
+				switch (PS_Int)
+				{
+					case PS_Int_BLE:
+						break;
+					default:
+						pxMBFrameCBTransmitterEmpty();
+				}
+					return;
+      }	
 		}
-	}
+	
+		if (USART1->ISR & USART_ISR_RXNE_RXFNE) 
+		{
+			USART1->ICR |= USART_ICR_ORECF;
+			if (USART1->CR1 & USART_CR1_RXNEIE_RXFNEIE)
+			{
+				USART1->RQR |= USART_RQR_RXFRQ;
+				switch (PS_Int)
+				{
+					case PS_Int_BLE:
+						break;
+					default:
+						pxMBFrameCBByteReceived();
+				}
+			}
+		}
 }
 #endif

@@ -5,7 +5,7 @@
 #include "BQ28z610_Data.h"
 
 //------------------------------------for iteraction with MOFBUS
-#define USBcommPause 1000
+
 
 static systemticks_t USBcommLastTimel;
 
@@ -176,6 +176,7 @@ extern void SLC(void)
 		case SLC_FSM_USBCommunication: 
 			SL_CommModbus();
 		   SLBL();
+		  USBcommLastTimel=USBcommLastTime;
       if ((SystemTicks-USBcommLastTimel)>(USBcommPause))				
 				  state_inner=SLC_FSM_InitFiles;
 		  break;	

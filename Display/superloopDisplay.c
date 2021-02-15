@@ -433,8 +433,8 @@ static void createLabels(void) {
 	
 	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 170;
 //	wi.text = "Self test: OK";
-	wi.text = "Check File Systems";
-	ghLabel3 = gwinLabelCreate(0, &wi);
+	wi.text = "File sys is checked";
+	ghLabel3 = gwinLabelCreate(0,&wi);
 //	gwinLabelSetAttribute(ghLabel3,100,"Self test:");
 	
 	wi.g.width = 110; wi.g.height = 20; wi.g.x = 10, wi.g.y = 170;

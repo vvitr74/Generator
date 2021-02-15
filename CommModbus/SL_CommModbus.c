@@ -1,6 +1,5 @@
 #include <string.h>
 #include "SL_CommModbus.h"
-#include "SL_CommModbus.h"
 #include "SuperLoop_Comm2.h"
 
 #include "mb.h"
@@ -9,9 +8,9 @@
 #include "version.h"
 #include "fs.h"
 
-#define VERSION_MAJOR_REG 0x10
-#define VERSION_MINOR_REG 0x11
-#define VERSION_BUILD_REG 0x12
+#define VERSION_MAJOR_REG 21
+#define VERSION_MINOR_REG 02
+#define VERSION_BUILD_REG 15
 
 #define SERIAL_REG 0x30
 #define ERASE_FN_EXT_REG0 0x38
@@ -54,7 +53,7 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
     
     if (eMode == MB_REG_WRITE)
     {
-			 USBcommLastTime=SystemTicks;
+			 USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
 			 if (!SLC_FFSEnable())   //get error if FFS is busy
 			 {   
 					 return MB_ENORES;
@@ -141,7 +140,7 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
     if (eMode == MB_REG_WRITE && 
         (usAddress == (ERASE_FN_EXT_REG0+1) || usAddress == (ERASE_FN_EXT_REG1+1)))
     {
-			USBcommLastTime=SystemTicks;			 
+			USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase; 
 			if (!SLC_FFSEnable())  //get error if FFS is busy
 			 {   
 					 return MB_ENORES;

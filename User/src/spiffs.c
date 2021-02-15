@@ -4,7 +4,7 @@
 #include "spiffs.h"
 #include "tim3.h"
 #include "Spi1.h"
-#include "fs.h"
+#include "SL_CommModbus.h"
 
 //#define FLASH_TEST
 #define W25_CHIP_ERASE 0xC7
@@ -453,7 +453,9 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     ptr += sizeof(uint32_t);
     
     int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf), last_item); 
-    
+    if (last_item) 
+			USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
+			
     if (res == 0 && last_item)
     {
         if(playlist_write_done_cb != NULL &&

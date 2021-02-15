@@ -402,6 +402,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\src\GlobalKey.c</FilePath>
             </File>
+            <File>
+              <FileName>UID.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\src\UID.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -432,6 +437,11 @@
               <FileType>1</FileType>
               <FilePath>..\Display\superloopDisplay.c</FilePath>
             </File>
+            <File>
+              <FileName>uGFXport.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Display\uGFXport.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -456,6 +466,11 @@
               <FileName>SuperLoop_Comm2.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Communications\SuperLoop_Comm2.c</FilePath>
+            </File>
+            <File>
+              <FileName>bluetooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Communications\bluetooth.c</FilePath>
             </File>
           </Files>
         </Group>

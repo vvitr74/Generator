@@ -407,7 +407,7 @@ e_FunctionReturnState WriteBQ25703(void)
 	  {
 	  case 0:  
 			   if (mFSM_BQ28z610_RSOC<50)
-				 {ChargeVolt=4100;}
+				 {ChargeVolt=4200;}
 				 else
 				 {ChargeVolt=4200;}
 	       state++;
@@ -469,6 +469,7 @@ e_BQ28z610_BatteryStatus
 static uint16_t tempdata;
 e_FunctionReturnState Readbq28z610(void)
 { static uint8_t state;
+//  uint16_t mFSM_BQ28z610_RSOC;
 	//static uint8_t buf[20];
 	
 	e_FunctionReturnState returnstate,returnstatel;
@@ -497,9 +498,11 @@ e_FunctionReturnState Readbq28z610(void)
 	           {state=Readbq28z610_Error_State;};
 						 break;
 	  case 3:  
-      	 returnstatel=BQ28z610_Read(e_BQ28z610_RelativeStateOfCharge,&mFSM_BQ28z610_RSOC,mainFSMfunction);
+      	 returnstatel=BQ28z610_Read(e_BQ28z610_RelativeStateOfCharge,&tempdata,mainFSMfunction);
 			   if (e_FRS_Done==returnstatel)
-	           {state++;};
+	           { mFSM_BQ28z610_RSOC=tempdata;
+						   state++;
+						 };
 			   if (e_FRS_DoneError==returnstatel)
 	           {state=Readbq28z610_Error_State;};
 						 break;

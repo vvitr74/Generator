@@ -536,7 +536,7 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
         len++;
     }
     
-    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len); 
+//    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len); 
     
     int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf), last_item); 
     if (last_item) 

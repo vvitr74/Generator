@@ -5,8 +5,16 @@
 #include "tim3.h"
 #include "Spi1.h"
 #include "SL_CommModbus.h"
+#include "fs.h"
+#include "aes.h"
 
 //#define FLASH_TEST
+//#define FILE_SHA_TEST
+
+#ifdef FILE_SHA_TEST
+#include "sha256.h"
+#endif
+
 #define W25_CHIP_ERASE 0xC7
 #define W25_READ_CMD 0x0b
 #define W25_WRITE_CMD 2
@@ -27,6 +35,17 @@
 spiffs fs;
 
 static playlist_cb_t playlist_write_done_cb = NULL;
+
+/**
+* File encryption KEY
+*/
+static const uint8_t encrypt_key[] = { 0x3a, 0xf5, 0x4c, 0x68, 0xaa, 0x0a, 0x65, 0xf2, 0xb2, 0x2f, 0xd5, 0x33, 0x05, 0xb9, 0xad, 0x96 }; 
+
+/**
+* File encryption IV
+* Should be reseted at every new item of data (when offset = 0)
+*/
+static uint8_t encrypt_iv[16] = {};
 
 extern uint8_t spiDispCapture;
 __attribute__((aligned(4))) static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
@@ -340,6 +359,40 @@ int spiffs_erase_by_ext(const char* ext)
 }
 
 
+
+#ifdef FILE_SHA_TEST
+void sha_file_test()
+{
+    
+
+    uint8_t buf[512] = {};
+    SHA256_CTX sha_ctx = {};
+    uint8_t sha_hash[32] = {};
+    const uint8_t expected_sha[32] = {0xb3,0xa5,0xa9,0x38,0x14,0xed,0xd7,0x3a,0xc6,0x38,0x6c,0x78,0x0c,0xff,0xdd,0xec,0xa1,0x2f,0x7a,0x1f,0xec,0x85,0x9c,0xe1,0xe5,0xe2, 0x01,0x55,0x6a, 0xa4,0xbf, 0x3d};
+        
+    spiffs_file fd;      
+    fd = SPIFFS_open(&fs, "sha_tst.txt", SPIFFS_RDONLY, 0);
+    size_t readed = SPIFFS_read(&fs, fd, (void *)&buf, sizeof(buf));
+    
+	if (readed != 430)
+	{
+        while(1);
+	}
+    
+    sha256_init(&sha_ctx);
+    sha256_update(&sha_ctx,buf,readed);
+    sha256_final(&sha_ctx,(uint8_t*)sha_hash);
+    
+    if(memcmp(expected_sha, sha_hash,sizeof(expected_sha)) != 0)
+    {
+        while(1);
+    }
+    
+    SPIFFS_close(&fs, fd);
+}
+#endif 
+
+
 #ifdef FLASH_TEST
 const char test_text[] = "Thank you Jack,\
 With the oscilloscope,i can see that the frame is shifted.\
@@ -421,9 +474,13 @@ int spiffs_init()
                             0);
     }
 
+#ifdef FILE_SHA_TEST
+    sha_file_test();
+#endif
+    
     return res;
 }
-
+   
 /**
 * Callback from write file method in freemodbus
 * @param buf Input data
@@ -435,7 +492,8 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     uint8_t fname_len = buf[0];
     char fname[18] = {};
     uint8_t last_item = 0;
-  
+    uint8_t encrypted = 0;
+        
     if(buf[0] >= sizeof(fname) - 1)
     {
         return 0x81;
@@ -447,10 +505,38 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     uint32_t offset = ptr[0] | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);
     last_item = (offset & (1 << 31)) == (1 << 31);
+    encrypted = (offset & (1 << 30)) == (1 << 30);
     
-    offset &= ~(1<<31);
+    offset &= ~((1<<31)|(1<<30));
     
     ptr += sizeof(uint32_t);
+    len -= (ptr - buf);
+    
+    if(encrypted)
+    {
+        if(offset == 0)
+        {
+            memset(encrypt_iv,0,sizeof(encrypt_iv));
+        }
+        
+        if ((len % sizeof(encrypt_key)) != 0)
+        {
+            len -= len % sizeof(encrypt_key);
+        }
+
+        for(uint8_t i = 0; i < len; i+= sizeof(encrypt_key))
+        {
+            aes128_dec((uint8_t*)encrypt_key, ptr + i, AES_CBC, encrypt_iv);
+        }
+        
+        while(len > 0 && ptr[--len] == 0)
+        {
+        }
+        
+        len++;
+    }
+    
+    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len); 
     
     int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf), last_item); 
     if (last_item) 

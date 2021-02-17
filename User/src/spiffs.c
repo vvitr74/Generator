@@ -454,7 +454,7 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf), last_item); 
     if (last_item) 
-			USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
+			MODBUScommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
 			
     if (res == 0 && last_item)
     {

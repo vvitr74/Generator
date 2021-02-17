@@ -2,6 +2,7 @@
 #define GlobalKey_h
 
 #include <stdbool.h>
+#include "BoardSetup.h"
 
 #define PowerUSE
 #define LCDUSE
@@ -36,9 +37,13 @@ typedef enum
 
 extern e_PS_Int PS_Int;
 extern bool byte_TX_DLE;
+extern systemticks_t lastUSBTime;
+
 
 #define DLE 27 //esc
 #define DTD '$'
 #define DRD '%'
+#define SMODBUSBegin 0
+#define SMODBUSEnd 1
 
 #endif

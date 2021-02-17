@@ -5,9 +5,9 @@
 #include "spiffs.h"
 #include "fs.h"
 
-#define DLE 27 //esc
-#define DTD '$'
-#define DRD '%'
+//#define DLE 27 //esc
+//#define DTD '$'
+//#define DRD '%'
 
 
 

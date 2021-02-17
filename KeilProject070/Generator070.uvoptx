@@ -152,34 +152,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>118</LineNumber>
+          <LineNumber>304</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134238490</Address>
+          <Address>134283894</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Communications\bluetooth.c</Filename>
+          <Filename>..\FreeModbus\mbrtu.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../Communications/bluetooth.c\118</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>140</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134283442</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\FreeModbus\portserial.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../FreeModbus/portserial.c\140</Expression>
+          <Expression>\\gen_g070\../FreeModbus/mbrtu.c\304</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

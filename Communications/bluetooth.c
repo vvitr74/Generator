@@ -196,8 +196,8 @@ void btOn(void)
 	delay_ms(20);
 	btHardRst(2,100);	//hard reset
 	delay_ms(3000);
-//  uart2Tx("Generator",9);	//set data mode
-//  delay_ms(1000);
+  uart2Tx("Generator",9);	//set data mode
+  delay_ms(1000);
 	uart2Tx("$$$",3);	//set Command Mode
 	delay_ms(100);
 	uart2Tx("+\r",2);	//echo on, for debug

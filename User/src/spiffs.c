@@ -253,6 +253,11 @@ static int spiffs_write_file_part(const char *filename, size_t fname_len, uint32
     static spiffs_file fd;
     if(offset == 0)
     {
+        if (fd > 0)
+        {
+            SPIFFS_close(&fs, fd);
+        }
+
         fd = SPIFFS_open(&fs, filename, SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
     }
     else
@@ -536,11 +541,12 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
         len++;
     }
     
-//    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len); 
+    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len, last_item);
     
-    int res = spiffs_write_file_part(fname, fname_len, offset, ptr, len - (ptr - buf), last_item); 
-    if (last_item) 
-			USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
+    if (last_item)
+    {
+        USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
+    }
 			
     if (res == 0 && last_item)
     {

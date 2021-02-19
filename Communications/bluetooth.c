@@ -38,7 +38,8 @@ bool isBLEint;
 static char btChRx;
 static uint8_t btChRxRdy;
 char btRespArr[D_BufferSize];
-static uint8_t rxIrqCnt,rxIrqCntRead,rxIrqCntOld,rxIrqCntl;
+
+static uint8_t rxIrqCnt,txIrqCnt,rxIrqCntRead,rxIrqCntOld,rxIrqCntl;
 static uint8_t btState;
 
 

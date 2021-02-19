@@ -14,11 +14,7 @@
 #include "spiffs.h"
 #include "SuperLoop_Comm2.h"
 
-
-
 uint16_t SLPl_ui16_NumOffiles;///\todo global variable one time initialiseted
-
-
 
 uint16_t freqStartByte;
 uint32_t freq;
@@ -317,7 +313,7 @@ void timeToString(uint8_t* timeArr)
         }
         else
         {
-					timeArr[i] = ':';
+			timeArr[i] = ':';
         }
 	}
     timeArr[9] = 0;

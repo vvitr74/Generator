@@ -97,21 +97,19 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
     {
         for(uint16_t i = 0; i<  usNRegs; i++)
         {
+            pucRegBuffer[i << 1] = 0;
             switch(reg + i)
             {
                 case VERSION_MAJOR_REG: 
-                      pucRegBuffer[i << 1] = VERSION_MAJOR >> 8;
-                      pucRegBuffer[(i << 1)+1] = VERSION_MAJOR & 0xff;
+                      pucRegBuffer[(i << 1)+1] = *((uint8_t *)FLASH_VERSION_ADDRESS);
                 break;
                 
                 case VERSION_MINOR_REG:
-                      pucRegBuffer[i << 1] = VERSION_MINOR >> 8;
-                      pucRegBuffer[(i << 1)+1] = VERSION_MINOR & 0xff;
+                      pucRegBuffer[(i << 1)+1] = *((uint8_t *)FLASH_VERSION_ADDRESS + 1);
                 break;
                 
-                case VERSION_BUILD_REG:
-                     pucRegBuffer[i << 1] = VERSION_BUILD >> 8;
-                     pucRegBuffer[(i << 1)+1] = VERSION_BUILD & 0xff;
+                case VERSION_BUILD_REG:    
+                     pucRegBuffer[(i << 1)+1] = *((uint8_t *)FLASH_VERSION_ADDRESS + 2);
                 break;
                 
                 default:  return MB_ENOREG;

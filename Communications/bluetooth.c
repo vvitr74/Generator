@@ -28,61 +28,30 @@ typedef enum
 } e_SLBL_Int;
 
 char USART2_RDR;
+bool USART_CR1_RXNEIE_Logic;
+bool isBLEint;
+
 
 #define D_BufferSize 256
 
 #define OFFSET 220
-char btChRx;
-uint8_t btChRxRdy;
+static char btChRx;
+static uint8_t btChRxRdy;
 char btRespArr[D_BufferSize];
-uint8_t rxIrqCnt,rxIrqCntRead,rxIrqCntOld,rxIrqCntl;
-uint8_t btState;
+
+static uint8_t rxIrqCnt,txIrqCnt,rxIrqCntRead,rxIrqCntOld,rxIrqCntl;
+static uint8_t btState;
 
 
 e_SLBL_Int btInterfaceState;
 //uint32_t btCurTime;
-uint32_t lastIrqTime;
-
 
 
 static bool byte_DLE;
 
-uint8_t debArr[10];
 
-systemticks_t lastUSBTime;
 
-#define BYTES_IN_PACK 10
 
-#define D_BL_Packet_Pause 1000
-
-void SLBL(void)
-{			
-	if ((lastUSBTime+D_BL_Packet_Pause)<SystemTicks)
-	{ if (PS_Int_USB==PS_Int)
-		PS_Int=PS_Int_No;
-	}	
-	else	
-	{if (PS_Int_No==PS_Int)
-		PS_Int=PS_Int_USB;
-	};	
-	
-	if (0==btState) return;
-	if ((PS_Int_No==PS_Int)&&(SLBL_Int_Work==btInterfaceState))
-			  PS_Int=PS_Int_BLE; 
-	rxIrqCntl=rxIrqCnt;
-	if (((lastIrqTime+D_BL_Packet_Pause)<SystemTicks)&&(rxIrqCntRead!=rxIrqCntl))
-	{
-		if (('%'==btRespArr[rxIrqCntl-1]) && ('D'==btRespArr[rxIrqCntl-2]) )
-			btInterfaceState = SLBL_Int_Work;
-		if (('%'==btRespArr[rxIrqCntl-1]) && ('T'==btRespArr[rxIrqCntl-2]) )
-		{ btInterfaceState = SLBL_Int_init;
-			if (PS_Int_BLE==PS_Int)
-				PS_Int=PS_Int_No;
-		};
-   rxIrqCntRead=rxIrqCntl;
-	};
-
-}
 
 void USART2_IRQHandler(void)
 {
@@ -96,34 +65,55 @@ void USART2_IRQHandler(void)
 		switch(btState)
 		{
 			case 0:	//BLE init
-				if((rxIrqCnt)>=0x42)
-				{
-//					btChRxRdy=1;
 					btState=1;
-					rxIrqCntRead=rxIrqCnt;
-				}
 				break;
-			default:
-				lastIrqTime=SystemTicks;
-				if ((PS_Int_BLE==PS_Int)&&(btInterfaceState == SLBL_Int_Work))
-				{
-					if (DLE==btChRx)
+			case 1://wait modbus
+			  if (DLE==btChRx)
 					{	
 						byte_DLE=true;
 					}
-					else
-					{
-						if (byte_DLE)
-						{	USART2_RDR=btChRx+1;
-							byte_DLE=false;
-						};					 
-						USART2_RDR=btChRx;
-						pxMBFrameCBByteReceived();
-					};
-		    }
-
-	    }
+					else 
+					{ 
+						if (byte_DLE) 
+							if (SMODBUSBegin==btChRx)
+							{ btState=2;
+								isBLEint=true;
+							}	
+						byte_DLE=false;	
+					}
+//					isBLEint=true;
+					//USART2->TDR=btChRx;
+				break;
+			case 2://modbus mess
+			  if (DLE==btChRx)
+					{	
+						byte_DLE=true;
+					}
+					else 
+					{ 
+						if ((byte_DLE&&(SMODBUSEnd==btChRx))||(DRD==btChRx)) 
+							{	btState=1;
+							}
+  						else
+							{	USART2_RDR=btChRx;
+								if (byte_DLE)
+										USART2_RDR++;
+								if ((PS_Int_BLE==PS_Int)
+									&&(!((byte_DLE)&&(SMODBUSBegin==btChRx)))
+								  &&(USART_CR1_RXNEIE_Logic) 
+								   )
+									pxMBFrameCBByteReceived();	
+								  //USART2->TDR=USART2_RDR;
+							//	  uart2Tx(&USART2_RDR,1);
+							}	
+						byte_DLE=false;	
+					}
+  				isBLEint=true;
+				break; //0A0400100003B0B5
+			default:
+				btState=0;
 		}
+	}	
     if ( (USART2->ISR & USART_ISR_TXE_TXFNF) && (USART2->CR1 & USART_CR1_TXEIE_TXFNFIE) )
     {
         USART2->ICR |= USART_ICR_TXFECF;             
@@ -206,15 +196,48 @@ void btOn(void)
 	GPIOA->BSRR = GPIO_BSRR_BR4;
 	delay_ms(20);
 	btHardRst(2,100);	//hard reset
-//	delay_ms(100);
+	delay_ms(3000);
+  uart2Tx("Generator",9);	//set data mode
+  delay_ms(1000);
 	uart2Tx("$$$",3);	//set Command Mode
-	delay_ms(10);
+	delay_ms(100);
 	uart2Tx("+\r",2);	//echo on, for debug
-	delay_ms(10);
+	delay_ms(1000);
 	uart2Tx("SS,40\r",6);	//uart transparent mode
-	delay_ms(10);
+	delay_ms(1000);
+////	//uart2Tx("$$$",3);	//set Command Mode
+////	delay_ms(100);
+//////	uart2Tx("SW,0C,0C\r",9);	//fast data mode
+////	delay_ms(1000);
 	uart2Tx("R,1\r",4);	//soft reset
-	delay_ms(10);
+	delay_ms(1000);
+////	GPIOA->BSRR = GPIO_BSRR_BR4;
+////	delay_ms(1000);
+//////	uart2Tx("---",3);	//set data mode
+//////	delay_ms(1000);
+////  uart2Tx("$$$",3);	//set Command Mode
+////	delay_ms(1000);
+
+////	uart2Tx("+\r",2);	//echo on, for debug
+////	delay_ms(1000);
+////	uart2Tx("SS,40\r",6);	//uart transparent mode
+////	delay_ms(1000);
+
+////	GPIOA->BSRR = GPIO_BSRR_BS4;
+////	delay_ms(1000);	
+////	uart2Tx("$$$",3);	//set Command Mode
+////	delay_ms(1000);
+//////	uart2Tx("+\r",2);	//echo on, for debug
+//////	delay_ms(1000);
+////	uart2Tx("SS,40\r",6);	//uart transparent mode
+////	delay_ms(1000);
+////	uart2Tx("---",3);	//set data mode
+////	delay_ms(1000);
+      uart2Tx("---",3);	//set data mode
+      delay_ms(1000);
+      uart2Tx("---",3);	//set data mode
+      delay_ms(1000);
+
 }
 
 void btOff(void)
@@ -231,6 +254,7 @@ void setComMode(void)
 uint8_t uart2Tx(char *txBuff, uint8_t txBytesNum)
 {
 	int i;
+	while(!(USART2->ISR & USART_ISR_TXE_TXFNF)){}
 	for(i=0;i<txBytesNum;i++){
 		USART2->TDR = txBuff[i];
 		while(!(USART2->ISR & USART_ISR_TC)){}

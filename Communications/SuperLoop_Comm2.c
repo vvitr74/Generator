@@ -3,12 +3,13 @@
 #include "SL_CommModbus.h"
 #include "bluetooth.h"
 #include "BQ28z610_Data.h"
+#include "mb.h"
 
 //------------------------------------for iteraction with MOFBUS
 
 
-static systemticks_t USBcommLastTimel;
-
+static systemticks_t MODBUScommLastTimel;
+static systemticks_t lastIrqTime;
 
 e_PS_Int PS_Int;
 bool byte_TX_DLE;
@@ -153,12 +154,12 @@ extern void SLC(void)
 						state_inner=SLC_FSM_Sleep;
 					 }						 
 						 
-				USBcommLastTimel=USBcommLastTime; //MODBUScommLastTime
-				if ((SystemTicks-USBcommLastTimel)>(2*USBcommPause))
-				   {   USBcommLastTime=SystemTicks-(2*USBcommPause);
+				MODBUScommLastTimel=MODBUScommLastTime; //MODBUScommLastTime
+				if ((SystemTicks-MODBUScommLastTimel)>(2*USBcommPause))
+				   {   MODBUScommLastTime=SystemTicks-(2*USBcommPause);
 					 }	 
 
-				if ((SystemTicks-USBcommLastTimel)<USBcommPause)
+				if ((SystemTicks-MODBUScommLastTimel)<USBcommPause)
 				{
 					  //SPIFFS_close(&fs, File_List);
 					  state_inner=SLC_FSM_OffPlayerTransition;
@@ -176,8 +177,8 @@ extern void SLC(void)
 		case SLC_FSM_USBCommunication: 
 			SL_CommModbus();
 		   SLBL();
-		  USBcommLastTimel=USBcommLastTime;
-      if ((SystemTicks-USBcommLastTimel)>(USBcommPause))				
+		  MODBUScommLastTimel=MODBUScommLastTime;
+      if ((SystemTicks-MODBUScommLastTimel)>(USBcommPause))				
 				  state_inner=SLC_FSM_InitFiles;
 		  break;	
 		case SLC_FSM_Sleep:
@@ -204,4 +205,55 @@ void Communication_OutSleep()
 {
   //uart1Init();	
 };
+
+
+#define D_BL_Packet_Pause 5000
+#define D_USB_Packet_Pause 5000
+
+void SLBL(void)
+{			
+	if ((lastUSBTime+ D_USB_Packet_Pause)<SystemTicks)
+	{ if (PS_Int_USB==PS_Int)
+		{	eMBDisable();
+			PS_Int=PS_Int_No;
+			eMBEnable();
+		}
+	}	
+	else	
+	{	if (PS_Int_No==PS_Int)
+		{	eMBDisable();
+			PS_Int=PS_Int_USB;
+			eMBEnable();
+		}
+	};	
+	
+	//if (0==btState) return;
+
+
+  if ((SystemTicks-lastIrqTime)>(2*D_BL_Packet_Pause))// Correction for cyclical time
+	   {   lastIrqTime=SystemTicks-(2*D_BL_Packet_Pause);
+		 }	 
+					 
+	if (isBLEint) //Interrupt time latch (approximately)
+		{
+			isBLEint=false;
+			lastIrqTime=SystemTicks;  
+		}
+
+	if ((lastIrqTime+ D_BL_Packet_Pause)<SystemTicks) // Exit BLE mode by pause
+	{ if (PS_Int_BLE==PS_Int)
+		{	eMBDisable();
+			PS_Int=PS_Int_No;
+			eMBEnable();
+		}	
+	}	
+	else	
+	{	if (PS_Int_No==PS_Int)   // Enter into BLE mode by time
+		{	eMBDisable();
+			PS_Int=PS_Int_BLE;
+			eMBEnable();
+		}
+	};	
+
+}
 

@@ -24,7 +24,7 @@
 #include "bluetooth.h"
 #include "port.h"
 
-
+systemticks_t lastUSBTime;
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
@@ -49,11 +49,13 @@ void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 			case PS_Int_BLE:
 					if( xRxEnable )
 					{
-						USART2->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
+						USART_CR1_RXNEIE_Logic=true;
+						//USART2->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
 					}
 					else
 					{
-						USART2->CR1 &= ~USART_CR1_RXNEIE_RXFNEIE;			
+						USART_CR1_RXNEIE_Logic=false; 
+						//USART2->CR1 &= ~USART_CR1_RXNEIE_RXFNEIE;			
 					}
 					if ( xTxEnable )
 					{
@@ -123,22 +125,28 @@ BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPar
 	return TRUE;
 }
 
-
-
+char btSendArr[256];
+static uint8_t txIrqCnt;
+	
 BOOL xMBPortSerialPutByte( CHAR ucByte )
 {
     /* Put a byte in the UARTs transmit buffer. This function is called
      * by the protocol stack if pxMBFrameCBTransmitterEmpty( ) has been
      * called. */
+	char ucBytel;
 	  switch (PS_Int)
 		{
 			case PS_Int_BLE:
-				  if (DTD==ucByte)
+				  ucBytel=ucByte;
+				  if ((DTD==ucByte)||(DLE==ucByte))
 				  {	byte_TX_DLE = true;
 						USART2->TDR = DLE;
+						btSendArr[txIrqCnt++]=DLE;
 						while(!(USART2->ISR&USART_ISR_TXE_TXFNF));
+						ucBytel=ucBytel-1;
 					};
-					USART2->TDR = ucByte+1;
+					USART2->TDR = ucBytel;
+					btSendArr[txIrqCnt++]=ucBytel;
 				break;
 			default:
 					USART1->TDR = ucByte;

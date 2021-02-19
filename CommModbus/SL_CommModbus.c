@@ -24,7 +24,7 @@
 #define REG_HOLDING_NREGS   5
 
 
-systemticks_t USBcommLastTime=-USBcommPause;
+systemticks_t MODBUScommLastTime=-USBcommPause;
 
 static uint8_t erase_fn_ext_reg[4]; /**< Erase filename extension */
 
@@ -54,7 +54,7 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
     
     if (eMode == MB_REG_WRITE)
     {
-			 USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
+			 MODBUScommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
 			 if (!SLC_FFSEnable())   //get error if FFS is busy
 			 {   
 					 return MB_ENORES;
@@ -79,7 +79,7 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
 
 eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 {
-	//USBcommLastTime=SystemTicks;
+	//MODBUScommLastTime=SystemTicks;
  //   USBcommLastTimeSet=true;
 	
     return MB_ENOREG;
@@ -88,7 +88,7 @@ eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT us
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
 	
-//	 USBcommLastTime=SystemTicks;
+//	 MODBUScommLastTime=SystemTicks;
 //   USBcommLastTimeSet=true;
 	
     uint8_t reg = pucRegBuffer[0];
@@ -139,7 +139,7 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
     if (eMode == MB_REG_WRITE && 
         (usAddress == (ERASE_FN_EXT_REG0+1) || usAddress == (ERASE_FN_EXT_REG1+1)))
     {
-			USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase; 
+			MODBUScommLastTime=SystemTicks-USBcommPause+USBcommPauseErase; 
 			if (!SLC_FFSEnable())  //get error if FFS is busy
 			 {   
 					 return MB_ENORES;

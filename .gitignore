@@ -6,3 +6,11 @@
 KeilProject070/Listings/
 
 KeilProject070/Objects/
+
+*.bf
+
+*.hex
+
+KeilProject070/Generator070.uvguix.RD
+
+*.log

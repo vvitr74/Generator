@@ -207,8 +207,8 @@ void Communication_OutSleep()
 };
 
 
-#define D_BL_Packet_Pause 5000
-#define D_USB_Packet_Pause 5000
+#define D_BL_Packet_Pause 50000
+#define D_USB_Packet_Pause 50000
 
 void SLBL(void)
 {			

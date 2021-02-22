@@ -545,7 +545,7 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     if (last_item)
     {
-        USBcommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
+        MODBUScommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
     }
 			
     if (res == 0 && last_item)

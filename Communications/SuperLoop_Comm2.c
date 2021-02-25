@@ -167,8 +167,8 @@ extern void SLC(void)
       break;
 		case SLC_FSM_OffPlayerTransition: // on
 			SL_CommModbus();
-		  SLBL();
-  		if (SLPl_FFSFree())
+		    SLBL();
+            if (SLPl_FFSFree())
 			{
  				SPIFFS_close(&fs, File_List);
 				state_inner=SLC_FSM_USBCommunication;

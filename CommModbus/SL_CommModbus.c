@@ -54,13 +54,13 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
     
     if (eMode == MB_REG_WRITE)
     {
-			 MODBUScommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
-			 if (!SLC_FFSEnable())   //get error if FFS is busy
-			 {   
-					 return MB_ENORES;
-			 };
+        MODBUScommLastTime=SystemTicks;
+        if (!SLC_FFSEnable())   //get error if FFS is busy
+        {   
+             return MB_ENORES;
+        }
 
-			 if (usAddress == (ERASE_ALL_START_COIL+1))
+        if (usAddress == (ERASE_ALL_START_COIL+1))
         {
             return spiffs_erase_all();
         }
@@ -139,11 +139,11 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
     if (eMode == MB_REG_WRITE && 
         (usAddress == (ERASE_FN_EXT_REG0+1) || usAddress == (ERASE_FN_EXT_REG1+1)))
     {
-			MODBUScommLastTime=SystemTicks-USBcommPause+USBcommPauseErase; 
-			if (!SLC_FFSEnable())  //get error if FFS is busy
-			 {   
-					 return MB_ENORES;
-			 }; 
+        MODBUScommLastTime = SystemTicks; 
+        if (!SLC_FFSEnable())  //get error if FFS is busy
+        {   
+             return MB_ENORES;
+        } 
 			
         uint8_t offset = (usAddress - (ERASE_FN_EXT_REG0+1))<<1;
         if ((offset + (usNRegs<<1)) > sizeof(erase_fn_ext_reg))

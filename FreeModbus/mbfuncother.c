@@ -106,15 +106,14 @@ eMBFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen )
 */
 extern int on_modbus_write_file(uint8_t* buf, size_t len);
 
-eMBException  
+eMBErrorCode  
 eMBFuncWriteFile( UCHAR * pucFrame, USHORT * usLen )
 {
-		MODBUScommLastTime=SystemTicks;
-		if (!SLC_FFSEnable())   //get error if FFS is busy
-			 {   
-					 return MB_EX_SLAVE_BUSY;
-			 };
-	
+	MODBUScommLastTime = SystemTicks;
+	if (!SLC_FFSEnable())   //get error if FFS is busy
+    {   
+             return MB_ENORES;
+    }
 	
     return on_modbus_write_file(pucFrame + 9, *usLen - 9);
 }

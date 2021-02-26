@@ -87,7 +87,7 @@ void SuperLoop_PowerModes(void)
 		rdispl=		SLD_GetPowerState();
 		racc=			SLAcc_GetPowerState();
 		rcomm=		SLC_GetPowerState();
-		return; ///RDD debug
+		//return; ///RDD debug
 		switch (SLP_state)
 		{
 			case 0://work mode

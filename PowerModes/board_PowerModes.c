@@ -182,7 +182,7 @@ void enterToStop(void)
 	__DMB();
 
 	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk; // Set SLEEPDEEP bit of Cortex System Control Register
-//while (!(( EXTI->RPR1 & EXTI_RPR1_RPIF5) || (EXTI->FPR1 & EXTI_FPR1_FPIF7)))
+while (!(( EXTI->RPR1 & EXTI_RPR1_RPIF5) || (EXTI->FPR1 & EXTI_FPR1_FPIF7)))
 {
 	__DSB();
 	__ISB();

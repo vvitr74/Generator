@@ -173,7 +173,7 @@ extern void SLC(void)
 				   {   MODBUScommLastTime=SystemTicks-(2*USBcommPause);
 					 }	 
 
-				if ((SystemTicks-MODBUScommLastTimel-USBcommPause)<0)
+				if ((SystemTicks-MODBUScommLastTimel)<USBcommPause)
 				{
 					  //SPIFFS_close(&fs, File_List);
 					  state_inner=SLC_FSM_OffPlayerTransition;

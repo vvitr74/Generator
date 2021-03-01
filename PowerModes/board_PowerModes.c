@@ -87,7 +87,7 @@ void SuperLoop_PowerModes(void)
 		rdispl=		SLD_GetPowerState();
 		racc=			SLAcc_GetPowerState();
 		rcomm=		SLC_GetPowerState();
-		//return; ///RDD debug
+		return; ///RDD debug
 		switch (SLP_state)
 		{
 			case 0://work mode
@@ -100,7 +100,8 @@ void SuperLoop_PowerModes(void)
 					}
 				break;
 			case 1:	//wait transition for sleep
-					if (!(rdispl&&racc&&rplayer&&rcomm)) SLP_state= 3;
+					if (!(rdispl&&racc&&rplayer&&rcomm)) 
+						          SLP_state= 3;
 					if ((e_PS_ReadySleep==rplayer)
 						&&(e_PS_ReadySleep==rdispl)
 					  &&(e_PS_ReadySleep==racc)

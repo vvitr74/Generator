@@ -18,13 +18,13 @@
  *
  * File: $Id$
  */
-
+#include "SuperLoop_Comm2.h"
 #include "GlobalKey.h"
-#include "Boardsetup.h"
+//#include "Boardsetup.h"
 #include "bluetooth.h"
 #include "port.h"
 
-systemticks_t lastUSBTime;
+
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
@@ -47,6 +47,7 @@ void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 	  switch (PS_Int)
 		{
 			case PS_Int_BLE:
+			case PS_Int_BLE_No:	
 					if( xRxEnable )
 					{
 						USART_CR1_RXNEIE_Logic=true;
@@ -137,6 +138,7 @@ BOOL xMBPortSerialPutByte( CHAR ucByte )
 	  switch (PS_Int)
 		{
 			case PS_Int_BLE:
+			case PS_Int_BLE_No:	
 				  ucBytel=ucByte;
 				  if ((DTD==ucByte)||(DLE==ucByte))
 				  {	byte_TX_DLE = true;
@@ -163,6 +165,7 @@ BOOL xMBPortSerialGetByte( CHAR *pucByte )
 	 switch (PS_Int)
 		{
 			case PS_Int_BLE:
+			case PS_Int_BLE_No:	
 				  *pucByte = USART2_RDR;// todo ??????
 				break;
 			default:
@@ -220,7 +223,7 @@ CHAR data;
 #ifdef MODBUS
 void USART1_IRQHandler(void)
 {
-	  lastUSBTime=SystemTicks;
+	  isUSBint =true; 
     if  (USART1->ISR & USART_ISR_TXE_TXFNF) 
 		{	USART1->ICR |= USART_ICR_TXFECF; 
 		//	USART1->RQR |= USART_RQR_TXFRQ;
@@ -229,7 +232,8 @@ void USART1_IRQHandler(void)
         USART1->RQR |= USART_RQR_TXFRQ;
 				switch (PS_Int)
 				{
-					case PS_Int_BLE:
+          case PS_Int_BLE:
+					case PS_Int_BLE_No:						
 						break;
 					default:
 						pxMBFrameCBTransmitterEmpty();
@@ -247,6 +251,7 @@ void USART1_IRQHandler(void)
 				switch (PS_Int)
 				{
 					case PS_Int_BLE:
+					case PS_Int_BLE_No:
 						break;
 					default:
 						pxMBFrameCBByteReceived();

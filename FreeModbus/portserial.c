@@ -20,8 +20,11 @@
  */
 
 #include "GlobalKey.h"
-
+#include "Boardsetup.h"
+#include "bluetooth.h"
 #include "port.h"
+
+systemticks_t lastUSBTime;
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
@@ -41,23 +44,46 @@ void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
     /* If xRXEnable enable serial receive interrupts. If xTxENable enable
      * transmitter empty interrupts.
      */
-    if( xRxEnable )
-    {
-			USART1->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
-    }
-    else
-    {
-			USART1->CR1 &= ~USART_CR1_RXNEIE_RXFNEIE;			
-    }
-
-    if ( xTxEnable )
-    {
-			USART1->CR1 |= USART_CR1_TXEIE_TXFNFIE;
-    }
-    else
-    {
-			USART1->CR1 &= ~USART_CR1_TXEIE_TXFNFIE;			
-    }
+	  switch (PS_Int)
+		{
+			case PS_Int_BLE:
+					if( xRxEnable )
+					{
+						USART_CR1_RXNEIE_Logic=true;
+						//USART2->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
+					}
+					else
+					{
+						USART_CR1_RXNEIE_Logic=false; 
+						//USART2->CR1 &= ~USART_CR1_RXNEIE_RXFNEIE;			
+					}
+					if ( xTxEnable )
+					{
+						USART2->CR1 |= USART_CR1_TXEIE_TXFNFIE;
+					}
+					else
+					{
+						USART2->CR1 &= ~USART_CR1_TXEIE_TXFNFIE;			
+					}
+				break;
+			default:
+					if( xRxEnable )
+					{
+						USART1->CR1 |= USART_CR1_RXNEIE_RXFNEIE;
+					}
+					else
+					{
+						USART1->CR1 &= ~USART_CR1_RXNEIE_RXFNEIE;			
+					}
+					if ( xTxEnable )
+					{
+						USART1->CR1 |= USART_CR1_TXEIE_TXFNFIE;
+					}
+					else
+					{
+						USART1->CR1 &= ~USART_CR1_TXEIE_TXFNFIE;			
+					}
+		}
 }
 
 BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity eParity )
@@ -99,12 +125,32 @@ BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPar
 	return TRUE;
 }
 
+char btSendArr[256];
+static uint8_t txIrqCnt;
+	
 BOOL xMBPortSerialPutByte( CHAR ucByte )
 {
     /* Put a byte in the UARTs transmit buffer. This function is called
      * by the protocol stack if pxMBFrameCBTransmitterEmpty( ) has been
      * called. */
-	  USART1->TDR = ucByte;
+	char ucBytel;
+	  switch (PS_Int)
+		{
+			case PS_Int_BLE:
+				  ucBytel=ucByte;
+				  if ((DTD==ucByte)||(DLE==ucByte))
+				  {	byte_TX_DLE = true;
+						USART2->TDR = DLE;
+						btSendArr[txIrqCnt++]=DLE;
+						while(!(USART2->ISR&USART_ISR_TXE_TXFNF));
+						ucBytel=ucBytel-1;
+					};
+					USART2->TDR = ucBytel;
+					btSendArr[txIrqCnt++]=ucBytel;
+				break;
+			default:
+					USART1->TDR = ucByte;
+		}
     return TRUE;
 }
 
@@ -113,7 +159,15 @@ BOOL xMBPortSerialGetByte( CHAR *pucByte )
     /* Return the byte in the UARTs receive buffer. This function is called
      * by the protocol stack after pxMBFrameCBByteReceived( ) has been called.
      */
-    *pucByte = (CHAR)USART1->RDR; 
+	
+	 switch (PS_Int)
+		{
+			case PS_Int_BLE:
+				  *pucByte = USART2_RDR;// todo ??????
+				break;
+			default:
+					*pucByte = (CHAR)USART1->RDR;
+		}
     return TRUE;
 }
 
@@ -159,22 +213,45 @@ CHAR data;
 		}
 }
 */
+
+
+
+
 #ifdef MODBUS
 void USART1_IRQHandler(void)
 {
-    if ( (USART1->ISR & USART_ISR_TXE_TXFNF) && (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE) )
-    {
-        USART1->ICR |= USART_ICR_TXFECF;             
+	  lastUSBTime=SystemTicks;
+    if  (USART1->ISR & USART_ISR_TXE_TXFNF) 
+		{	USART1->ICR |= USART_ICR_TXFECF; 
+		//	USART1->RQR |= USART_RQR_TXFRQ;
+			if (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE) 
+			{
         USART1->RQR |= USART_RQR_TXFRQ;
-        pxMBFrameCBTransmitterEmpty();			
-        return;
-    }	
+				switch (PS_Int)
+				{
+					case PS_Int_BLE:
+						break;
+					default:
+						pxMBFrameCBTransmitterEmpty();
+				}
+					return;
+      }	
+		}
 	
-	if( (USART1->ISR & USART_ISR_RXNE_RXFNE) && (USART1->CR1 & USART_CR1_RXNEIE_RXFNEIE) )
-	{
-		USART1->ICR |= USART_ICR_ORECF;
-		USART1->RQR |= USART_RQR_RXFRQ;
-		pxMBFrameCBByteReceived();		
-	}
+		if (USART1->ISR & USART_ISR_RXNE_RXFNE) 
+		{
+			USART1->ICR |= USART_ICR_ORECF;
+			if (USART1->CR1 & USART_CR1_RXNEIE_RXFNEIE)
+			{
+			//	USART1->RQR |= USART_RQR_RXFRQ;
+				switch (PS_Int)
+				{
+					case PS_Int_BLE:
+						break;
+					default:
+						pxMBFrameCBByteReceived();
+				}
+			}
+		}
 }
 #endif

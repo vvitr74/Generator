@@ -1,13 +1,19 @@
 #include "BoardSetup.h"
 #include "SuperLoop_Comm2.h"
 #include "SL_CommModbus.h"
-
+#include "bluetooth.h"
 #include "BQ28z610_Data.h"
+#include "mb.h"
 
 //------------------------------------for iteraction with MOFBUS
-#define USBcommPause 1000
 
-static systemticks_t USBcommLastTimel;
+
+static systemticks_t MODBUScommLastTimel;
+static systemticks_t lastIrqTime;
+
+e_PS_Int PS_Int;
+bool byte_TX_DLE;
+
 //------------------------------------for Display----------------------------------------------
 s32_t File_List;
 //---------------------------------------------------------------------------------------------
@@ -57,17 +63,17 @@ const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 ,false						//SLC_FSM_WakeTransition
 };
 
-//const bool SLC_BusyEncoder[SLC_FSM_NumOfEl]=
-//{false						//SLC_FSM_InitialWaitSupply
-//,false						//SLC_FSM_InitComms
-//,false						//SLC_FSM_InitFiles		
-//,false		        //SLC_FSM_CommAbsent
-//,true					  	//SLC_FSM_OnTransitionOffPlayer
-//,true					  	//SLC_FSM_USBCommunication 
-//,true	          	//SLC_FSM_AndroidConnected	
-//,false		      	//SLC_FSM_Sleep
-//,false						//SLC_FSM_WakeTransition
-//};
+const bool SLC_FFSEnable_Encoder[SLC_FSM_NumOfEl]=
+{false						//SLC_FSM_InitialWaitSupply
+,false						//SLC_FSM_InitComms
+,false						//SLC_FSM_InitFiles		
+,false		        //SLC_FSM_CommAbsent
+,false				  	//SLC_FSM_OnTransitionOffPlayer
+,true					  	//SLC_FSM_USBCommunication 
+,true	          	//SLC_FSM_AndroidConnected	
+,false		      	//SLC_FSM_Sleep
+,false						//SLC_FSM_WakeTransition
+};
 
 
 
@@ -80,10 +86,10 @@ __inline bool SLC_SPIFFS_State(void)
 {
 	 return SPIFFS_ReadyEncoder[state_inner];
 };
-//__inline bool SLC_Busy_State(void)
-//{
-//	 return SLC_BusyEncoder[state_inner];
-//};
+__inline bool SLC_FFSEnable(void)
+{
+	 return SLC_FFSEnable_Encoder[state_inner];
+};
 
 
 //---------------------------------for power sleep---------------------------------------------
@@ -126,6 +132,7 @@ extern void SLC(void)
 			PM_OnOffPWR(PM_Communication,true );
 			spiffs_init();
 		  SL_CommModbusInit();
+			btInit();
 		
 //		readDataFromFile();	//for debug
 		
@@ -138,6 +145,7 @@ extern void SLC(void)
 			break;
 		case SLC_FSM_CommAbsent: //
 			  SL_CommModbus();
+		    SLBL();//
 				if (SLC_GoToSleep)
 				   {
 						SPIFFS_close(&fs, File_List);
@@ -146,22 +154,21 @@ extern void SLC(void)
 						state_inner=SLC_FSM_Sleep;
 					 }						 
 						 
-				USBcommLastTimel=USBcommLastTime; //not volatile
-				if ((SystemTicks-USBcommLastTimel)>(2*USBcommPause))
-				   {   USBcommLastTime=SystemTicks-(2*USBcommPause);
+				MODBUScommLastTimel=MODBUScommLastTime; //MODBUScommLastTime
+				if ((SystemTicks-MODBUScommLastTimel)>(2*USBcommPause))
+				   {   MODBUScommLastTime=SystemTicks-(2*USBcommPause);
 					 }	 
 
-				if ((SystemTicks-USBcommLastTimel)<USBcommPause)
+				if ((SystemTicks-MODBUScommLastTimel)<USBcommPause)
 				{
-					  SPIFFS_close(&fs, File_List);
+					  //SPIFFS_close(&fs, File_List);
 					  state_inner=SLC_FSM_OffPlayerTransition;
 				}
-//				if (Bluetooth)
-//					  state_inner=SLC_FSM_OnTransitionOffPlayer;
       break;
 		case SLC_FSM_OffPlayerTransition: // on
 			SL_CommModbus();
-  		if (SLPl_FFSFree())
+		    SLBL();
+            if (SLPl_FFSFree())
 			{
  				SPIFFS_close(&fs, File_List);
 				state_inner=SLC_FSM_USBCommunication;
@@ -169,11 +176,11 @@ extern void SLC(void)
 			break;
 		case SLC_FSM_USBCommunication: 
 			SL_CommModbus();
-      if ((SystemTicks-USBcommLastTimel)>(USBcommPause))				
+		   SLBL();
+		  MODBUScommLastTimel=MODBUScommLastTime;
+      if ((SystemTicks-MODBUScommLastTimel)>(USBcommPause))				
 				  state_inner=SLC_FSM_InitFiles;
 		  break;	
-		case SLC_FSM_AndroidConnected:
-			break;
 		case SLC_FSM_Sleep:
 				if ((!SLC_GoToSleep) ) 
 	  			{state_inner=SLC_FSM_WakeTransition;
@@ -198,4 +205,55 @@ void Communication_OutSleep()
 {
   //uart1Init();	
 };
+
+
+#define D_BL_Packet_Pause 50000
+#define D_USB_Packet_Pause 50000
+
+void SLBL(void)
+{			
+	if ((lastUSBTime+ D_USB_Packet_Pause)<SystemTicks)
+	{ if (PS_Int_USB==PS_Int)
+		{	eMBDisable();
+			PS_Int=PS_Int_No;
+			eMBEnable();
+		}
+	}	
+	else	
+	{	if (PS_Int_No==PS_Int)
+		{	eMBDisable();
+			PS_Int=PS_Int_USB;
+			eMBEnable();
+		}
+	};	
+	
+	//if (0==btState) return;
+
+
+  if ((SystemTicks-lastIrqTime)>(2*D_BL_Packet_Pause))// Correction for cyclical time
+	   {   lastIrqTime=SystemTicks-(2*D_BL_Packet_Pause);
+		 }	 
+					 
+	if (isBLEint) //Interrupt time latch (approximately)
+		{
+			isBLEint=false;
+			lastIrqTime=SystemTicks;  
+		}
+
+	if ((lastIrqTime+ D_BL_Packet_Pause)<SystemTicks) // Exit BLE mode by pause
+	{ if (PS_Int_BLE==PS_Int)
+		{	eMBDisable();
+			PS_Int=PS_Int_No;
+			eMBEnable();
+		}	
+	}	
+	else	
+	{	if (PS_Int_No==PS_Int)   // Enter into BLE mode by time
+		{	eMBDisable();
+			PS_Int=PS_Int_BLE;
+			eMBEnable();
+		}
+	};	
+
+}
 

@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\User\inc;..\ugfx_2.9\src\gdisp;..\ugfx_2.9\src;..\ugfx_2.9;..\ugfx_2.9\src\gos;..\ugfx_2.9\src\gwin;..\ugfx_2.9\drivers\gdisp\ILI9341;..\ugfx_2.9\src\ginput;..\ugfx_2.9\drivers\ginput\toggle\Pal;..\Display;..\ugfx_2.9\drivers\ginput\touch\FT6x06;..\DriversCommon;..\PowerModes;..\W25QXX;..\Communications;..\Player;..\acc;..\PowerModes;..\FreeModbus;..\CommModbus;..\spiffs\src;..\spiffs\src\default;..\FileIcons;..\UID</IncludePath>
+              <IncludePath>..\User\inc;..\ugfx_2.9\src\gdisp;..\ugfx_2.9\src;..\ugfx_2.9;..\ugfx_2.9\src\gos;..\ugfx_2.9\src\gwin;..\ugfx_2.9\drivers\gdisp\ILI9341;..\ugfx_2.9\src\ginput;..\ugfx_2.9\drivers\ginput\toggle\Pal;..\Display;..\ugfx_2.9\drivers\ginput\touch\FT6x06;..\DriversCommon;..\PowerModes;..\W25QXX;..\Communications;..\Player;..\acc;..\PowerModes;..\FreeModbus;..\CommModbus;..\spiffs\src;..\spiffs\src\default;..\FileIcons;..\aes</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -402,6 +402,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\src\GlobalKey.c</FilePath>
             </File>
+            <File>
+              <FileName>UID.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\src\UID.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -432,6 +437,11 @@
               <FileType>1</FileType>
               <FilePath>..\Display\superloopDisplay.c</FilePath>
             </File>
+            <File>
+              <FileName>uGFXport.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Display\uGFXport.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -456,6 +466,16 @@
               <FileName>SuperLoop_Comm2.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Communications\SuperLoop_Comm2.c</FilePath>
+            </File>
+            <File>
+              <FileName>bluetooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Communications\bluetooth.c</FilePath>
+            </File>
+            <File>
+              <FileName>SuperLoop_Comm2.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Communications\SuperLoop_Comm2.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -705,12 +725,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>UID</GroupName>
+          <GroupName>aes</GroupName>
           <Files>
             <File>
-              <FileName>UID.c</FileName>
+              <FileName>aes.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\UID\UID.c</FilePath>
+              <FilePath>..\aes\aes.c</FilePath>
+            </File>
+            <File>
+              <FileName>aes.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\aes\aes.h</FilePath>
+            </File>
+            <File>
+              <FileName>sha256.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\aes\sha256.c</FilePath>
+            </File>
+            <File>
+              <FileName>sha256.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\aes\sha256.h</FilePath>
             </File>
           </Files>
         </Group>

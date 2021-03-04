@@ -121,6 +121,22 @@ e_FunctionReturnState BQ25703_Init_Check(void)
 
 }
 
+
+e_FunctionReturnState BQ25703_Write_Check(bq25703Registers reg, uint16_t data)
+{
+e_FunctionReturnState wrstate;
+uint16_t data16=data;
+wrstate=BQ25703_Wr_Check(       bq25703,
+												bq25703InitData[reg].I2cRecord,
+												data16,
+												cPriorityDefault,
+												voidfun8
+	        			);
+return  wrstate;
+
+}
+
+
 e_FunctionReturnState BQ25703_Charge_Check(uint16_t I)
 {
 e_FunctionReturnState wrstate;

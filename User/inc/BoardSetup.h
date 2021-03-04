@@ -2,8 +2,9 @@
 #define __BOARDSETUP_H
 
 #include "stm32g0xx.h" 
-#include "fpga.h"
-#include "gfx.h"
+#include <stdint.h>
+//#include "fpga.h"
+//#include "gfx.h"
 
 #define HSE_READY_DELAY   (uint32_t)1600000;
 #define CLK_TICK_FOR_1MS  64000U;          
@@ -88,34 +89,7 @@ extern volatile   systemticks_t BS_LastButtonPress;
 extern uint16_t button_sign;		
 extern uint8_t  SystemStatus;
 
-//extern volatile  uint32_t tick;
-extern systemticks_t gfxSystemTicks(void);
-extern systemticks_t gfxMillisecondsToTicks(delaytime_t ms);		
 
-//typedef 
-//	enum {
-//		TM_WRITE,
-//		TM_READ
-//} transferMode_en;
-//	
-//typedef 
-//	enum {
-//		I2C_WAIT_STATE,	
-//		I2C_TRANSACTION_OK,
-//		I2C_TRANSACTION_ERROR
-//} i2cState_en;
-
-//typedef
-//  __packed struct {   
-//      uint8_t slaveAddr;
-//      uint8_t subAddr[2];
-//		  uint8_t numOfDataBytes;
-//		  uint8_t numOfSubAddrBytes;
-//    } i2cPacket_t;
-
-//extern uint32_t tick;
-
-/* functions prototypes */
 		
 //for power
 extern void BoardSetup_InSleep(void);

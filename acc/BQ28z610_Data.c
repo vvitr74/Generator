@@ -19,7 +19,7 @@ e_FunctionReturnState readDataFromFile(void)
 {
 	uint8_t ch, chCnt, strCnt;
 	
-	char file[]="6000mA.txt";
+	char file[]="bq28z610.srec";
 	e_FunctionReturnState rstate=e_FRS_Done;
 	char *pch;
 	int32_t TempParam;
@@ -32,8 +32,7 @@ e_FunctionReturnState readDataFromFile(void)
 	n_for_CR=0;
 	tempArrOld[0]=0;
 	
-do
-	{    
+	do{    
     		bytesCount=SPIFFS_read(&fs, data_file, &byteBuff, D_ParamStringLength-n_for_CR);
 				if (bytesCount<0)
 				{	rstate=e_FRS_DoneError;
@@ -42,7 +41,9 @@ do
 				byteBuff[bytesCount]=0;
 				strcat(tempArrOld,byteBuff);
 				dataProcessing();
-				wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,0);
+				do{
+					wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,0);
+				}while(wrstate!=e_FRS_Done || wrstate!=e_FRS_DoneError);
         pch = strchr(tempArrOld,10);
 				if (NULL==pch)
 				{	rstate=e_FRS_DoneError;
@@ -51,10 +52,9 @@ do
 				strcpy(tempArrOld,pch+1);	
 				n_for_CR= strlen(tempArrOld);
 				strCnt++;
-	}				
-	while (strCnt<=StringsNum);	
+	}while (strCnt<=StringsNum);	
 	SPIFFS_close(&fs,data_file);
-	return rstate;
+	return rstate=wrstate;
 }
 
 void dataProcessing(void)

@@ -41,7 +41,37 @@ static e_SLAcc_BatStatus SLAcc_BatStatus;
 
 __inline e_SLAcc_BatStatus Get_SLAcc_BatteryStatus(void)
 {
-  return SLAcc_BatStatus;
+	e_SLAcc_BatStatus ls;
+	if (
+			((e_FSM_ChargeOff==mainFMSstate)
+		 ||(e_FSM_RestOff  ==mainFMSstate)
+	   ) 
+     )
+  { 
+		if (mFSM_BQ28z610_RSOC<10)
+			{ls=SLAcc_batEmpty;}
+		else
+			if (mFSM_BQ28z610_RSOC<20)
+			{ls=SLAcc_batLowLev;
+			}
+			else
+				if (mFSM_BQ28z610_RSOC<50)
+				{ls=SLAcc_batMedLev;
+				}
+				else
+					if (mFSM_BQ28z610_RSOC<90)
+					{ls=SLAcc_batHighLev;
+					}
+					else
+					{ls=SLAcc_batFull;
+					};
+	}
+	else
+	{
+		ls=SLAcc_batCharging;
+	}
+	SLAcc_BatStatus=ls;
+	return SLAcc_BatStatus;
 };
 
 
@@ -397,7 +427,7 @@ void SuperLoopACC(void)
 {
 	uint16_t data;
 	
-//	readDataFromFile();	//for debug
+	readDataFromFile();	//for debug
 	
 	e_FunctionReturnState wrstate;
 	static uint8_t state=0;

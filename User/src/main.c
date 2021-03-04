@@ -20,20 +20,20 @@
 #endif
 
 #ifdef COMMS
-#include "SuperLoop_Comm.h"
+#include "SuperLoop_Comm2.h"
 #endif
 
 #ifdef PLAYER
-#include "fpga.h"
-#include "flash.h"
-#include "Spi.h"
-#include "tim3.h"
+//#include "fpga.h"
+//#include "flash.h"
+#include "Spi1.h"
+//#include "tim3.h"
 #endif
 
 #include "fs.h"
 
 #ifdef RELEASE
-#define APPLICATION_ADDRESS (uint32_t)0x08001800 /**  offset start address */
+#define APPLICATION_ADDRESS (uint32_t)0x08003800 /**  offset start address */
 
 void _ttywrch(int ch)
 {

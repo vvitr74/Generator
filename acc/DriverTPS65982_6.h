@@ -27,6 +27,7 @@ typedef enum {
 				e_TPS65982_6_SystemConfigurationRegister,
 	      e_TPS65987_IntClear1,
 	      e_TPS65987_IntEvent1,
+	      e_TPS65987_PowerStatusRegister,
 				e_TPS65982_6_NumOfReg
 
 } e_TPS65982_6_Registers;

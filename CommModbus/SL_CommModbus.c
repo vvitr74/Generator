@@ -1,5 +1,6 @@
 #include <string.h>
 #include "SL_CommModbus.h"
+#include "SuperLoop_Comm2.h"
 
 #include "mb.h"
 #include "mbport.h"
@@ -22,7 +23,8 @@
 #define REG_HOLDING_START   1000
 #define REG_HOLDING_NREGS   5
 
-systemticks_t USBcommLastTimel,USBcommLastTime;
+
+systemticks_t MODBUScommLastTime=-USBcommPause;
 
 static uint8_t erase_fn_ext_reg[4]; /**< Erase filename extension */
 
@@ -43,15 +45,21 @@ int SL_CommModbusInit(void)
     eStatus = eMBEnable();	
     return 0;
 }
-
+ 
 
 eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
                             USHORT usNCoils, eMBRegisterMode eMode )
 {
-	USBcommLastTime=SystemTicks;
+
     
     if (eMode == MB_REG_WRITE)
     {
+        MODBUScommLastTime=SystemTicks;
+        if (!SLC_FFSEnable())   //get error if FFS is busy
+        {   
+             return MB_ENORES;
+        }
+
         if (usAddress == (ERASE_ALL_START_COIL+1))
         {
             return spiffs_erase_all();
@@ -71,7 +79,7 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
 
 eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 {
-	USBcommLastTime=SystemTicks;
+	//MODBUScommLastTime=SystemTicks;
  //   USBcommLastTimeSet=true;
 	
     return MB_ENOREG;
@@ -80,7 +88,7 @@ eMBErrorCode eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT us
 eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
 {
 	
-	 USBcommLastTime=SystemTicks;
+//	 MODBUScommLastTime=SystemTicks;
 //   USBcommLastTimeSet=true;
 	
     uint8_t reg = pucRegBuffer[0];
@@ -89,21 +97,19 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
     {
         for(uint16_t i = 0; i<  usNRegs; i++)
         {
+            pucRegBuffer[i << 1] = 0;
             switch(reg + i)
             {
                 case VERSION_MAJOR_REG: 
-                      pucRegBuffer[i << 1] = VERSION_MAJOR >> 8;
-                      pucRegBuffer[(i << 1)+1] = VERSION_MAJOR & 0xff;
+                      pucRegBuffer[(i << 1)+1] = *((uint8_t *)FLASH_VERSION_ADDRESS);
                 break;
                 
                 case VERSION_MINOR_REG:
-                      pucRegBuffer[i << 1] = VERSION_MINOR >> 8;
-                      pucRegBuffer[(i << 1)+1] = VERSION_MINOR & 0xff;
+                      pucRegBuffer[(i << 1)+1] = *((uint8_t *)FLASH_VERSION_ADDRESS + 1);
                 break;
                 
-                case VERSION_BUILD_REG:
-                     pucRegBuffer[i << 1] = VERSION_BUILD >> 8;
-                     pucRegBuffer[(i << 1)+1] = VERSION_BUILD & 0xff;
+                case VERSION_BUILD_REG:    
+                     pucRegBuffer[(i << 1)+1] = *((uint8_t *)FLASH_VERSION_ADDRESS + 2);
                 break;
                 
                 default:  return MB_ENOREG;
@@ -114,10 +120,10 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
     }
     
         
-    if(reg >= SERIAL_REG && reg < (SERIAL_REG + (sizeof(SERIAL)>>1)))
+    if(reg >= SERIAL_REG && reg < (SERIAL_REG + 6))
     {     
 
-        memcpy((void*)pucRegBuffer,(const void*)SERIAL, sizeof(SERIAL));
+        memcpy((void*)pucRegBuffer,(const void*)SERIAL, 2+2+4+4);
         return MB_ENOERR;
     }
     
@@ -128,11 +134,17 @@ eMBErrorCode eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRe
 eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
                               USHORT usNRegs, eMBRegisterMode eMode )
 {
-    USBcommLastTime=SystemTicks;
+    
     
     if (eMode == MB_REG_WRITE && 
         (usAddress == (ERASE_FN_EXT_REG0+1) || usAddress == (ERASE_FN_EXT_REG1+1)))
     {
+        MODBUScommLastTime = SystemTicks; 
+        if (!SLC_FFSEnable())  //get error if FFS is busy
+        {   
+             return MB_ENORES;
+        } 
+			
         uint8_t offset = (usAddress - (ERASE_FN_EXT_REG0+1))<<1;
         if ((offset + (usNRegs<<1)) > sizeof(erase_fn_ext_reg))
         {

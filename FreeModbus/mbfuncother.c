@@ -40,6 +40,10 @@
 #include "mbproto.h"
 #include "mbconfig.h"
 
+#include "BoardSetup.h"
+#include "SuperLoop_Comm2.h"
+#include "SL_CommModbus.h"
+
 #if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
 
 /* ----------------------- Static variables ---------------------------------*/
@@ -57,6 +61,12 @@ eMBSetSlaveID( UCHAR ucSlaveID, BOOL xIsRunning,
     /* the first byte and second byte in the buffer is reserved for
      * the parameter ucSlaveID and the running flag. The rest of
      * the buffer is available for additional data. */
+//    MODBUScommLastTime=SystemTicks	
+//		if (!SLC_FFSEnable())   //get error if FFS is busy
+//			 {   
+//					 return MB_ENORES;
+//			 };
+	
     if( usAdditionalLen + 2 < MB_FUNC_OTHER_REP_SLAVEID_BUF )
     {
         usMBSlaveIDLen = 0;
@@ -96,9 +106,15 @@ eMBFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen )
 */
 extern int on_modbus_write_file(uint8_t* buf, size_t len);
 
-eMBException  
+eMBErrorCode  
 eMBFuncWriteFile( UCHAR * pucFrame, USHORT * usLen )
 {
+	MODBUScommLastTime = SystemTicks;
+	if (!SLC_FFSEnable())   //get error if FFS is busy
+    {   
+             return MB_ENORES;
+    }
+	
     return on_modbus_write_file(pucFrame + 9, *usLen - 9);
 }
 

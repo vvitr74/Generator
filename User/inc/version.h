@@ -1,5 +1,7 @@
-#define VERSION_MAJOR 20
-#define VERSION_MINOR 12
-#define VERSION_BUILD 27
+#define VERSION_MAJOR 21
+#define VERSION_MINOR 02
+#define VERSION_BUILD 15
 
-#define SERIAL "freq-player"
+#define SERIAL ((const void*)0x1FFF7590)
+	
+#define FLASH_VERSION_ADDRESS 0x0801fffc

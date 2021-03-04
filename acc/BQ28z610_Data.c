@@ -42,7 +42,11 @@ do
 				byteBuff[bytesCount]=0;
 				strcat(tempArrOld,byteBuff);
 				dataProcessing();
-				wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,0);
+				do
+				{	wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,0);
+				}
+				while((wrstate!=e_FRS_Done)||(wrstate!=e_FRS_DoneError));
+					//if wrstate==e_FRS_DoneError something wrong
         pch = strchr(tempArrOld,10);
 				if (NULL==pch)
 				{	rstate=e_FRS_DoneError;

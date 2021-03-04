@@ -29,15 +29,16 @@
 void Error(char* s);
 
 typedef enum  
-{PS_Int_No
+{PS_Int_USB_No
 ,PS_Int_USB  		//work
+,PS_Int_BLE_No 	
 ,PS_Int_BLE  						//work
 ,PS_Int_NumOfEl	
 } e_PS_Int;
 
 extern e_PS_Int PS_Int;
 extern bool byte_TX_DLE;
-extern systemticks_t lastUSBTime;
+
 
 
 #define DLE 27 //esc

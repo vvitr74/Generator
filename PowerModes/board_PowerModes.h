@@ -1,9 +1,11 @@
 #ifndef _board_PowerModes_H
 #define _board_PowerModes_H
 
-#include "mainFSM.h"
-#include "superloopDisplay.h"
-#include "superloop_Player.h"
+//#include "mainFSM.h"
+//#include "superloopDisplay.h"
+//#include "superloop_Player.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 
 //moduls

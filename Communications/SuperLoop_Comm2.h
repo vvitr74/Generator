@@ -2,8 +2,10 @@
 #define SLC2_H
 
 #include "board_PowerModes.h"
+#include "PowerModes_Defs.h"
 #include "spiffs.h"
 #include "fs.h"
+#include "GlobalKey.h"
 
 //#define DLE 27 //esc
 //#define DTD '$'
@@ -13,6 +15,7 @@
 
 extern e_PS_Int PS_Int;
 extern bool byte_TX_DLE;
+extern bool isUSBint;
 
 extern s32_t File_List;
 

@@ -25,7 +25,7 @@
 
 #ifdef PLAYER
 //#include "fpga.h"
-//#include "flash.h"
+#include "SuperLoop_Player.h"
 #include "Spi1.h"
 //#include "tim3.h"
 #endif

@@ -127,7 +127,7 @@ BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPar
 }
 
 char btSendArr[256];
-static uint8_t txIrqCnt;
+uint8_t txIrqCnt;
 	
 BOOL xMBPortSerialPutByte( CHAR ucByte )
 {
@@ -143,11 +143,13 @@ BOOL xMBPortSerialPutByte( CHAR ucByte )
 				  if ((DTD==ucByte)||(DLE==ucByte))
 				  {	byte_TX_DLE = true;
 						USART2->TDR = DLE;
+						USART1->TDR = DLE;
 						btSendArr[txIrqCnt++]=DLE;
 						while(!(USART2->ISR&USART_ISR_TXE_TXFNF));
 						ucBytel=ucBytel-1;
 					};
 					USART2->TDR = ucBytel;
+					USART1->TDR = ucBytel;
 					btSendArr[txIrqCnt++]=ucBytel;
 				break;
 			default:

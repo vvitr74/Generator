@@ -39,7 +39,9 @@ static char btChRx;
 static uint8_t btChRxRdy;
 char btRespArr[D_BufferSize];
 
-static uint8_t rxIrqCnt,txIrqCnt,rxIrqCntRead,rxIrqCntOld,rxIrqCntl;
+uint8_t rxIrqCnt;
+
+static uint8_t rxIrqCntRead,rxIrqCntOld,rxIrqCntl;
 static uint8_t btState;
 
 
@@ -97,14 +99,16 @@ void USART2_IRQHandler(void)
   						else
 							{	USART2_RDR=btChRx;
 								if (byte_DLE)
+								{isBLEint=true;
 										USART2_RDR++;
-								if ((PS_Int_BLE==PS_Int)
+								}
+								if (((PS_Int_BLE==PS_Int)||(PS_Int_BLE_No==PS_Int))
 									&&(!((byte_DLE)&&(SMODBUSBegin==btChRx)))
 								  &&(USART_CR1_RXNEIE_Logic) 
 								   )
 									pxMBFrameCBByteReceived();	
-								  //USART2->TDR=USART2_RDR;
-							//	  uart2Tx(&USART2_RDR,1);
+								  USART1->TDR=USART2_RDR;
+								  //uart2Tx(&USART2_RDR,1);
 							}	
 						byte_DLE=false;	
 					}

@@ -153,15 +153,7 @@ e_FunctionReturnState BQ28z610_AltManufacturerAccessDFWrite(uint16_t address, ui
 	};
 	
   return rstatel;	
-
-
 	
-	
-
-	
-	
-
-		return  wrstate;	
 };
 
 

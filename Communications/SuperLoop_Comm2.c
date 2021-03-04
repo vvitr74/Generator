@@ -143,7 +143,7 @@ extern void SLC(void)
 		  SL_CommModbusInit();
 			btInit();
 		
-//		readDataFromFile();	//for debug
+		readDataFromFile();	//for debug
 		
 		  state_inner=SLC_FSM_InitFiles;
 			break;

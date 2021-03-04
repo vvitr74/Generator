@@ -76,7 +76,7 @@ __inline e_SLAcc_BatStatus Get_SLAcc_BatteryStatus(void)
 
 
 
-uint8_t maintaskstate=15;//15->skip debug
+uint8_t maintaskstate=14;//15->skip debug
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
 
 static uint16_t data_IIN_DPM;
@@ -408,8 +408,10 @@ e_FunctionReturnState testACC(void)
 		        //if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
             {maintaskstate++;};
             break;
-   case 14: if (e_FRS_Done==TPS65982_6_RDO_R(TPS87,  &I86, &V86))
+   case 14: //readDataFromFile();
 		         {maintaskstate++;};
+//						if (e_FRS_Done==TPS65982_6_RDO_R(TPS87,  &I86, &V86))
+//		         {maintaskstate++;};
 //	       rstatel=MainTransition(testkey);
 //	       if (e_FRS_Done==rstatel)
 //                                 {maintaskstate++;};

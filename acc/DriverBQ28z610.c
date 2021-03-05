@@ -198,3 +198,11 @@ void BQ28z610_DriverReset(void)
 	DriverBQ28z610_KEY=0;
 	DriverBQ28z610_FSMs_state=0;
 }
+
+e_FunctionReturnState BQ28z610_DriverState(void)
+{
+	if (DriverBQ28z610_KEY)
+	{	return e_FRS_Busy;}
+	else
+	{	return e_FRS_Done;};
+};

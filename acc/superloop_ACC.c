@@ -76,7 +76,7 @@ __inline e_SLAcc_BatStatus Get_SLAcc_BatteryStatus(void)
 
 
 
-uint8_t maintaskstate=14;//15->skip debug
+uint8_t maintaskstate=15;//15->skip debug
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
 
 static uint16_t data_IIN_DPM;
@@ -405,7 +405,7 @@ e_FunctionReturnState testACC(void)
             {maintaskstate++;};
             break;
    case 13: data=4400;
-		        //if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
+		        if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
             {maintaskstate++;};
             break;
    case 14: //readDataFromFile();
@@ -439,8 +439,6 @@ void SuperLoopACC(void)
             {maintaskstate=0;
 							state++;
 					  };
-//						data=5500;                                                                 //test defence
-//		        wrstate=BQ28z610_AltManufacturerAccessDFWrite(0x46b9, (uint8_t*)&data, 2); //test defence
        break;
 		case 1: LoopACC();
 			 break;

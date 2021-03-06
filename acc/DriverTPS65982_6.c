@@ -135,6 +135,60 @@ e_FunctionReturnState TPS65982_6_CMD(e_I2C_API_Devices device,e_TPS65982_6_CMD C
 
 }
 
+extern  e_FunctionReturnState 
+TPS65982_6_CMD_U(e_I2C_API_Devices device,e_TPS65982_6_CMD CMD, uint8_t *dataWR, uint8_t qntByteWR,uint8_t *dataRD, uint8_t qntByteRD)
+{
+	//standard response assumed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	e_FunctionReturnState returnstateL;
+	//static uint8_t d;
+    returnstateL=e_FRS_Processing;
+    uint8_t k;
+    //d=0x0f;
+    switch (internalstate1)
+	{
+	case 0:if (0!=qntByteWR)
+	         {
+//		     data[0]=TPS_CMD[CMD].Data_qntByte;data[1]=TPS_CMD[CMD].Data;
+	         if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_Data1,dataWR,qntByteWR,I2C_OP_WRITE))
+	            {
+	        	 internalstate1++;
+	            };
+	         }
+	        else {internalstate1++;};
+	         break;
+	case 1:data[0]=4;for(k=0;k<4;k++) {data[k+1]=TPS_CMD[CMD].CMD[k];};
+	         if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_Cmd1,data,5,I2C_OP_WRITE))
+	         {
+	        	 internalstate1++;
+	         };
+	         break;
+	case 2:
+            if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_Cmd1,data,5,I2C_OP_READ))
+			         {
+			        	if ((0==data[1])&&(0==data[2])&&(0==data[3])&&(0==data[4]))
+			        		{
+			        		internalstate1++;
+			        		};
+			        	if (('!'==data[1])&&('C'==data[2])&&('M'==data[3])&&('D'==data[4]))
+			        		{
+			        		 returnstateL=e_FRS_DoneError;internalstate1=0;
+			        	    };
+
+			         };
+			         break;
+	case 3:
+            if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_Data1,dataRD,qntByteRD,I2C_OP_READ))
+			         {
+			       		internalstate1++;
+			         };
+			         break;
+
+	 default: internalstate1=0; returnstateL=e_FRS_Done;
+	};
+	return returnstateL;
+	
+};
+
 
 e_FunctionReturnState
 TPS65982_6_RW(e_I2C_API_Devices device, e_TPS65982_6_Registers reg, uint8_t *data, uint8_t qntByte, uint8_t RW)

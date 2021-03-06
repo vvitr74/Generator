@@ -579,7 +579,7 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
             bq28z610_write_done_cb();
         }
         
-        if(bq28z610_write_done_cb != NULL &&
+        if(tps65987_write_done_cb != NULL &&
             strncmp(fname,"tps65987.bin",fname_len) == 0)
         {
             tps65987_write_done_cb();

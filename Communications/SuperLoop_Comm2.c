@@ -152,11 +152,11 @@ extern void SLC(void)
 		case SLC_FSM_Init28z610:
 			if (BQ28z610_DriverState())
 				break;
-		  do // debug instead readDataFromFile()
-			{res=BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,SLC);
-			}
-		  while (e_FRS_Done!=res);
-		//readDataFromFile();	// 
+//		  do // debug instead readDataFromFile()
+//			{res=BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,SLC);
+//			}
+//		  while (e_FRS_Done!=res);
+//		//readDataFromFile();	// 
 			state_inner=SLC_FSM_InitFiles;
 		case SLC_FSM_InitFiles:
 			if ((!bVSYS))

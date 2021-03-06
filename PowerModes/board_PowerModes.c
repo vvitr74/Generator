@@ -85,7 +85,7 @@ void SuperLoop_PowerModes(void)
 
 		rplayer=	SLPl_GetPowerState();
 		rdispl=		SLD_GetPowerState();
-		racc=			SLAcc_GetPowerState();
+		racc=			2;//SLAcc_GetPowerState();
 		rcomm=		SLC_GetPowerState();
 		//return; ///RDD debug
 		switch (SLP_state)

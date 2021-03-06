@@ -47,10 +47,13 @@ const t_I2c16InitData TPS65982_6InitData[e_TPS65982_6_NumOfReg]=
 		{{I2C_OP_WRITE,0x32,		1,31+1},0}, // e_TPS65982_6_TXSourceCapabilities  TPS659827       //64  
 		{{I2C_OP_WRITE,0x33,		1,57+1},0}, // e_TPS65982_6_TXSinkCapabilities    TPS659827       //57
 		{{I2C_OP_WRITE,0x03,		1,4+1},0},//e_TPS65982_6_Mode,                    TPS659827       //4cc
-		{{I2C_OP_WRITE,0x28,		1,17+1},0},//e_TPS65982_6_SystemConfigurationRegister   TPS659827 // 8 bytes
+		//{{I2C_OP_WRITE,0x28,		1,17+1},0},//e_TPS65982_6_SystemConfigurationRegister   TPS659827 // 8 bytes
+  	{{I2C_OP_WRITE,0x28,		1,8+1},0},//e_TPS65982_6_PortConfigurationRegister   TPS659827 // 8 bytes
 		{{I2C_OP_WRITE,0x18,		1,11+1},0},//e_TPS65987_IntClear1   TPS659827 // 11 bytes
 		{{I2C_OP_WRITE,0x14,		1,11+1},0},//e_TPS65987_IntEvent1   TPS659827 // 11 bytes
 		{{I2C_OP_READ, 0x3f,		1,2+1},0},//e_TPS65987_PowerStatusRegister
+		{{I2C_OP_READ, 0x2D,		1,12+1},0},//e_TPS65987_BootFlagsRegister
+	
 };
 
 const t_TPS_CMD TPS_CMD[e_TPS_CMD_NumOfEl]=
@@ -60,6 +63,11 @@ const t_TPS_CMD TPS_CMD[e_TPS_CMD_NumOfEl]=
 	{"SWSr",0,0},//e_TPS_CMD_SWSr
 	{"SWSk",0,0},//e_TPS_CMD_SWSk
 	{"DBfg",0,0},//e_TPS_CMD_DBfg
+	{"FLrr",0,0},//e_TPS_CMD_DBfg
+	{"FLem",0,0},//e_TPS_CMD_DBfg
+	{"FLad",0,0},//e_TPS_CMD_DBfg
+	{"FLwd",0,0},//e_TPS_CMD_DBfg
+	{"FLvy",0,0},//e_TPS_CMD_DBfg
 };
 
 

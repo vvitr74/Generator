@@ -54,6 +54,25 @@ void _sys_command_string(char *cmd, int len)
 
 #endif
 
+/**
+* TPS65987 write done callback 
+* Called when tps65987.bin has been written and can be applied
+*/
+void tps65987_cb()
+{
+    GPIOB->ODR ^= GPIO_ODR_OD10; 
+}
+
+
+/**
+* BQ28Z610 write done callback 
+* Called when bq28z610.bin has been written and can be applied
+*/
+void bq28z610_cb()
+{
+    GPIOB->ODR ^= GPIO_ODR_OD10; 
+}
+
 
 int main(void)
 {
@@ -62,9 +81,7 @@ int main(void)
     SCB->VTOR = APPLICATION_ADDRESS;
     __enable_irq();
 #endif    
-    
-
-    
+  
 #ifdef debug1	
 __disable_irq();	
   RCC->IOPENR |= RCC_IOPENR_GPIOAEN |                     // enable clock for GPIO 
@@ -105,6 +122,9 @@ SuperLoopACC_init();
 #ifdef LCDUSE
 SLD_init();
 #endif
+
+spiffs_on_write_tps65987_done(tps65987_cb);
+spiffs_on_write_bq28z610_done(tps65987_cb);
 
 #if defined COMMS || defined PLAYER
 	tim3Init();

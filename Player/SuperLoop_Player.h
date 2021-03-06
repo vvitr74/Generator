@@ -91,5 +91,24 @@ extern uint16_t playFileSector;
 void SLPl_InitFiles(void);
 
 
+/**
+* Start playing
+*/
+void play_cb();
+
+/**
+* Stop playing
+*/
+void stop_cb();
+
+/**
+* Play previous file 
+*/
+void prev_cb();
+
+/**
+* Play next file
+*/
+void next_cb();
 
 #endif

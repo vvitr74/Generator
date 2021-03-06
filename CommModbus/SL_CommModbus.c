@@ -12,6 +12,7 @@
 #define VERSION_MINOR_REG 0x11
 #define VERSION_BUILD_REG 0x12
 
+#define FLAGS_REG  0x20
 #define SERIAL_REG 0x30
 #define ERASE_FN_EXT_REG0 0x38
 #define ERASE_FN_EXT_REG1 0x39
@@ -23,25 +24,76 @@
 #define REG_HOLDING_START   1000
 #define REG_HOLDING_NREGS   5
 
+/**
+* Flags reg struct
+*/
+typedef struct 
+{
+    uint8_t tx_done :1; /**< Transfer is done */
+    uint8_t play_btn :1;    /**< Starts player */
+    uint8_t stop_btn :1;    /**< Stops player */
+    uint8_t prv_btn: 1; /**< Same as clicking 'Prev' button */
+    uint8_t next_btn: 1; /**< Same as clicking 'Next' button */
+    uint8_t : 2;        /**< 9 empty bits */
+    uint8_t : 7;
+    uint8_t reboot :1;  /**< Reboots device */
+} flags_reg_t;    
 
-systemticks_t MODBUScommLastTime=-USBcommPause;
 
+systemticks_t MODBUScommLastTime = -USBcommPause;
 static uint8_t erase_fn_ext_reg[4]; /**< Erase filename extension */
+static bool is_reboot = false;
+static mb_flags_cb_t mb_flags_cb = {};
 
+void set_mb_flags_cb(mb_flags_cb_t* cbs)
+{
+    if (cbs != NULL)
+    {
+        if(cbs->tx_done != NULL)
+        {
+            mb_flags_cb.tx_done = cbs->tx_done;
+        }
+        
+        if(cbs->play != NULL)
+        {
+            mb_flags_cb.play = cbs->play;
+        }
+        
+        if(cbs->stop != NULL)
+        {
+            mb_flags_cb.stop = cbs->stop;
+        }
+        
+        if(cbs->prev != NULL)
+        {
+            mb_flags_cb.prev = cbs->prev;
+        }
 
-eMBErrorCode eStatus;	
-	
-	
+        if(cbs->next != NULL)
+        {
+            mb_flags_cb.next = cbs->next;
+        }
+    }
+}
+    
+    
 int SL_CommModbus(void)
 {
     eMBPoll();
     task_modbus();		
+    
+    if (is_reboot)
+    {
+        NVIC_SystemReset();
+    }
+    
 	return 0;
 }
 
 int SL_CommModbusInit(void)
 {
-    eStatus = eMBInit( MB_RTU, 0x0A, 0, 15200UL, MB_PAR_NONE );
+    eMBErrorCode eStatus;
+	eStatus = eMBInit( MB_RTU, 0x0A, 0, 15200UL, MB_PAR_NONE );
     eStatus = eMBEnable();	
     return 0;
 }
@@ -158,7 +210,39 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
         }
         
         return MB_ENOERR;
-    }   
+    }
+    
+    if (eMode == MB_REG_WRITE && usAddress == (FLAGS_REG+1))
+    {
+        flags_reg_t* flags = (flags_reg_t*)pucRegBuffer;
+        is_reboot =  flags->reboot;
+        
+        if (flags->tx_done && mb_flags_cb.tx_done != NULL)
+        {
+            mb_flags_cb.tx_done();
+        }
+
+        if (flags->play_btn && mb_flags_cb.play != NULL)
+        {
+            mb_flags_cb.play();
+        }
+
+        if (flags->stop_btn && mb_flags_cb.stop != NULL)
+        {
+            mb_flags_cb.stop();
+        }
+
+        if (flags->prv_btn && mb_flags_cb.prev != NULL)
+        {
+            mb_flags_cb.prev();
+        }
+
+        if (flags->next_btn && mb_flags_cb.next != NULL)
+        {
+            mb_flags_cb.next();
+        }    
+        return MB_ENOERR;
+    }
     
     return MB_ENOREG;
 }

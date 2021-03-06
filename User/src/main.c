@@ -21,6 +21,7 @@
 
 #ifdef COMMS
 #include "SuperLoop_Comm2.h"
+#include "SL_CommModbus.h"
 #endif
 
 #ifdef PLAYER
@@ -71,6 +72,11 @@ void tps65987_cb()
 void bq28z610_cb()
 {
     GPIOB->ODR ^= GPIO_ODR_OD10; 
+}
+
+void on_tx_done_cb()
+{
+    
 }
 
 
@@ -125,6 +131,17 @@ SLD_init();
 
 spiffs_on_write_tps65987_done(tps65987_cb);
 spiffs_on_write_bq28z610_done(tps65987_cb);
+
+mb_flags_cb_t mb_cbs = 
+{
+    .tx_done = on_tx_done_cb,
+    .play = play_cb,
+    .stop = stop_cb,
+    .prev = prev_cb,
+    .next = next_cb,
+};
+
+set_mb_flags_cb(&mb_cbs);
 
 #if defined COMMS || defined PLAYER
 	tim3Init();

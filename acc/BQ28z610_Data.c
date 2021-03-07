@@ -7,6 +7,7 @@
 char byteBuff[D_ParamStringLength];
 char tempArrOld[D_ParamStringLength];
 uint8_t dataArr[DataBytesNum];
+//uint8_t dataArr[]={0xe0,0x15};
 uint16_t dataAddr;
 static int8_t bytesCount;
 static	uint8_t n_for_CR;
@@ -43,7 +44,9 @@ do
 				strcat(tempArrOld,byteBuff);
 				dataProcessing();
 				do
-				{	wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,0);
+				{	
+					wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,SLC);
+//					wrstate=BQ28z610_AltManufacturerAccessDFWrite(0x46c9,dataArr,2,SLC);
 				}
 				while(!((wrstate==e_FRS_Done)||(wrstate==e_FRS_DoneError)));
 					//if wrstate==e_FRS_DoneError something wrong

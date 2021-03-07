@@ -472,11 +472,6 @@
               <FileType>1</FileType>
               <FilePath>..\Communications\bluetooth.c</FilePath>
             </File>
-            <File>
-              <FileName>SuperLoop_Comm2.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Communications\SuperLoop_Comm2.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

@@ -22,7 +22,7 @@
 #include "BoardSetup.h"
 #include "SuperLoop_Comm2.h"
 #include "superloop.h"
-//#include "spiffs.h"
+#include "SuperLoop_Player.h"
 #include "romfs_files.h"
 
 //extern uint16_t SLPl_ui16_NumOffiles;
@@ -60,17 +60,17 @@ typedef enum
 e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 */
 const e_PowerState SLD_Encoder[SLD_FSM_NumOfEl]=
-{e_PS_Work						//SLD_FSM_InitialWait
-,e_PS_Work						//SLD_FSM_Off
-,e_PS_Work						//SLD_FSM_OnTransition
-,e_PS_Work						//SLD_FSM_On
-,e_PS_Work						//SLD_FSM_PopulateList
-,e_PS_Work            //SLD_FSM_NotFlash	
-,e_PS_Work						//SLD_FSM_OffTransition 
-,e_PS_DontMindSleep		//SLD_FSM_DontMindSleep	
-,e_PS_DontMindSleep		//SLD_FSM_SleepTransition
-,e_PS_ReadySleep			//SLD_FSM_Sleep
-,e_PS_Work						//SLD_FSM_WakeTransition
+{e_PS_Work						//SLD_FSM_InitialWait 0
+,e_PS_Work						//SLD_FSM_Off         	1
+,e_PS_Work						//SLD_FSM_OnTransition	2
+,e_PS_Work						//SLD_FSM_On 						3
+,e_PS_Work						//SLD_FSM_PopulateList	4
+,e_PS_Work            //SLD_FSM_NotFlash			5
+,e_PS_Work						//SLD_FSM_OffTransition 6
+,e_PS_DontMindSleep		//SLD_FSM_DontMindSleep	7
+,e_PS_DontMindSleep		//SLD_FSM_SleepTransition	8
+,e_PS_ReadySleep			//SLD_FSM_Sleep						9
+,e_PS_Work						//SLD_FSM_WakeTransition	10
 };
 
 static e_SLD_FSM state_inner;

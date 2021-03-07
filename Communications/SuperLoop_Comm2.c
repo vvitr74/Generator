@@ -1,18 +1,25 @@
 #include "BoardSetup.h"
-#include "SuperLoop_Comm2.h"
 #include "SL_CommModbus.h"
+#include "superloopDisplay.h"
+#include "superloop_Player.h"
+#include "mainFSM.h"
 #include "bluetooth.h"
 #include "BQ28z610_Data.h"
 #include "mb.h"
+#include "SuperLoop_Comm2.h"
 
 //------------------------------------for iteraction with MOFBUS
 
+#define D_BL_Packet_Pause 50000
+#define D_USB_Packet_Pause 50000
 
 static systemticks_t MODBUScommLastTimel;
-static systemticks_t lastIrqTime;
+static systemticks_t lastIrqTime=-(2*D_BL_Packet_Pause);
+static systemticks_t lastUSBTime=-(2*D_USB_Packet_Pause);
 
 e_PS_Int PS_Int;
 bool byte_TX_DLE;
+bool isUSBint;
 
 //------------------------------------for Display----------------------------------------------
 s32_t File_List;
@@ -24,6 +31,7 @@ extern int spiffs_init();
 typedef enum  
 {SLC_FSM_InitialWaitSupply  		//work
 ,SLC_FSM_InitComms  						//work
+,SLC_FSM_Init28z610             //work
 ,SLC_FSM_InitFiles	            //work
 ,SLC_FSM_CommAbsent 		        //e_PS_DontMindSleep
 ,SLC_FSM_OffPlayerTransition 	  //work
@@ -42,6 +50,7 @@ e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 {e_PS_Work						//SLC_FSM_InitialWaitSupply
 ,e_PS_Work						//SLC_FSM_InitComms
+,e_PS_Work						//SLC_FSM_Init28z610 
 ,e_PS_Work						//SLC_FSM_InitFiles	
 ,e_PS_DontMindSleep		//SLC_FSM_CommAbsent
 ,e_PS_Work						//SLC_FSM_OnTransitionOffPlayer
@@ -54,6 +63,7 @@ const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
 ,false						//SLC_FSM_InitComms
+,false            //SLC_FSM_Init28z610
 ,false						//SLC_FSM_InitFiles	
 ,true		          //SLC_FSM_CommAbsent
 ,false						  //SLC_FSM_OnTransitionOffPlayer
@@ -66,6 +76,7 @@ const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 const bool SLC_FFSEnable_Encoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
 ,false						//SLC_FSM_InitComms
+,false            //SLC_FSM_Init28z610
 ,false						//SLC_FSM_InitFiles		
 ,false		        //SLC_FSM_CommAbsent
 ,false				  	//SLC_FSM_OnTransitionOffPlayer
@@ -115,13 +126,14 @@ extern void SLC_init(void)
 };
 
 //#define SL_CommModbus()
-
+static uint16_t data=3300;
+static e_FunctionReturnState res;
 extern void SLC(void)
 {
 
 	//systemticks_t SLD_LastButtonPress;
-	if ((!bVSYS))
-		state_inner=SLC_FSM_InitialWaitSupply;
+//	if ((!bVSYS))
+//		state_inner=SLC_FSM_InitialWaitSupply;
 	switch (state_inner)
 	{
 		case SLC_FSM_InitialWaitSupply: // initial on
@@ -129,21 +141,34 @@ extern void SLC(void)
       {state_inner=SLC_FSM_InitComms;};
 			break;
 		case SLC_FSM_InitComms:
+			if ((!bVSYS))
+  		state_inner=SLC_FSM_InitialWaitSupply;
 			PM_OnOffPWR(PM_Communication,true );
 			spiffs_init();
 		  SL_CommModbusInit();
 			btInit();
-		
-//		readDataFromFile();	//for debug
-		
-		  state_inner=SLC_FSM_InitFiles;
+		  state_inner=SLC_FSM_Init28z610;
 			break;
+		case SLC_FSM_Init28z610:
+			if (BQ28z610_DriverState())
+				break;
+//		  do // debug instead readDataFromFile()
+//			{res=BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,SLC);
+//			}
+//		  while (e_FRS_Done!=res);
+//		//readDataFromFile();	// 
+			state_inner=SLC_FSM_InitFiles;
 		case SLC_FSM_InitFiles:
+			if ((!bVSYS))
+  		state_inner=SLC_FSM_InitialWaitSupply;
 			  File_List=SPIFFS_open(&fs,"freq.pls",SPIFFS_O_RDONLY,0);
 				SLPl_InitFiles();
 		    state_inner=SLC_FSM_CommAbsent;
 			break;
 		case SLC_FSM_CommAbsent: //
+			if ((!bVSYS))
+  		state_inner=SLC_FSM_InitialWaitSupply;
+
 			  SL_CommModbus();
 		    SLBL();//
 				if (SLC_GoToSleep)
@@ -166,6 +191,9 @@ extern void SLC(void)
 				}
       break;
 		case SLC_FSM_OffPlayerTransition: // on
+			if ((!bVSYS))
+  		state_inner=SLC_FSM_InitialWaitSupply;
+
 			SL_CommModbus();
 		    SLBL();
             if (SLPl_FFSFree())
@@ -175,6 +203,9 @@ extern void SLC(void)
 			};
 			break;
 		case SLC_FSM_USBCommunication: 
+			if ((!bVSYS))
+  		state_inner=SLC_FSM_InitialWaitSupply;
+
 			SL_CommModbus();
 		   SLBL();
 		  MODBUScommLastTimel=MODBUScommLastTime;
@@ -207,29 +238,42 @@ void Communication_OutSleep()
 };
 
 
-#define D_BL_Packet_Pause 50000
-#define D_USB_Packet_Pause 50000
+
 
 void SLBL(void)
 {			
-	if ((lastUSBTime+ D_USB_Packet_Pause)<SystemTicks)
-	{ if (PS_Int_USB==PS_Int)
-		{	eMBDisable();
-			PS_Int=PS_Int_No;
-			eMBEnable();
-		}
-	}	
-	else	
-	{	if (PS_Int_No==PS_Int)
-		{	eMBDisable();
-			PS_Int=PS_Int_USB;
-			eMBEnable();
-		}
-	};	
-	
-	//if (0==btState) return;
-
-
+	switch (PS_Int)
+		{case PS_Int_USB_No:
+        if (SystemTicks-lastUSBTime < D_USB_Packet_Pause)
+				{ PS_Int=PS_Int_USB; 
+				}	
+				if (SystemTicks-lastIrqTime < D_BL_Packet_Pause)
+				{	eMBDisable();
+					PS_Int=PS_Int_BLE_No;
+					eMBEnable();
+				};					
+			break;
+		 case PS_Int_USB:
+			 	if (SystemTicks-lastUSBTime > D_USB_Packet_Pause)
+					PS_Int=PS_Int_USB_No;
+			break;	
+		 case PS_Int_BLE_No:
+				if (SystemTicks-lastIrqTime < D_BL_Packet_Pause) // Exit BLE mode by pause
+          PS_Int=PS_Int_BLE;
+				if (SystemTicks-lastUSBTime < D_USB_Packet_Pause)
+				{	eMBDisable();
+					PS_Int=PS_Int_USB_No;
+					eMBEnable();
+				};					
+			break;
+		 case PS_Int_BLE:
+				if (SystemTicks-lastIrqTime > D_BL_Packet_Pause) // Exit BLE mode by pause
+					PS_Int=PS_Int_BLE_No;
+			break;
+		 default: PS_Int=PS_Int_USB_No;
+	 };
+		
+//----------------------------BLE times-----------------------------------
   if ((SystemTicks-lastIrqTime)>(2*D_BL_Packet_Pause))// Correction for cyclical time
 	   {   lastIrqTime=SystemTicks-(2*D_BL_Packet_Pause);
 		 }	 
@@ -239,21 +283,15 @@ void SLBL(void)
 			isBLEint=false;
 			lastIrqTime=SystemTicks;  
 		}
-
-	if ((lastIrqTime+ D_BL_Packet_Pause)<SystemTicks) // Exit BLE mode by pause
-	{ if (PS_Int_BLE==PS_Int)
-		{	eMBDisable();
-			PS_Int=PS_Int_No;
-			eMBEnable();
-		}	
-	}	
-	else	
-	{	if (PS_Int_No==PS_Int)   // Enter into BLE mode by time
-		{	eMBDisable();
-			PS_Int=PS_Int_BLE;
-			eMBEnable();
+//----------------------------USB times-------------------------------------		
+  if ((SystemTicks-lastUSBTime)>(2*D_USB_Packet_Pause))// Correction for cyclical time
+	   {   lastUSBTime=SystemTicks-(2*D_USB_Packet_Pause);
+		 }	 
+					 
+	if (isBLEint) //Interrupt time latch (approximately)
+		{
+			isUSBint=false;
+			lastUSBTime=SystemTicks;  
 		}
-	};	
-
 }
 

@@ -112,6 +112,7 @@ eMBFuncWriteFile( UCHAR * pucFrame, USHORT * usLen )
 	MODBUScommLastTime = SystemTicks;
 	if (!SLC_FFSEnable())   //get error if FFS is busy
     {   
+			       MODBUScommLastTime = SystemTicks; 
              return MB_ENORES;
     }
 	

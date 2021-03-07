@@ -76,7 +76,7 @@ __inline e_SLAcc_BatStatus Get_SLAcc_BatteryStatus(void)
 
 
 
-uint8_t maintaskstate=15;//15->skip debug
+uint8_t maintaskstate=13;//15->skip debug
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
 
 static uint16_t data_IIN_DPM;
@@ -301,7 +301,7 @@ e_FunctionReturnState A_FSM_WakeTransition(void)
 };
 
 
-
+uint8_t dataforTPS[65];
 
 /**
 \brief test acc procedure
@@ -404,12 +404,16 @@ e_FunctionReturnState testACC(void)
 		        //if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
             {maintaskstate++;};
             break;
-   case 13: data=4400;
+   case 13: //data=4400;
 		        //if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
+	                     //#define I2C_OP_READ         ((unsigned short)(0))
+	          if (e_FRS_Done==TPS65982_6_RW(TPS87, e_TPS65987_BootFlagsRegister, dataforTPS, 13, I2C_OP_READ))
             {maintaskstate++;};
             break;
-   case 14: if (e_FRS_Done==TPS65982_6_RDO_R(TPS87,  &I86, &V86))
+   case 14: //readDataFromFile();
 		         {maintaskstate++;};
+//						if (e_FRS_Done==TPS65982_6_RDO_R(TPS87,  &I86, &V86))
+//		         {maintaskstate++;};
 //	       rstatel=MainTransition(testkey);
 //	       if (e_FRS_Done==rstatel)
 //                                 {maintaskstate++;};
@@ -437,8 +441,6 @@ void SuperLoopACC(void)
             {maintaskstate=0;
 							state++;
 					  };
-//						data=5500;                                                                 //test defence
-//		        wrstate=BQ28z610_AltManufacturerAccessDFWrite(0x46b9, (uint8_t*)&data, 2); //test defence
        break;
 		case 1: LoopACC();
 			 break;

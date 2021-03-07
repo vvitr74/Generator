@@ -18,13 +18,13 @@
  *
  * File: $Id$
  */
-
+#include "SuperLoop_Comm2.h"
 #include "GlobalKey.h"
-#include "Boardsetup.h"
+//#include "Boardsetup.h"
 #include "bluetooth.h"
 #include "port.h"
 
-systemticks_t lastUSBTime;
+
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
@@ -47,6 +47,7 @@ void vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 	  switch (PS_Int)
 		{
 			case PS_Int_BLE:
+			case PS_Int_BLE_No:	
 					if( xRxEnable )
 					{
 						USART_CR1_RXNEIE_Logic=true;
@@ -126,7 +127,7 @@ BOOL xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPar
 }
 
 char btSendArr[256];
-static uint8_t txIrqCnt;
+uint8_t txIrqCnt;
 	
 BOOL xMBPortSerialPutByte( CHAR ucByte )
 {
@@ -137,15 +138,18 @@ BOOL xMBPortSerialPutByte( CHAR ucByte )
 	  switch (PS_Int)
 		{
 			case PS_Int_BLE:
+			case PS_Int_BLE_No:	
 				  ucBytel=ucByte;
 				  if ((DTD==ucByte)||(DLE==ucByte))
 				  {	byte_TX_DLE = true;
 						USART2->TDR = DLE;
+						USART1->TDR = DLE;
 						btSendArr[txIrqCnt++]=DLE;
 						while(!(USART2->ISR&USART_ISR_TXE_TXFNF));
 						ucBytel=ucBytel-1;
 					};
 					USART2->TDR = ucBytel;
+					USART1->TDR = ucBytel;
 					btSendArr[txIrqCnt++]=ucBytel;
 				break;
 			default:
@@ -163,6 +167,7 @@ BOOL xMBPortSerialGetByte( CHAR *pucByte )
 	 switch (PS_Int)
 		{
 			case PS_Int_BLE:
+			case PS_Int_BLE_No:	
 				  *pucByte = USART2_RDR;// todo ??????
 				break;
 			default:
@@ -220,16 +225,17 @@ CHAR data;
 #ifdef MODBUS
 void USART1_IRQHandler(void)
 {
-	  lastUSBTime=SystemTicks;
+	  isUSBint =true; 
     if  (USART1->ISR & USART_ISR_TXE_TXFNF) 
 		{	USART1->ICR |= USART_ICR_TXFECF; 
-		//	USART1->RQR |= USART_RQR_TXFRQ;
+			USART1->RQR |= USART_RQR_TXFRQ;
 			if (USART1->CR1 & USART_CR1_TXEIE_TXFNFIE) 
 			{
         USART1->RQR |= USART_RQR_TXFRQ;
 				switch (PS_Int)
 				{
-					case PS_Int_BLE:
+          case PS_Int_BLE:
+					case PS_Int_BLE_No:						
 						break;
 					default:
 						pxMBFrameCBTransmitterEmpty();
@@ -247,6 +253,7 @@ void USART1_IRQHandler(void)
 				switch (PS_Int)
 				{
 					case PS_Int_BLE:
+					case PS_Int_BLE_No:
 						break;
 					default:
 						pxMBFrameCBByteReceived();

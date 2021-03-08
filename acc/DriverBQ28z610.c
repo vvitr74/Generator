@@ -83,11 +83,9 @@ e_FunctionReturnState BQ28z610_AltManufacturerAccessDFWrite(uint16_t address, ui
   switch(DriverBQ28z610_FSMs_state)
   {
    case 0:
-//			if (size>32)
-			if (size>36)
+			if (size>32)
 			{
-//				size=32;
-				size=36;
+				size=32;
 				//strcopy(GlobalErrorString,"BQ28z610_AltManufacturerAccessDF, size>32");
 			};
 		 

@@ -43,12 +43,12 @@ do
 				byteBuff[bytesCount]=0;
 				strcat(tempArrOld,byteBuff);
 				dataProcessing();
-				do
-				{	
-					wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,SLC);
-//					wrstate=BQ28z610_AltManufacturerAccessDFWrite(0x46c9,dataArr,2,SLC);
-				}
-				while(!((wrstate==e_FRS_Done)||(wrstate==e_FRS_DoneError)));
+//				do
+//				{	
+//					wrstate=BQ28z610_AltManufacturerAccessDFWrite(dataAddr,dataArr,bytesNum-5,SLC);
+////					wrstate=BQ28z610_AltManufacturerAccessDFWrite(0x46c9,dataArr,2,SLC);
+//				}
+//				while(!((wrstate==e_FRS_Done)||(wrstate==e_FRS_DoneError)));
 					//if wrstate==e_FRS_DoneError something wrong
         pch = strchr(tempArrOld,10);
 				if (NULL==pch)
@@ -66,12 +66,14 @@ do
 
 void dataProcessing(void)
 {
+	uint16_t dataAddrFull;
 	uint8_t temp[2];
 //	uint8_t bytesNum;
 	uint8_t index;
 	
-	bytesNum=char2hex(tempArrOld[2])*16+char2hex(tempArrOld[3]);
-	dataAddr=char2hex(tempArrOld[8])*4096+char2hex(tempArrOld[9])*256+char2hex(tempArrOld[10])*16+char2hex(tempArrOld[11]);
+	bytesNum=(char2hex(tempArrOld[2])*16+char2hex(tempArrOld[3]))-5;
+	dataAddrFull=(char2hex(tempArrOld[8])*4096+char2hex(tempArrOld[9])*256+char2hex(tempArrOld[10])*16+char2hex(tempArrOld[11]));
+	dataAddr=dataAddrFull+bytesNum-1;
 	index=12;
 	for(int i=0;i<(bytesNum-5);i++){
 		dataArr[i]=char2hex(tempArrOld[index])*16+char2hex(tempArrOld[index+1]);

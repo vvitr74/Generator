@@ -26,7 +26,7 @@ void* DriverBQ28z610_KEY; // for multi task
 	static t_I2cRecord DriverBQ28z610_I2cRecord;//	
 
 
-static uint8_t BQ28z610_ExchangeData[36];
+static uint8_t BQ28z610_ExchangeData[40];
 
 e_FunctionReturnState BQ28z610_AltManufacturerAccessCommand(uint16_t command, void* key)
 {
@@ -83,9 +83,11 @@ e_FunctionReturnState BQ28z610_AltManufacturerAccessDFWrite(uint16_t address, ui
   switch(DriverBQ28z610_FSMs_state)
   {
    case 0:
-			if (size>32)
+//			if (size>32)
+			if (size>36)
 			{
-				size=32;
+//				size=32;
+				size=36;
 				//strcopy(GlobalErrorString,"BQ28z610_AltManufacturerAccessDF, size>32");
 			};
 		 

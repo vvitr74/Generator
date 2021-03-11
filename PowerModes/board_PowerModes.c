@@ -60,8 +60,8 @@ void SuperLoop_PowerModes_Init(void)
 	
 	
 		
-	//NVIC_SetPriority(EXTI4_15_IRQn, 5);
-	//NVIC_EnableIRQ(EXTI4_15_IRQn);
+	NVIC_SetPriority(EXTI4_15_IRQn, 5);
+	NVIC_EnableIRQ(EXTI4_15_IRQn);
 		
 		
 		
@@ -112,7 +112,7 @@ void SuperLoop_PowerModes(void)
 				    Communication_InSleep();
 				    BoardSetup_InSleep();
 			      //DBG->CR|= DBG_CR_DBG_STOP;
-            enterToStop();
+                  enterToStop();
 			      BoardSetup_OutSleep(); 
  			      Communication_OutSleep(); 
 			      SLP_state=3;
@@ -137,85 +137,40 @@ void enterToStop(void)
     while (GPIOA->IDR & GPIO_IDR_ID5);
 
   
-  NVIC_DisableIRQ(TIM3_IRQn);
+    NVIC_DisableIRQ(TIM3_IRQn);
 	NVIC_DisableIRQ(I2C2_IRQn);
 	NVIC_DisableIRQ(I2C1_IRQn);
 	NVIC_DisableIRQ(USART1_IRQn);
-	
-
-	
 	RCC->CSR |= RCC_CSR_LSION;
-  
-//	SysTick->CTRL  &= ~(SysTick_CTRL_CLKSOURCE_Msk |
-//                   SysTick_CTRL_TICKINT_Msk   |
-//                   SysTick_CTRL_ENABLE_Msk);
-	
-	TIM3->CR1 &= ~TIM_CR1_CEN;
-	TIM3->DIER = 0;
-	
-  //PM_ClearPendingButton;  
-  //PM_ClearPendingTPSIRQ;
-  
-
-	TIM3->SR=0x0000;
-		__DSB();
-	__ISB();
-	NVIC->ICPR[0]=0xffffffff;
-		__DSB();
-	__ISB();
-	__NVIC_ClearPendingIRQ(TIM3_IRQn);
-		__DSB();
-	__ISB();
-	
-	//NVIC_SetPriority(EXTI4_15_IRQn, 5);
-	//NVIC_EnableIRQ(EXTI4_15_IRQn);
+    
 
     
 	GPIOB->BSRR = GPIO_BSRR_BS10;
-	
-	SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
-	
-	PWR->CR1 |= PWR_CR1_LPR 		// the regulator is switched from main mode (MR) to low-power mode
-	         | PWR_CR1_FPD_STOP //RDD
-	         | PWR_CR1_LPMS_0; 	// select Stop 1 low-power mode
+	PWR->CR1 |= PWR_CR1_LPR |	// the regulator is switched from main mode (MR) to low-power mode
+				PWR_CR1_LPMS_0; // select Stop 1 low-power mode
 	__DMB();
 	SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 	__DMB();
 
 	SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk; // Set SLEEPDEEP bit of Cortex System Control Register
-while (!(( EXTI->RPR1 & EXTI_RPR1_RPIF5) || (EXTI->FPR1 & EXTI_FPR1_FPIF7)))
-{
+
 	__DSB();
 	__ISB();
 
-  __SEV();
-	
-
-__WFE();
-__WFE();	
-}
-
-
-   //__WFI();
+	__WFI();
 
 	SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk; // reset SLEEPDEEP bit of Cortex System Control Register
-	PWR->CR1 &= ~(PWR_CR1_LPMS_Msk | PWR_CR1_LPR); // the regulator is switched from low-power mode to main mode (MR)
 	SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
-	
-//	NVIC_DisableIRQ(EXTI4_15_IRQn);
-	
+	PWR->CR1 &= ~(PWR_CR1_LPMS_Msk | PWR_CR1_LPR); // the regulator is switched from low-power mode to main mode (MR)
 	setSystemClock();
-	
-	
-	
-	tim3Init();
+    tim3Init();
+
 
 	GPIOB->BSRR = GPIO_BSRR_BR10;
 	NVIC_EnableIRQ(USART1_IRQn);
 	NVIC_EnableIRQ(I2C2_IRQn);
 	NVIC_EnableIRQ(I2C1_IRQn);
-	NVIC_EnableIRQ(TIM3_IRQn);
-    
+	NVIC_EnableIRQ(TIM3_IRQn);	
 }	 
 	 
 	

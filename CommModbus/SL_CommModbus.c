@@ -42,7 +42,7 @@ typedef struct
 
 systemticks_t MODBUScommLastTime = -USBcommPause;
 static uint8_t erase_fn_ext_reg[4]; /**< Erase filename extension */
-static bool is_reboot = false;
+static uint8_t is_reboot = 0;
 static mb_flags_cb_t mb_flags_cb = {};
 
 void set_mb_flags_cb(mb_flags_cb_t* cbs)
@@ -84,7 +84,11 @@ int SL_CommModbus(void)
     
     if (is_reboot)
     {
-        NVIC_SystemReset();
+        is_reboot--;
+        if (is_reboot == 0)
+        {
+            NVIC_SystemReset();
+        }
     }
     
 	return 0;
@@ -215,7 +219,7 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
     if (eMode == MB_REG_WRITE && usAddress == (FLAGS_REG+1))
     {
         flags_reg_t* flags = (flags_reg_t*)pucRegBuffer;
-        is_reboot =  flags->reboot;
+        is_reboot =  flags->reboot ? 255 : 0;
         
         if (flags->tx_done && mb_flags_cb.tx_done != NULL)
         {

@@ -31,6 +31,7 @@ extern int spiffs_init();
 typedef enum  
 {SLC_FSM_InitialWaitSupply  		//work
 ,SLC_FSM_InitComms  						//work
+,SLC_FSM_Init28z610             //work
 ,SLC_FSM_InitFiles	            //work
 ,SLC_FSM_CommAbsent 		        //e_PS_DontMindSleep
 ,SLC_FSM_OffPlayerTransition 	  //work
@@ -49,6 +50,7 @@ e_PS_Work,e_PS_DontMindSleep,e_PS_ReadySleep
 const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 {e_PS_Work						//SLC_FSM_InitialWaitSupply
 ,e_PS_Work						//SLC_FSM_InitComms
+,e_PS_Work						//SLC_FSM_Init28z610 
 ,e_PS_Work						//SLC_FSM_InitFiles	
 ,e_PS_DontMindSleep		//SLC_FSM_CommAbsent
 ,e_PS_Work						//SLC_FSM_OnTransitionOffPlayer
@@ -61,6 +63,7 @@ const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
 ,false						//SLC_FSM_InitComms
+,false            //SLC_FSM_Init28z610
 ,false						//SLC_FSM_InitFiles	
 ,true		          //SLC_FSM_CommAbsent
 ,false						  //SLC_FSM_OnTransitionOffPlayer
@@ -73,6 +76,7 @@ const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 const bool SLC_FFSEnable_Encoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
 ,false						//SLC_FSM_InitComms
+,false            //SLC_FSM_Init28z610
 ,false						//SLC_FSM_InitFiles		
 ,false		        //SLC_FSM_CommAbsent
 ,false				  	//SLC_FSM_OnTransitionOffPlayer
@@ -122,7 +126,8 @@ extern void SLC_init(void)
 };
 
 //#define SL_CommModbus()
-
+static uint16_t data=3300;
+static e_FunctionReturnState res;
 extern void SLC(void)
 {
 
@@ -142,11 +147,17 @@ extern void SLC(void)
 			spiffs_init();
 		  SL_CommModbusInit();
 			btInit();
-		
-//		readDataFromFile();	//for debug
-		
-		  state_inner=SLC_FSM_InitFiles;
+		  state_inner=SLC_FSM_Init28z610;
 			break;
+		case SLC_FSM_Init28z610:
+			if (BQ28z610_DriverState())
+				break;
+//		  do // debug instead readDataFromFile()
+//			{res=BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,SLC);
+//			}
+//		  while (e_FRS_Done!=res);
+//		//readDataFromFile();	// 
+			state_inner=SLC_FSM_InitFiles;
 		case SLC_FSM_InitFiles:
 			if ((!bVSYS))
   		state_inner=SLC_FSM_InitialWaitSupply;

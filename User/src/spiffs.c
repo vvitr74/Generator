@@ -34,7 +34,11 @@
 
 spiffs fs;
 
-static playlist_cb_t playlist_write_done_cb = NULL;
+static fwrite_done_cb_t playlist_write_done_cb = NULL;
+static fwrite_done_cb_t bq28z610_write_done_cb = NULL;
+static fwrite_done_cb_t tps65987_write_done_cb = NULL;
+
+
 
 /**
 * File encryption KEY
@@ -298,10 +302,23 @@ static int spiffs_write_file_part(const char *filename, size_t fname_len, uint32
 }
 
 
-void spiffs_on_write_playlist_done(playlist_cb_t cb)
+void spiffs_on_write_playlist_done(fwrite_done_cb_t cb)
 {
     playlist_write_done_cb = cb;
 }
+
+
+void spiffs_on_write_bq28z610_done(fwrite_done_cb_t cb)
+{
+    bq28z610_write_done_cb = cb;
+}
+
+
+void spiffs_on_write_tps65987_done(fwrite_done_cb_t cb)
+{
+    tps65987_write_done_cb = cb;
+}
+
 
 /**
 * @brief Erase freq files from FS
@@ -495,10 +512,10 @@ int spiffs_init()
 int on_modbus_write_file(uint8_t* buf, size_t len)
 {
     uint8_t fname_len = buf[0];
-    char fname[18] = {};
     uint8_t last_item = 0;
     uint8_t encrypted = 0;
-        
+    
+    char fname[18] = {};    
     if(buf[0] >= sizeof(fname) - 1)
     {
         return 0x81;
@@ -554,6 +571,18 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
             strncmp(fname,"freq.pls",fname_len) == 0)
         {
             playlist_write_done_cb();
+        }
+        
+        if(bq28z610_write_done_cb != NULL &&
+            strncmp(fname,"bq28z610.srec",fname_len) == 0)
+        {
+            bq28z610_write_done_cb();
+        }
+        
+        if(tps65987_write_done_cb != NULL &&
+            strncmp(fname,"tps65987.bin",fname_len) == 0)
+        {
+            tps65987_write_done_cb();
         }
     }
     

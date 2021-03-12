@@ -317,6 +317,28 @@ static	GEvent* pe;
 
 //-------------------BEGIN  OF BEBUG ACC Display-------------
 
+void play_cb()
+{
+    ButtonFlags.playStart = 1;
+}
+
+
+
+void stop_cb()
+{
+    ButtonFlags.playStop = 1;
+}
+
+void prev_cb()
+{
+     ButtonFlags.fileListUp = 1;
+}
+
+void next_cb()
+{
+    ButtonFlags.fileListDown = 1;
+}
+
 
 void displayACC(void)
 { char str[30];	

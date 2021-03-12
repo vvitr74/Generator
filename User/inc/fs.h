@@ -27,7 +27,7 @@
 /**
 * Playlist callback format
 */
-typedef void (*playlist_cb_t)();
+typedef void (*fwrite_done_cb_t)();
 
 /**
 * Initialize spiffs
@@ -50,6 +50,17 @@ int spiffs_erase_by_ext(const char* ext);
 /**
 * Set playlist done callback
 */
-void spiffs_on_write_playlist_done(playlist_cb_t cb);
+void spiffs_on_write_playlist_done(fwrite_done_cb_t cb);
+
+/**
+* Set bq28z610 firmware write done callback 
+*/
+void spiffs_on_write_bq28z610_done(fwrite_done_cb_t cb);
+
+/**
+* Set tps65987 firmware write done callback
+*/
+void spiffs_on_write_tps65987_done(fwrite_done_cb_t cb);
+
 
 #endif //__FS_H_

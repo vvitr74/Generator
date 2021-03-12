@@ -36,7 +36,7 @@ typedef enum
 ,PS_Int_NumOfEl	
 } e_PS_Int;
 
-extern e_PS_Int PS_Int;
+//extern e_PS_Int PS_Int;
 extern bool byte_TX_DLE;
 
 

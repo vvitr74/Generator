@@ -28,6 +28,7 @@ typedef enum {
 	      e_TPS65987_IntClear1,
 	      e_TPS65987_IntEvent1,
 	      e_TPS65987_PowerStatusRegister,
+	      e_TPS65987_BootFlagsRegister,
 				e_TPS65982_6_NumOfReg
 
 } e_TPS65982_6_Registers;
@@ -38,6 +39,11 @@ typedef enum {
 	e_TPS_CMD_SWSr,//ok
 	e_TPS_CMD_SWSk,// ok,but reject by the tablet.
 	e_TPS_CMD_DBfg,//ok
+	e_TPS_CMD_FLrr,
+	e_TPS_CMD_FLem,
+	e_TPS_CMD_FLad,
+	e_TPS_CMD_FLwd,
+	e_TPS_CMD_FLvy,
 	e_TPS_CMD_NumOfEl
 } e_TPS65982_6_CMD;
 
@@ -55,8 +61,9 @@ extern e_FunctionReturnState TPS65982_6_DISC(e_I2C_API_Devices device,uint8_t d)
 extern e_FunctionReturnState
 TPS65982_6_PSwap(e_I2C_API_Devices device,uint8_t sink,uint8_t sourse,uint16_t I);//0 - absent, else - present,mA,mV
 extern e_FunctionReturnState TPS65982_6_CMD(e_I2C_API_Devices device,e_TPS65982_6_CMD CMD);
-
-e_FunctionReturnState
+extern  e_FunctionReturnState 
+TPS65982_6_CMD_U(e_I2C_API_Devices device,e_TPS65982_6_CMD CMD, uint8_t *dataWR, uint8_t qntByteWR,uint8_t *dataRD, uint8_t qntByteRD);
+e_FunctionReturnState  //#define I2C_OP_READ         ((unsigned short)(0))
 TPS65982_6_RW(e_I2C_API_Devices device, e_TPS65982_6_Registers reg, uint8_t *data, uint8_t qntByte, uint8_t RW);
 
 extern void TPS65982_6_DriverReset(void);

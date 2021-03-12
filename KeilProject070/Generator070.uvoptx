@@ -152,82 +152,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>109</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\PowerModes\board_PowerModes.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>104</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\PowerModes\board_PowerModes.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>99</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\PowerModes\board_PowerModes.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
           <LineNumber>115</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134246370</Address>
+          <Address>134237196</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\FreeModbus\mbfuncother.c</Filename>
+          <Filename>..\PowerModes\board_PowerModes.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../FreeModbus/mbfuncother.c\115</Expression>
-        </Bp>
-        <Bp>
-          <Number>4</Number>
-          <Type>0</Type>
-          <LineNumber>145</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134284646</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\FreeModbus\portserial.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\gen_g070\../FreeModbus/portserial.c\145</Expression>
+          <Expression>\\gen_g070\../PowerModes/board_PowerModes.c\115</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -280,6 +216,11 @@
           <count>9</count>
           <WinNumber>1</WinNumber>
           <ItemText>txIrqCnt,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>10</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>rplayer</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -437,7 +378,7 @@
 
   <Group>
     <GroupName>Main</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -613,7 +554,7 @@
 
   <Group>
     <GroupName>Communications</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -677,7 +618,7 @@
 
   <Group>
     <GroupName>ACC</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -721,7 +662,7 @@
       <GroupNumber>7</GroupNumber>
       <FileNumber>20</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\acc\DriverTPS65982_6.c</PathWithFileName>
@@ -817,7 +758,7 @@
 
   <Group>
     <GroupName>PowerModes</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -825,7 +766,7 @@
       <GroupNumber>8</GroupNumber>
       <FileNumber>28</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\PowerModes\board_PowerModes.c</PathWithFileName>
@@ -889,7 +830,7 @@
 
   <Group>
     <GroupName>FreeModbus</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

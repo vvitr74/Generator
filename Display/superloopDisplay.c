@@ -115,6 +115,9 @@ static uint8_t filename[20];
 static uint8_t fileCount;
 static uint32_t offset;
 static bool bListUpdate1;
+
+//-------------------------------------- call back-------------------------
+
 /**
 * Calls when freq.pls writing is done
 */
@@ -123,6 +126,11 @@ void on_playlist_write_done()
 	bListUpdate=true;
 }
 
+
+
+
+
+//---------------------------------------super loop------------------------
 extern  GHandle	ghList1;   
 #define SLD_SleepDelay 1000
 

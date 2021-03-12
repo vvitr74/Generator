@@ -19,6 +19,10 @@ extern bool isUSBint;
 
 extern s32_t File_List;
 
+void on_tx_done_cb(void);
+void tps65987_cb(void);
+void bq28z610_cb(void);
+
 void SLC_init(void);
 void SLC(void);
 

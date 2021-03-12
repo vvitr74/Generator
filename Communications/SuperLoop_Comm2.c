@@ -117,7 +117,50 @@ __inline e_PowerState SLC_SetSleepState(bool state)
 	SLC_GoToSleep=state;
 	return SLC_Encoder[state_inner];
 };
+//----------------------------------call back----------------------------------------------------
 
+void on_tx_done_cb(void)
+{
+  
+	switch (PS_Int)
+	{
+		case PS_Int_USB:
+			 	lastUSBTime=SystemTicks-D_USB_Packet_Pause;
+				isUSBint=false;	
+			break;	
+		 case PS_Int_BLE:
+				lastIrqTime=SystemTicks-D_BL_Packet_Pause;
+		    isBLEint=false;
+			break;
+		 default: ;
+	 };
+  
+}
+
+/**
+* TPS65987 write done callback 
+* Called when tps65987.bin has been written and can be applied
+*/
+void tps65987_cb(void)
+{
+    GPIOB->ODR ^= GPIO_ODR_OD10; 
+}
+
+
+
+/**
+* BQ28Z610 write done callback 
+* Called when bq28z610.bin has been written and can be applied
+*/
+void bq28z610_cb(void)
+{
+    GPIOB->ODR ^= GPIO_ODR_OD10; 
+}
+
+
+
+
+//---------------------------super loop--------------------------------------------------------------
 
 
 extern void SLC_init(void)

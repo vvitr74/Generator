@@ -55,29 +55,8 @@ void _sys_command_string(char *cmd, int len)
 
 #endif
 
-/**
-* TPS65987 write done callback 
-* Called when tps65987.bin has been written and can be applied
-*/
-void tps65987_cb()
-{
-    GPIOB->ODR ^= GPIO_ODR_OD10; 
-}
 
 
-/**
-* BQ28Z610 write done callback 
-* Called when bq28z610.bin has been written and can be applied
-*/
-void bq28z610_cb()
-{
-    GPIOB->ODR ^= GPIO_ODR_OD10; 
-}
-
-void on_tx_done_cb()
-{
-    
-}
 
 
 int main(void)

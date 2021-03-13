@@ -165,6 +165,38 @@
           <ExecCommand></ExecCommand>
           <Expression>\\gen_g070\../PowerModes/board_PowerModes.c\115</Expression>
         </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>62</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134238810</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Communications\bluetooth.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gen_g070\../Communications/bluetooth.c\62</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>123</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134239020</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Communications\bluetooth.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\gen_g070\../Communications/bluetooth.c\123</Expression>
+        </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
@@ -288,6 +320,11 @@
           <count>12</count>
           <WinNumber>2</WinNumber>
           <ItemText>rxIrqCnt</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>\\gen_g070\../Communications/bluetooth.c\btRespArr</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>
@@ -830,7 +867,7 @@
 
   <Group>
     <GroupName>FreeModbus</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

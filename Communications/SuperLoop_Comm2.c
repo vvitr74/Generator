@@ -122,7 +122,7 @@ __inline e_PowerState SLC_SetSleepState(bool state)
 void on_tx_done_cb(void)
 {
   
-	switch (PS_Int)
+	switch (PS_Int)// swith Android/USB
 	{
 		case PS_Int_USB:
 			 	lastUSBTime=SystemTicks-D_USB_Packet_Pause;
@@ -134,6 +134,8 @@ void on_tx_done_cb(void)
 			break;
 		 default: ;
 	 };
+	
+	 MODBUScommLastTimel=SystemTicks-USBcommPause;	//swith FilesExchainge/generation
   
 }
 

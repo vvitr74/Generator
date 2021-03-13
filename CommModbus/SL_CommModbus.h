@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include "BoardSetup.h"
 
-#define USBcommPause 100000 //max
-#define USBcommPauseErase 1000;
+#define USBcommPause 40000 //max
+#define USBcommPauseErase 5000;
 
 typedef void (*flag_cb_t)(); /**< Flags callback typedef */
 typedef struct

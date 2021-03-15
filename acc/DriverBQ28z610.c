@@ -26,7 +26,7 @@ void* DriverBQ28z610_KEY; // for multi task
 	static t_I2cRecord DriverBQ28z610_I2cRecord;//	
 
 
-static uint8_t BQ28z610_ExchangeData[36];
+static uint8_t BQ28z610_ExchangeData[40];
 
 e_FunctionReturnState BQ28z610_AltManufacturerAccessCommand(uint16_t command, void* key)
 {

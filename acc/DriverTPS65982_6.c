@@ -392,7 +392,7 @@ e_FunctionReturnState TPS65982_6_DISC(e_I2C_API_Devices device,uint8_t d)
 	switch (internalstate)
 	{
 	 case 0: data[0]=1;data[1]=0x0f;
-		     if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_SystemConfigurationRegister,data,2,I2C_OP_WRITE))
+//		     if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_SystemConfigurationRegister,data,2,I2C_OP_WRITE))
              {
 //    	         if ((0==data[1])&&(0==data[2])&&(0==data[3])&&(0==data[4]))
     	        	 {
@@ -402,7 +402,7 @@ e_FunctionReturnState TPS65982_6_DISC(e_I2C_API_Devices device,uint8_t d)
              };
             break;
 	 case 1: data[0]=1;data[1]=d;
-		     if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_SystemConfigurationRegister,data,2,I2C_OP_WRITE))
+//		     if (e_FRS_Done==TPS65982_6_RW(device,e_TPS65982_6_SystemConfigurationRegister,data,2,I2C_OP_WRITE))
              {
 //    	         if ((0==data[1])&&(0==data[2])&&(0==data[3])&&(0==data[4]))
     	        	 {

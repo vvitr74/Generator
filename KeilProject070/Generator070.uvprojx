@@ -472,11 +472,6 @@
               <FileType>1</FileType>
               <FilePath>..\Communications\bluetooth.c</FilePath>
             </File>
-            <File>
-              <FileName>SuperLoop_Comm2.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Communications\SuperLoop_Comm2.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -546,6 +541,11 @@
               <FileName>BQ28z610_Data.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\acc\BQ28z610_Data.c</FilePath>
+            </File>
+            <File>
+              <FileName>TPS65987_Data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\acc\TPS65987_Data.c</FilePath>
             </File>
           </Files>
         </Group>

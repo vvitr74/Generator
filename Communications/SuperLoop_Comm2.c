@@ -7,6 +7,7 @@
 #include "BQ28z610_Data.h"
 #include "mb.h"
 #include "SuperLoop_Comm2.h"
+#include "TPS65987_Data.h"
 
 //------------------------------------for iteraction with MOFBUS
 
@@ -201,7 +202,8 @@ extern void SLC(void)
 //			{res=BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,SLC);
 //			}
 //		  while (e_FRS_Done!=res);
-//		//readDataFromFile();	// 
+			readDataFromFile();
+//			tpsFlashUpdate();
 			state_inner=SLC_FSM_InitFiles;
 		case SLC_FSM_InitFiles:
 			if ((!bVSYS))

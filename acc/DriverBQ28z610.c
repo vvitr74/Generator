@@ -20,13 +20,13 @@ const t_I2c16InitData BQ28z610InitData[e_BQ28z610_NumOfReg]=
 	 ,{{I2C_OP_READ,0x0A,		1,2},0}   //e_BQ28z610_BatteryStatus
 };
 
-void* DriverBQ28z610_KEY; // for multi task
+static void* DriverBQ28z610_KEY; // for multi task
 
-	static uint8_t DriverBQ28z610_FSMs_state=0;
-	static t_I2cRecord DriverBQ28z610_I2cRecord;//	
+static uint8_t DriverBQ28z610_FSMs_state=0;
+static t_I2cRecord DriverBQ28z610_I2cRecord;//	
 
 
-static uint8_t BQ28z610_ExchangeData[36];
+static uint8_t BQ28z610_ExchangeData[40];
 
 e_FunctionReturnState BQ28z610_AltManufacturerAccessCommand(uint16_t command, void* key)
 {

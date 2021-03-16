@@ -108,19 +108,8 @@ SuperLoopACC_init();
 SLD_init();
 #endif
 
-spiffs_on_write_tps65987_done(tps65987_cb);
-spiffs_on_write_bq28z610_done(tps65987_cb);
 
-mb_flags_cb_t mb_cbs = 
-{
-    .tx_done = on_tx_done_cb,
-    .play = play_cb,
-    .stop = stop_cb,
-    .prev = prev_cb,
-    .next = next_cb,
-};
 
-set_mb_flags_cb(&mb_cbs);
 
 #if defined COMMS || defined PLAYER
 	tim3Init();
@@ -153,7 +142,7 @@ SLP_init();
   PM_OnOffPWR(PM_Player,false );	
 	PM_OnOffPWR(PM_Communication,false );
 	
-	getUID();
+	//getUID();
 	
   while(1){
 

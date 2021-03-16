@@ -31,6 +31,7 @@ if any modules e_PS_Work-> for all modules SLPl_SetSleepState(false)
 #include "mainFSM.h"
 #include "BoardSetup.h"
 #include "I2c1.h"
+#include "TPS65987_Data.h"
 
 #include "board_PowerModes.h"
 
@@ -184,11 +185,15 @@ e_SLA_FSM  GetNewPowerState(const e_SLA_FSM* encoder)
 					return encoder[DataFor_SLAcc_PowerState];
 };
 
+uint8_t maintaskstate1;//debug
+
 void LoopACC(void)
 { //e_FunctionReturnState returnstate;
   e_FunctionReturnState rstatel,wrstate;
   static uint16_t data;
-
+ 
+	maintaskstate1=maintaskstate;
+	
   switch(maintaskstate)
   {
 	  case SLA_FSM_WORK:
@@ -302,7 +307,8 @@ e_FunctionReturnState A_FSM_WakeTransition(void)
 
 
 uint8_t dataforTPS[65];
-
+extern uint8_t outdata[MAX_BUF_BSIZE];
+extern uint8_t indata[MAX_BUF_BSIZE];
 /**
 \brief test acc procedure
 
@@ -407,7 +413,10 @@ e_FunctionReturnState testACC(void)
    case 13: //data=4400;
 		        //if (e_FRS_Done==BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,testACC))
 	                     //#define I2C_OP_READ         ((unsigned short)(0))
-	          if (e_FRS_Done==TPS65982_6_RW(TPS87, e_TPS65987_BootFlagsRegister, dataforTPS, 13, I2C_OP_READ))
+//	          if (e_FRS_Done==TPS65982_6_RW(TPS87, e_TPS65987_BootFlagsRegister, outdata, 13, I2C_OP_READ))
+//						tpsFlashUpdate();
+//						indata[0]=0;
+//		if (e_FRS_Done==TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLrr,indata,1,outdata,4))
             {maintaskstate++;};
             break;
    case 14: //readDataFromFile();

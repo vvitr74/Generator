@@ -7,8 +7,9 @@
 #include "BQ28z610_Data.h"
 #include "mb.h"
 #include "SuperLoop_Comm2.h"
+#include "TPS65987_Data.h"
 
-//------------------------------------for iteraction with MOFBUS
+//------------------------------------for iteraction with MOFBUS-------------------------------
 
 #define D_BL_Packet_Pause 50000
 #define D_USB_Packet_Pause 50000
@@ -32,6 +33,7 @@ typedef enum
 {SLC_FSM_InitialWaitSupply  		//work
 ,SLC_FSM_InitComms  						//work
 ,SLC_FSM_Init28z610             //work
+,SLC_FSM_Init65987              //work 
 ,SLC_FSM_InitFiles	            //work
 ,SLC_FSM_CommAbsent 		        //e_PS_DontMindSleep
 ,SLC_FSM_OffPlayerTransition 	  //work
@@ -51,6 +53,7 @@ const e_PowerState SLC_Encoder[SLC_FSM_NumOfEl]=
 {e_PS_Work						//SLC_FSM_InitialWaitSupply
 ,e_PS_Work						//SLC_FSM_InitComms
 ,e_PS_Work						//SLC_FSM_Init28z610 
+,e_PS_Work	          //SLC_FSM_Init65987
 ,e_PS_Work						//SLC_FSM_InitFiles	
 ,e_PS_DontMindSleep		//SLC_FSM_CommAbsent
 ,e_PS_Work						//SLC_FSM_OnTransitionOffPlayer
@@ -64,6 +67,7 @@ const bool SPIFFS_ReadyEncoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
 ,false						//SLC_FSM_InitComms
 ,false            //SLC_FSM_Init28z610
+,false            //SLC_FSM_Init65987
 ,false						//SLC_FSM_InitFiles	
 ,true		          //SLC_FSM_CommAbsent
 ,false						  //SLC_FSM_OnTransitionOffPlayer
@@ -77,6 +81,7 @@ const bool SLC_FFSEnable_Encoder[SLC_FSM_NumOfEl]=
 {false						//SLC_FSM_InitialWaitSupply
 ,false						//SLC_FSM_InitComms
 ,false            //SLC_FSM_Init28z610
+,false            //SLC_FSM_Init65987
 ,false						//SLC_FSM_InitFiles		
 ,false		        //SLC_FSM_CommAbsent
 ,false				  	//SLC_FSM_OnTransitionOffPlayer
@@ -117,7 +122,10 @@ __inline e_PowerState SLC_SetSleepState(bool state)
 	SLC_GoToSleep=state;
 	return SLC_Encoder[state_inner];
 };
-//----------------------------------call back----------------------------------------------------
+//----------------------------------call backs----------------------------------------------------
+
+bool b_UpdateFlag_28z610;
+bool b_UpdateFlag_65987;
 
 void on_tx_done_cb(void)
 {
@@ -146,6 +154,7 @@ void on_tx_done_cb(void)
 void tps65987_cb(void)
 {
     GPIOB->ODR ^= GPIO_ODR_OD10; 
+	  b_UpdateFlag_65987=true;
 }
 
 
@@ -156,7 +165,8 @@ void tps65987_cb(void)
 */
 void bq28z610_cb(void)
 {
-    GPIOB->ODR ^= GPIO_ODR_OD10; 
+    GPIOB->ODR ^= GPIO_ODR_OD10;
+    b_UpdateFlag_28z610=true;	
 }
 
 
@@ -167,12 +177,17 @@ void bq28z610_cb(void)
 
 extern void SLC_init(void)
 {
-
+	spiffs_on_write_tps65987_done(tps65987_cb);
+  spiffs_on_write_bq28z610_done(tps65987_cb);
 };
 
 //#define SL_CommModbus()
 static uint16_t data=3300;
 static e_FunctionReturnState res;
+
+static bool br_28z610;
+static bool br_65987;
+
 extern void SLC(void)
 {
 
@@ -195,14 +210,54 @@ extern void SLC(void)
 		  state_inner=SLC_FSM_Init28z610;
 			break;
 		case SLC_FSM_Init28z610:
-			if (BQ28z610_DriverState())
-				break;
+			if ((!bVSYS))
+				state_inner=SLC_FSM_InitialWaitSupply;			
+			if (b_UpdateFlag_28z610)
+			{
+				if (BQ28z610_DriverState())
+					break;
+				b_UpdateFlag_28z610=false;
+				//br_28z610=readDataFromFile();
+				
+				if (br_28z610)
+				{ Error("Update 28z610 ok");
+				}
+        else				
+				{ Error("Update 28z610 err");
+				}
+			}
+      else
+			{
+				br_28z610=true;
+				state_inner=SLC_FSM_Init65987;
+			}			
+ 		case SLC_FSM_Init65987:
+			if ((!bVSYS))
+				state_inner=SLC_FSM_InitialWaitSupply;
+			if (b_UpdateFlag_65987)
+			{
+				if (TPS6598x_DriverState())
+					break;
+				b_UpdateFlag_65987=false;
+				//br_65987=tpsFlashUpdate();
+				if (br_65987)
+				{ Error("Update 65987 ok");
+				}
+        else				
+				{ Error("Update 65987 err");
+				}
+			}
+      else
+			{
+				state_inner=SLC_FSM_InitFiles;
+			}			
 //		  do // debug instead readDataFromFile()
 //			{res=BQ28z610_AltManufacturerAccessDFWrite(0x46c9, (uint8_t*)&data, 2,SLC);
 //			}
 //		  while (e_FRS_Done!=res);
-//		//readDataFromFile();	// 
-			state_inner=SLC_FSM_InitFiles;
+//			readDataFromFile();
+//			tpsFlashUpdate();
+//			state_inner=SLC_FSM_InitFiles;
 		case SLC_FSM_InitFiles:
 			if ((!bVSYS))
   		state_inner=SLC_FSM_InitialWaitSupply;

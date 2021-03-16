@@ -212,11 +212,12 @@ extern void SLC(void)
 		case SLC_FSM_Init28z610:
 			if ((!bVSYS))
 				state_inner=SLC_FSM_InitialWaitSupply;			
-			if (!b_UpdateFlag_28z610)
+			if (b_UpdateFlag_28z610)
 			{
 				if (BQ28z610_DriverState())
 					break;
-				br_28z610=readDataFromFile();
+				b_UpdateFlag_28z610=false;
+				//br_28z610=readDataFromFile();
 				
 				if (br_28z610)
 				{ Error("Update 28z610 ok");
@@ -233,11 +234,12 @@ extern void SLC(void)
  		case SLC_FSM_Init65987:
 			if ((!bVSYS))
 				state_inner=SLC_FSM_InitialWaitSupply;
-			if (!b_UpdateFlag_65987)
+			if (b_UpdateFlag_65987)
 			{
 				if (TPS6598x_DriverState())
 					break;
-				br_65987=tpsFlashUpdate();
+				b_UpdateFlag_65987=false;
+				//br_65987=tpsFlashUpdate();
 				if (br_65987)
 				{ Error("Update 65987 ok");
 				}

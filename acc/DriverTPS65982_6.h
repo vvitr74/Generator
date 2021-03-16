@@ -70,6 +70,6 @@ TPS65982_6_RW(e_I2C_API_Devices device, e_TPS65982_6_Registers reg, uint8_t *dat
                                                                uint8_t qntByte, uint8_t RW, void* key);
 
 extern void TPS65982_6_DriverReset(void);
-
+extern e_FunctionReturnState TPS6598x_DriverState(void);
 
 #endif /* DRIVERTPS65982_6_H_ */

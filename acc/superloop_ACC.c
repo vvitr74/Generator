@@ -185,11 +185,15 @@ e_SLA_FSM  GetNewPowerState(const e_SLA_FSM* encoder)
 					return encoder[DataFor_SLAcc_PowerState];
 };
 
+uint8_t maintaskstate1;//debug
+
 void LoopACC(void)
 { //e_FunctionReturnState returnstate;
   e_FunctionReturnState rstatel,wrstate;
   static uint16_t data;
-
+ 
+	maintaskstate1=maintaskstate;
+	
   switch(maintaskstate)
   {
 	  case SLA_FSM_WORK:

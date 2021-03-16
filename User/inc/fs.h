@@ -53,7 +53,7 @@ int spiffs_erase_by_ext(const char* ext);
 void spiffs_on_write_playlist_done(fwrite_done_cb_t cb);
 
 /**
-* Set bq28z610 firmware write done callback 
+* Set bq28z610 firmware write done callback  
 */
 void spiffs_on_write_bq28z610_done(fwrite_done_cb_t cb);
 

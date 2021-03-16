@@ -24,6 +24,7 @@
 #include "superloop.h"
 #include "SuperLoop_Player.h"
 #include "romfs_files.h"
+#include "SL_CommModbus.h"
 
 //extern uint16_t SLPl_ui16_NumOffiles;
 
@@ -255,11 +256,26 @@ int SLD(void)
 	return 0;
 }
 
+mb_flags_cb_t mb_cbs = 
+{
+    .tx_done = on_tx_done_cb,
+    .play = play_cb,
+    .stop = stop_cb,
+    .prev = prev_cb,
+    .next = next_cb,
+};
+
 int SLD_init(void)
 {
 	spiffs_on_write_playlist_done(on_playlist_write_done);
+  set_mb_flags_cb(&mb_cbs);
 	return 0;
+;
 };
+
+
+
+
 
 //--------------------------------for uGFX INIT/DEINIT--------------------------------
 extern char	heap[GFX_OS_HEAP_SIZE];

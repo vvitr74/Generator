@@ -19,6 +19,7 @@
 
 #define ERASE_ALL_START_COIL 0x80
 #define ERASE_FN_EXT_START_COIL 0x81
+#define FS_FORMAT_COIL 0x82
 
 
 #define REG_HOLDING_START   1000
@@ -128,6 +129,11 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
             memset(erase_fn_ext_reg,0,sizeof(erase_fn_ext_reg));
             
             return res;
+        }
+        
+        if (usAddress == (FS_FORMAT_COIL+1))
+        {
+            return spiffs_format_flash();
         }
     }        
     return MB_ENOREG;

@@ -37,7 +37,8 @@ spiffs fs;
 static fwrite_done_cb_t playlist_write_done_cb = NULL;
 static fwrite_done_cb_t bq28z610_write_done_cb = NULL;
 static fwrite_done_cb_t tps65987_write_done_cb = NULL;
-
+static fwrite_done_cb_t playlist_remove_cb = NULL;
+static fwrite_done_cb_t format_flash_cb = NULL;
 
 
 /**
@@ -320,6 +321,17 @@ void spiffs_on_write_tps65987_done(fwrite_done_cb_t cb)
 }
 
 
+void spiffs_on_playlist_remove(fwrite_done_cb_t cb)
+{
+    playlist_remove_cb = cb;
+}
+
+
+void spiffs_on_flash_format(fwrite_done_cb_t cb)
+{
+    format_flash_cb = cb;
+}
+
 /**
 * @brief Erase freq files from FS
 * @return Error, if happend, otherwise 0
@@ -342,6 +354,13 @@ int spiffs_erase_all()
     }
 
     SPIFFS_closedir(&d);
+    
+    
+    if (playlist_remove_cb != NULL)
+    {
+        playlist_remove_cb();
+    }
+    
     return res;
 }
 
@@ -366,7 +385,7 @@ int spiffs_erase_by_ext(const char* ext)
             continue;
         }
             
-        if (strncmp(fext+1, ext, strlen(fext)-1) == 0) 
+        if (strncasecmp(fext+1, ext, strlen(fext)-1) == 0) 
         {
             if (SPIFFS_remove(&fs, (char *)pe->name) < 0)
             {
@@ -375,11 +394,23 @@ int spiffs_erase_by_ext(const char* ext)
             }
         }
     }
-
+    
     SPIFFS_closedir(&d);
+    
+    if (res == 0 && playlist_remove_cb != NULL && strncasecmp("pls",ext,3) == 0 )
+    {
+        playlist_remove_cb();
+    }
+    
     return res;
 }
 
+int spiffs_format_flash()
+{
+    SPIFFS_unmount(&fs); 
+    flash_chip_erase();
+    return spiffs_init();
+}
 
 
 #ifdef FILE_SHA_TEST
@@ -494,6 +525,11 @@ int spiffs_init()
                             spiffs_cache_buf,
                             sizeof(spiffs_cache_buf),
                             0);
+                            
+        if (format_flash_cb != NULL)
+        {
+            format_flash_cb();
+        }
     }
 
 #ifdef FILE_SHA_TEST

@@ -33,12 +33,11 @@
 #define W25_ERASE_TIMEOUT 3000
 
 spiffs fs;
-
 static fwrite_done_cb_t playlist_write_done_cb = NULL;
 static fwrite_done_cb_t bq28z610_write_done_cb = NULL;
 static fwrite_done_cb_t tps65987_write_done_cb = NULL;
-
-
+static fwrite_done_cb_t playlist_remove_cb = NULL;
+static fwrite_done_cb_t format_flash_cb = NULL;
 
 /**
 * File encryption KEY
@@ -55,6 +54,7 @@ extern uint8_t spiDispCapture;
 __attribute__((aligned(4))) static u8_t spiffs_work_buf[SPIFFS_CFG_LOG_PAGE_SZ() * 2];
 __attribute__((aligned(4))) static u8_t spiffs_fds[32 * 4];
 __attribute__((aligned(4))) static u8_t spiffs_cache_buf[(SPIFFS_CFG_LOG_PAGE_SZ() + 32) * 4];
+
 /**
 * Retrieve flash memory status
 */
@@ -320,6 +320,17 @@ void spiffs_on_write_tps65987_done(fwrite_done_cb_t cb)
 }
 
 
+void spiffs_on_playlist_remove(fwrite_done_cb_t cb)
+{
+    playlist_remove_cb = cb;
+}
+
+
+void spiffs_on_flash_format(fwrite_done_cb_t cb)
+{
+    format_flash_cb = cb;
+}
+
 /**
 * @brief Erase freq files from FS
 * @return Error, if happend, otherwise 0
@@ -342,6 +353,13 @@ int spiffs_erase_all()
     }
 
     SPIFFS_closedir(&d);
+    
+    
+    if (playlist_remove_cb != NULL)
+    {
+        playlist_remove_cb();
+    }
+    
     return res;
 }
 
@@ -366,7 +384,7 @@ int spiffs_erase_by_ext(const char* ext)
             continue;
         }
             
-        if (strncmp(fext+1, ext, strlen(fext)-1) == 0) 
+        if (strncasecmp(fext+1, ext, strlen(fext)-1) == 0) 
         {
             if (SPIFFS_remove(&fs, (char *)pe->name) < 0)
             {
@@ -375,18 +393,29 @@ int spiffs_erase_by_ext(const char* ext)
             }
         }
     }
-
+    
     SPIFFS_closedir(&d);
+    
+    if (res == 0 && playlist_remove_cb != NULL && strncasecmp("pls",ext,3) == 0 )
+    {
+        playlist_remove_cb();
+    }
+    
     return res;
 }
 
+int spiffs_format_flash()
+{
+    SPIFFS_unmount(&fs); 
+    flash_chip_erase();
+    NVIC_SystemReset();
+    return 0;
+}
 
 
 #ifdef FILE_SHA_TEST
 void sha_file_test()
 {
-    
-
     uint8_t buf[512] = {};
     SHA256_CTX sha_ctx = {};
     uint8_t sha_hash[32] = {};
@@ -483,8 +512,12 @@ int spiffs_init()
                                
     if (res == SPIFFS_ERR_NOT_A_FS)
     {
-        SPIFFS_unmount(&fs);
-        
+        if (format_flash_cb != NULL)
+        {
+            format_flash_cb();
+        }
+
+        SPIFFS_unmount(&fs);  
         SPIFFS_format(&fs);
         res = SPIFFS_mount(&fs,
                             &cfg,
@@ -493,7 +526,7 @@ int spiffs_init()
                             sizeof(spiffs_fds),
                             spiffs_cache_buf,
                             sizeof(spiffs_cache_buf),
-                            0);
+                            0);                    
     }
 
 #ifdef FILE_SHA_TEST
@@ -562,7 +595,7 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     if (last_item)
     {
-        MODBUScommLastTime=SystemTicks-USBcommPause+USBcommPauseErase;
+        MODBUScommLastTime = SystemTicks - USBcommPause + USBcommPauseErase;
     }
 			
     if (res == 0 && last_item)
@@ -588,4 +621,3 @@ int on_modbus_write_file(uint8_t* buf, size_t len)
     
     return res;
 }
-

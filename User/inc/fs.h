@@ -62,5 +62,20 @@ void spiffs_on_write_bq28z610_done(fwrite_done_cb_t cb);
 */
 void spiffs_on_write_tps65987_done(fwrite_done_cb_t cb);
 
+/**
+* Set callback that called on removing playlist file (erase_by_file_ext(*.pls))
+*/
+void spiffs_on_playlist_remove(fwrite_done_cb_t cb);
+
+/**
+* Set callback that called on formating flash
+*/
+void spiffs_on_flash_format(fwrite_done_cb_t cb);
+
+
+/**
+* Formating filesystem
+*/
+int spiffs_format_flash();
 
 #endif //__FS_H_

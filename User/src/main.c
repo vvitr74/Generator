@@ -59,6 +59,11 @@ void _sys_command_string(char *cmd, int len)
 
 
 
+void on_playlist_remove()
+{
+}
+
+
 int main(void)
 {
 #ifdef RELEASE
@@ -108,6 +113,10 @@ SuperLoopACC_init();
 SLD_init();
 #endif
 
+spiffs_on_write_tps65987_done(tps65987_cb);
+spiffs_on_write_bq28z610_done(bq28z610_cb);
+spiffs_on_write_playlist_done(on_playlist_remove);
+spiffs_on_flash_format(on_format_flash);
 
 
 

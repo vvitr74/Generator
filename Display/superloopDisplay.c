@@ -811,29 +811,38 @@ void DisplayPlayStop()
 
 };
 
+void on_format_flash()
+{					
+    SetStatusString("Formatting FS. Please wait");
+	gfxSleepMilliseconds(10);
+}
+
+
 void Start(void)
 {
 	uint32_t nof,cf;
-			if (ButtonFlags.playStart)
-			{ ButtonFlags.playStart=0;
-				nof=gwinListItemCount(ghList1);	
-				if (nof>0)
-				{
-					SetStatusString("Config. Please wait");
-					gfxSleepMilliseconds(10);
-					cf=gwinListGetSelected(ghList1)+CurrentPage*D_StringInList;
-					SLPl_Start(cf);
-				}	
-			};	
+    if (ButtonFlags.playStart)
+    { 
+        ButtonFlags.playStart=0;
+        nof = gwinListItemCount(ghList1);	
+        if (nof > 0)
+        {
+            SetStatusString("Config. Please wait");
+            gfxSleepMilliseconds(10);
+            cf = gwinListGetSelected(ghList1)+CurrentPage*D_StringInList;
+            SLPl_Start(cf);
+        }	
+    };	
 };
 
 void Stop(void)
 {
-			if (ButtonFlags.playStop)
-			{ ButtonFlags.playStop=0;
-				//DisplayPlayStop();
-				SLPl_Stop();
-			};
+    if (ButtonFlags.playStop)
+    { 
+        ButtonFlags.playStop=0;
+        //DisplayPlayStop();
+        SLPl_Stop();
+    };
 }
 
 

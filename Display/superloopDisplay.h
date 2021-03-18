@@ -50,5 +50,9 @@ void next_cb();
 extern int SLD_init(void);
 extern int SLD(void);
 
+/**
+* Should be called on formating flash - set message on a display: "FORMAT FS"
+*/
+void on_format_flash();
 
 #endif

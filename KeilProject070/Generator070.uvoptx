@@ -154,7 +154,7 @@
           <Type>0</Type>
           <LineNumber>211</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134238108</Address>
+          <Address>134238222</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -170,7 +170,7 @@
           <Type>0</Type>
           <LineNumber>214</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134238160</Address>
+          <Address>134238274</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -222,6 +222,11 @@
           <count>7</count>
           <WinNumber>1</WinNumber>
           <ItemText>data</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>byteBuff</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -592,7 +597,7 @@
 
   <Group>
     <GroupName>Player</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1036,7 +1041,7 @@
 
   <Group>
     <GroupName>spiffs</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

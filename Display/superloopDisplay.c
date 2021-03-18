@@ -112,7 +112,7 @@ void fileListInitStart(void);
 static bool bListUpdate;
 static uint8_t FSM_fileListUpdate_state;
 //static s32_t File_List;
-static uint8_t filename[20];
+static uint8_t filename[D_FileNameLength+1];
 static uint8_t fileCount;
 static uint32_t offset;
 static bool bListUpdate1;
@@ -623,7 +623,7 @@ uint16_t a;
 
 e_FunctionReturnState fileListRead(void)
 {	e_FunctionReturnState rstate;
-	char byteBuff[20];
+	char byteBuff[D_FileNameLength+1];
 	int8_t bytesCount;
   uint32_t i;	
 	uint32_t offset;
@@ -659,7 +659,7 @@ e_FunctionReturnState fileListRead(void)
 	//					  if (13==byteBuff[i]) break;
 	//					  offset+=i+1;
 	//					SPIFFS_lseek(&fs, File_List,offset,SPIFFS_SEEK_SET);
-						_sscanf( byteBuff,"%18s",filename);
+						_sscanf( byteBuff,"%32s",filename);                        //change if chainge D_FileNameLength
 						if (0<strlen(byteBuff))
 						{		fileCount++;
 								FSM_fileListUpdate_state=100;

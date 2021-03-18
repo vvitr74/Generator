@@ -24,7 +24,7 @@
 #define SPIFFS
 
 
-#define D_FileNameLength 22
+#define D_FileNameLength 32
 
 void Error(char* s);
 

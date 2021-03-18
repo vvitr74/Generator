@@ -178,7 +178,7 @@ void bq28z610_cb(void)
 extern void SLC_init(void)
 {
 	spiffs_on_write_tps65987_done(tps65987_cb);
-  spiffs_on_write_bq28z610_done(tps65987_cb);
+  spiffs_on_write_bq28z610_done(bq28z610_cb);
 };
 
 //#define SL_CommModbus()
@@ -217,7 +217,7 @@ extern void SLC(void)
 				if (BQ28z610_DriverState())
 					break;
 				b_UpdateFlag_28z610=false;
-				//br_28z610=readDataFromFile();
+				br_28z610=readDataFromFile();
 				
 				if (br_28z610)
 				{ SetStatusString("Update 28z610 ok");
@@ -239,7 +239,7 @@ extern void SLC(void)
 				if (TPS6598x_DriverState())
 					break;
 				b_UpdateFlag_65987=false;
-				br_65987=tpsFlashUpdate();
+				//br_65987=tpsFlashUpdate();
 				if (br_65987)
 				{ SetStatusString("Update 65987 ok");
 				}

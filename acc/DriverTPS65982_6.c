@@ -208,12 +208,12 @@ TPS65982_6_CMD_U(e_I2C_API_Devices device,e_TPS65982_6_CMD CMD, uint8_t *dataWR,
 	case 3: returnstateL1=TPS65982_6_RW(device,e_TPS65982_6_Data1,dataRD,qntByteRD+1,I2C_OP_READ,key);
             if (e_FRS_Done==returnstateL1)
 			         {
-			       		internalstate1++;
+			       		internalstate1=100;
 			         };
 						if (e_FRS_DoneError==returnstateL1)
 							internalstate1=101;
 			    break;
-  case 100://error
+  case 100://done
 			internalstate1=0; 
 	    returnstateL=e_FRS_Done;
 	    Driver6598x_KEY=0;

@@ -220,10 +220,10 @@ extern void SLC(void)
 				//br_28z610=readDataFromFile();
 				
 				if (br_28z610)
-				{ Error("Update 28z610 ok");
+				{ SetStatusString("Update 28z610 ok");
 				}
         else				
-				{ Error("Update 28z610 err");
+				{ SetStatusString("Update 28z610 err");
 				}
 			}
       else
@@ -239,12 +239,12 @@ extern void SLC(void)
 				if (TPS6598x_DriverState())
 					break;
 				b_UpdateFlag_65987=false;
-				//br_65987=tpsFlashUpdate();
+				br_65987=tpsFlashUpdate();
 				if (br_65987)
-				{ Error("Update 65987 ok");
+				{ SetStatusString("Update 65987 ok");
 				}
         else				
-				{ Error("Update 65987 err");
+				{ SetStatusString("Update 65987 err");
 				}
 			}
       else
@@ -310,7 +310,7 @@ extern void SLC(void)
 		   SLBL();
 		  MODBUScommLastTimel=MODBUScommLastTime;
       if ((SystemTicks-MODBUScommLastTimel)>(USBcommPause))				
-				  state_inner=SLC_FSM_InitFiles;
+				  state_inner=SLC_FSM_Init28z610;
 		  break;	
 		case SLC_FSM_Sleep:
 				if ((!SLC_GoToSleep) ) 

@@ -96,6 +96,7 @@ void SuperLoop_PowerModes(void)
 						SLPl_SetSleepState(true);
 						SLD_SetSleepState(true);
 						SLAcc_SetSleepState(true);
+						SLC_SetSleepState(true);
 						SLP_state++;
 					}
 				break;
@@ -105,6 +106,7 @@ void SuperLoop_PowerModes(void)
 					if ((e_PS_ReadySleep==rplayer)
 						&&(e_PS_ReadySleep==rdispl)
 					  &&(e_PS_ReadySleep==racc)
+					  &&(e_PS_ReadySleep==rcomm)
 				     ) 
 					  SLP_state++;
 				break;
@@ -112,7 +114,7 @@ void SuperLoop_PowerModes(void)
 				    Communication_InSleep();
 				    BoardSetup_InSleep();
 			      //DBG->CR|= DBG_CR_DBG_STOP;
-                  enterToStop();
+     //             enterToStop();
 			      BoardSetup_OutSleep(); 
  			      Communication_OutSleep(); 
 			      SLP_state=3;
@@ -121,6 +123,7 @@ void SuperLoop_PowerModes(void)
 						SLAcc_SetSleepState(false);	
             SLD_SetSleepState(false);	
             SLPl_SetSleepState(false);	
+			      SLC_SetSleepState(false);
 			      SLP_state=0;
 				break;	
 			default: 	SLP_state=0;

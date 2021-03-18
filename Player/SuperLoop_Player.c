@@ -338,7 +338,7 @@ e_FunctionReturnState getFileName(uint16_t fileSectl)
 	startAddr=fileSectl*D_FileNameLength;
 	
 //	File_List=SPIFFS_open(&fs, "freq.pls", SPIFFS_O_RDONLY, 0);/// \todo one time open
-  SPIFFS_lseek(&fs, File_List,startAddr,SPIFFS_SEEK_SET);
+    SPIFFS_lseek(&fs, File_List,startAddr,SPIFFS_SEEK_SET);
 	bytesCount=SPIFFS_read(&fs, File_List, &byteBuff, D_FileNameLength);
 	if (bytesCount<1)
 	{	rstate=e_FRS_DoneError;

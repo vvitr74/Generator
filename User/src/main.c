@@ -84,11 +84,6 @@ void on_playlist_remove()
 }
 
 
-void on_format_flash()
-{
-}
-
-
 int main(void)
 {
 #ifdef RELEASE

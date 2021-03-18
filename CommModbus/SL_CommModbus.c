@@ -25,6 +25,9 @@
 #define REG_HOLDING_START   1000
 #define REG_HOLDING_NREGS   5
 
+#define EVT_IS_REBOOT 1
+#define EVT_IS_FORMAT 2
+
 /**
 * Flags reg struct
 */
@@ -43,7 +46,9 @@ typedef struct
 
 systemticks_t MODBUScommLastTime = -USBcommPause;
 static uint8_t erase_fn_ext_reg[4]; /**< Erase filename extension */
-static uint8_t is_reboot = 0;
+static uint8_t evt_flags = 0;
+static uint8_t evt_timeout = 0;
+
 static mb_flags_cb_t mb_flags_cb = {};
 
 void set_mb_flags_cb(mb_flags_cb_t* cbs)
@@ -83,12 +88,26 @@ int SL_CommModbus(void)
     eMBPoll();
     task_modbus();		
     
-    if (is_reboot)
+    if (evt_flags & EVT_IS_REBOOT)
     {
-        is_reboot--;
-        if (is_reboot == 0)
+        evt_timeout--;
+        if (evt_timeout == 0)
         {
             NVIC_SystemReset();
+            evt_flags = 0;
+            evt_timeout = 0;
+        }
+        return 0;
+    }
+    
+    if (evt_flags & EVT_IS_FORMAT)
+    {
+        evt_timeout--;
+        if (evt_timeout == 0)
+        {
+            spiffs_format_flash();
+            evt_flags = 0;
+            evt_timeout = 0;
         }
     }
     
@@ -133,7 +152,8 @@ eMBErrorCode eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress,
         
         if (usAddress == (FS_FORMAT_COIL+1))
         {
-            return spiffs_format_flash();
+            evt_flags = EVT_IS_FORMAT;
+            return MB_ENOERR;
         }
     }        
     return MB_ENOREG;
@@ -225,7 +245,7 @@ eMBErrorCode eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress,
     if (eMode == MB_REG_WRITE && usAddress == (FLAGS_REG+1))
     {
         flags_reg_t* flags = (flags_reg_t*)pucRegBuffer;
-        is_reboot =  flags->reboot ? 255 : 0;
+        evt_flags =  flags->reboot ? EVT_IS_REBOOT : evt_flags;
         
         if (flags->tx_done && mb_flags_cb.tx_done != NULL)
         {

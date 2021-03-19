@@ -24,6 +24,7 @@
 #include "superloop.h"
 #include "SuperLoop_Player.h"
 #include "romfs_files.h"
+#include "SL_CommModbus.h"
 
 //extern uint16_t SLPl_ui16_NumOffiles;
 
@@ -111,10 +112,13 @@ void fileListInitStart(void);
 static bool bListUpdate;
 static uint8_t FSM_fileListUpdate_state;
 //static s32_t File_List;
-static uint8_t filename[20];
+static uint8_t filename[D_FileNameLength+1];
 static uint8_t fileCount;
 static uint32_t offset;
 static bool bListUpdate1;
+
+//-------------------------------------- call back-------------------------
+
 /**
 * Calls when freq.pls writing is done
 */
@@ -123,6 +127,11 @@ void on_playlist_write_done()
 	bListUpdate=true;
 }
 
+
+
+
+
+//---------------------------------------super loop------------------------
 extern  GHandle	ghList1;   
 #define SLD_SleepDelay 1000
 
@@ -247,11 +256,26 @@ int SLD(void)
 	return 0;
 }
 
+mb_flags_cb_t mb_cbs = 
+{
+    .tx_done = on_tx_done_cb,
+    .play = play_cb,
+    .stop = stop_cb,
+    .prev = prev_cb,
+    .next = next_cb,
+};
+
 int SLD_init(void)
 {
 	spiffs_on_write_playlist_done(on_playlist_write_done);
+  set_mb_flags_cb(&mb_cbs);
 	return 0;
+;
 };
+
+
+
+
 
 //--------------------------------for uGFX INIT/DEINIT--------------------------------
 extern char	heap[GFX_OS_HEAP_SIZE];
@@ -316,6 +340,28 @@ static	GEvent* pe;
 #define D_image_wigheight 20
 
 //-------------------BEGIN  OF BEBUG ACC Display-------------
+
+void play_cb()
+{
+    ButtonFlags.playStart = 1;
+}
+
+
+
+void stop_cb()
+{
+    ButtonFlags.playStop = 1;
+}
+
+void prev_cb()
+{
+     ButtonFlags.fileListUp = 1;
+}
+
+void next_cb()
+{
+    ButtonFlags.fileListDown = 1;
+}
 
 
 void displayACC(void)
@@ -433,7 +479,7 @@ static void createLabels(void) {
 	
 	wi.g.width = 110; wi.g.height = 20; wi.g.x = 120, wi.g.y = 170;
 //	wi.text = "Self test: OK";
-	wi.text = "File sys is checked";
+	wi.text = "Init system";
 	ghLabel3 = gwinLabelCreate(0,&wi);
 //	gwinLabelSetAttribute(ghLabel3,100,"Self test:");
 	
@@ -577,7 +623,7 @@ uint16_t a;
 
 e_FunctionReturnState fileListRead(void)
 {	e_FunctionReturnState rstate;
-	char byteBuff[20];
+	char byteBuff[D_FileNameLength+1];
 	int8_t bytesCount;
   uint32_t i;	
 	uint32_t offset;
@@ -613,7 +659,7 @@ e_FunctionReturnState fileListRead(void)
 	//					  if (13==byteBuff[i]) break;
 	//					  offset+=i+1;
 	//					SPIFFS_lseek(&fs, File_List,offset,SPIFFS_SEEK_SET);
-						_sscanf( byteBuff,"%18s",filename);
+						_sscanf( byteBuff,"%32s",filename);                        //change if chainge D_FileNameLength
 						if (0<strlen(byteBuff))
 						{		fileCount++;
 								FSM_fileListUpdate_state=100;
@@ -765,29 +811,38 @@ void DisplayPlayStop()
 
 };
 
+void on_format_flash()
+{					
+    SetStatusString("Formatting FS. Please wait");
+	gfxSleepMilliseconds(10);
+}
+
+
 void Start(void)
 {
 	uint32_t nof,cf;
-			if (ButtonFlags.playStart)
-			{ ButtonFlags.playStart=0;
-				nof=gwinListItemCount(ghList1);	
-				if (nof>0)
-				{
-					SetStatusString("Config. Please wait");
-					gfxSleepMilliseconds(10);
-					cf=gwinListGetSelected(ghList1)+CurrentPage*D_StringInList;
-					SLPl_Start(cf);
-				}	
-			};	
+    if (ButtonFlags.playStart)
+    { 
+        ButtonFlags.playStart=0;
+        nof = gwinListItemCount(ghList1);	
+        if (nof > 0)
+        {
+            SetStatusString("Config. Please wait");
+            gfxSleepMilliseconds(10);
+            cf = gwinListGetSelected(ghList1)+CurrentPage*D_StringInList;
+            SLPl_Start(cf);
+        }	
+    };	
 };
 
 void Stop(void)
 {
-			if (ButtonFlags.playStop)
-			{ ButtonFlags.playStop=0;
-				//DisplayPlayStop();
-				SLPl_Stop();
-			};
+    if (ButtonFlags.playStop)
+    { 
+        ButtonFlags.playStop=0;
+        //DisplayPlayStop();
+        SLPl_Stop();
+    };
 }
 
 

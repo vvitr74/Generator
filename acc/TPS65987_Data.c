@@ -18,7 +18,7 @@ int32_t tpsFlashUpdate()
 //	do{
 //		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLrr,indata,1,outdata,5);
 //	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
-	
+	//SPIFFS_remove(&fs,"tps65987.bin");
 	return 0;
 }
 
@@ -39,7 +39,7 @@ static int32_t PreOpsForFlashUpdate()
 	*/
 //	retVal = ReadReg(REG_ADDR_BOOTFLAG, REG_LEN_BOOTFLAG, &outdata[0]);
 	do{
-		retVal = TPS65982_6_RW(TPS87, e_TPS65987_BootFlagsRegister, outdata, REG_LEN_BOOTFLAG+1, I2C_OP_READ);
+		retVal = TPS65982_6_RW(TPS87, e_TPS65987_BootFlagsRegister, outdata, REG_LEN_BOOTFLAG+1, I2C_OP_READ,PreOpsForFlashUpdate);
 	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 //	RETURN_ON_ERROR(retVal);
 	/*
@@ -86,7 +86,7 @@ static int32_t PreOpsForFlashUpdate()
 	*/
 //	retVal = ReadReg(REG_ADDR_PORTCONFIG, REG_LEN_PORTCONFIG, &outdata[0]);
 	do{
-		retVal = TPS65982_6_RW(TPS87, e_TPS65982_6_PortConfigurationRegister, outdata, REG_LEN_PORTCONFIG+1, I2C_OP_READ);
+		retVal = TPS65982_6_RW(TPS87, e_TPS65982_6_PortConfigurationRegister, outdata, REG_LEN_PORTCONFIG+1, I2C_OP_READ,PreOpsForFlashUpdate);
 	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 //	RETURN_ON_ERROR(retVal);
 //	memcpy(&indata[0], &outdata[1], REG_LEN_PORTCONFIG); /* outdata[0] holds the register length
@@ -141,6 +141,7 @@ static int32_t StartFlashUpdate()
 //	error:
 //	SignalEvent(APP_EVENT_END_UPDATE);
 //	return retVal;
+
 	return 0;
 }
 	/**/
@@ -171,7 +172,7 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 //	retVal = ExecCmd(FLrr, sizeof(flrrInData), (int8_t *)&flrrInData, \
 //	OUTPUT_LEN_FLRR, &outdata[0]);
 	do{
-		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLrr,indata,1,outdata,5);
+		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLrr,indata,1,outdata,5,UpdateAndVerifyRegion);
 	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 //	RETURN_ON_ERROR(retVal);
 	regAddr = (outdata[4] << 24) | (outdata[3] << 16) | (outdata[2] << 8) | (outdata[1] << 0);
@@ -190,7 +191,7 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 //	retVal = ExecCmd(FLem, sizeof(flemInData), (int8_t *)&flemInData, \
 //	TASK_RET_CODE_LEN, &outdata[0]);
 	do{
-		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLem,indata,5,outdata,1);
+		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLem,indata,5,outdata,1,UpdateAndVerifyRegion);
 	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 
 //	RETURN_ON_ERROR(retVal);
@@ -204,7 +205,7 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 //	retVal = ExecCmd(FLad, sizeof(fladInData), (int8_t *)&fladInData, \
 //	TASK_RET_CODE_LEN, &outdata[0]);
 	do{
-		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLad,indata,4,outdata,1);
+		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLad,indata,4,outdata,1,UpdateAndVerifyRegion);
 	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 //	RETURN_ON_ERROR(retVal);
 	/**/
@@ -228,7 +229,7 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 	//	TASK_RET_CODE_LEN, &outdata[0]);
 	//	RETURN_ON_ERROR(retVal);
 		do{
-			retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLwd,indata,bytesToRead,outdata,1);
+			retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLwd,indata,bytesToRead,outdata,1,UpdateAndVerifyRegion);
 		}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 		bytesRemain-=bytesToRead;
 		if(bytesRemain>=PATCH_BUNDLE_SIZE)
@@ -259,7 +260,7 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 //	retVal = ExecCmd(FLvy, sizeof(flvyInData), (int8_t *)&flvyInData, \
 //	TASK_RET_CODE_LEN, &outdata[0]);
 	do{
-		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLvy,indata,4,outdata,1);
+		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLvy,indata,4,outdata,1,UpdateAndVerifyRegion);
 	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 
 	if(0 != outdata[1])
@@ -297,7 +298,7 @@ int32_t ReadReg(uint8_t addr, uint8_t len, uint8_t* buf)
 {
 	int32_t retVal = 0;
 	
-	TPS65982_6_RW(TPS87, addr, buf, len, I2C_OP_READ);
+	TPS65982_6_RW(TPS87, addr, buf, len, I2C_OP_READ, ReadReg);
 	if(retVal==-1)
 		return -1;
 	return 0;
@@ -307,7 +308,7 @@ int32_t WriteReg(uint8_t addr, uint8_t len, uint8_t* buf)
 {
 	int32_t retVal = 0;
 	
-	TPS65982_6_RW(TPS87, addr, buf, len, I2C_OP_WRITE);
+	TPS65982_6_RW(TPS87, addr, buf, len, I2C_OP_WRITE,WriteReg);
 	if(retVal==-1)
 		return -1;
 	return 0;

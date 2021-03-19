@@ -77,7 +77,7 @@ __inline e_SLAcc_BatStatus Get_SLAcc_BatteryStatus(void)
 
 
 
-uint8_t maintaskstate=13;//15->skip debug
+uint8_t maintaskstate=15;//15->skip debug
 #define testkey (m_dcoff|m_sr82|m_p82|m_25703init|m_IinLow|m_hizOff|m_Iin82|m_IchAl|m_inhOff|m_DCon)
 
 static uint16_t data_IIN_DPM;
@@ -185,11 +185,15 @@ e_SLA_FSM  GetNewPowerState(const e_SLA_FSM* encoder)
 					return encoder[DataFor_SLAcc_PowerState];
 };
 
+uint8_t maintaskstate1;//debug
+
 void LoopACC(void)
 { //e_FunctionReturnState returnstate;
   e_FunctionReturnState rstatel,wrstate;
   static uint16_t data;
-
+ 
+	maintaskstate1=maintaskstate;
+	
   switch(maintaskstate)
   {
 	  case SLA_FSM_WORK:

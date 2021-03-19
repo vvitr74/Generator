@@ -86,6 +86,7 @@ do
 	}				
 	while (strCnt<=StringsNum);	
 	SPIFFS_close(&fs,data_file);
+	SPIFFS_remove(&fs,"bq28z610.srec");
 	return rstate;
 }
 

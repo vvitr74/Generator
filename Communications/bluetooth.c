@@ -125,6 +125,7 @@ void USART2_IRQHandler(void)
        switch (PS_Int)
 			{
 				case PS_Int_BLE:
+				case PS_Int_BLE_No:	
 					  if (byte_TX_DLE)
 						{	byte_TX_DLE=false;
 						}

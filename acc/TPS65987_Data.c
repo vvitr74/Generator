@@ -154,8 +154,8 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 //	s32_t patchBundleSize = 0;
 //	uint32_t regAddr = 0;
 //	int32_t idx = -1;
-	e_FunctionReturnState retVal;
-//	uint8_t byteBuff[MAX_BUF_BSIZE];
+	int32_t retVal;
+	uint8_t byteBuff[PATCH_BUNDLE_SIZE];
 //	uint8_t bytesToRead=0;
 //	uint32_t bytesRemain=0;
 	
@@ -216,9 +216,16 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 	bytesToRead=PATCH_BUNDLE_SIZE;
 	bytesRemain=file_stat.size;
 	do{
-		retVal=SPIFFS_read(&fs, tps_file, &indata, bytesToRead);
+		retVal=SPIFFS_read(&fs, tps_file, &byteBuff, bytesToRead);
 		if (retVal<bytesToRead)
 		{	break;
+		}
+		
+		indata[0]=bytesToRead;
+		int j=1;
+		for(int i=0;i<bytesToRead;i++){
+			indata[j]=byteBuff[i];
+			j++;
 		}
 		
 	//	UART_PRINT(".");
@@ -233,6 +240,7 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 		do{
 			retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_FLwd,indata,bytesToRead+1,outdata,2,UpdateAndVerifyRegion);
 		}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
+//		delayms(100);
 		bytesRemain-=bytesToRead;
 		if(bytesRemain>=PATCH_BUNDLE_SIZE)
 			bytesToRead=PATCH_BUNDLE_SIZE;
@@ -281,12 +289,14 @@ static int32_t UpdateAndVerifyRegion(uint8_t region_number)
 /**/
 static int32_t ResetPDController()
 {
-	int32_t retVal = -1;
+	int32_t retVal = 0;
 	/*
 	* Execute GAID, and wait for reset to complete
 	*/
 //	ExecCmd(GAID, 0, NULL, 0, NULL);
-	ExecCmd("GAID", 0, NULL, 0, NULL); //todo
+	do{
+		retVal=TPS65982_6_CMD_U(TPS87,e_TPS_CMD_GAID,indata,0,outdata,0,UpdateAndVerifyRegion);
+	}while(!((retVal==e_FRS_Done)||(retVal==e_FRS_DoneError)));
 //	Board_IF_Delay(1000);
 //	retVal = ReadMode();
 //	RETURN_ON_ERROR(retVal);

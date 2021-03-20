@@ -68,6 +68,7 @@ const t_TPS_CMD TPS_CMD[e_TPS_CMD_NumOfEl]=
 	{"FLad",0,0},//e_TPS_CMD_DBfg
 	{"FLwd",0,0},//e_TPS_CMD_DBfg
 	{"FLvy",0,0},//e_TPS_CMD_DBfg
+	{"GAID",0,0},//e_TPS_CMD_DBfg
 };
 
 

@@ -125,7 +125,7 @@ __inline e_PowerState SLC_SetSleepState(bool state)
 //----------------------------------call backs----------------------------------------------------
 
 bool b_UpdateFlag_28z610;
-bool b_UpdateFlag_65987=true;
+bool b_UpdateFlag_65987;
 
 void on_tx_done_cb(void)
 {
